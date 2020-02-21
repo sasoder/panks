@@ -9,6 +9,7 @@ class Bullet {
         this.velY = -Math.sin(shootAngle) * shootSpeed * shootAmp
         this.width = 2
         this.height = 2
+        this.bombRadius = 25
         this.colour = 'black'
     }
 
