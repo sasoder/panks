@@ -1,6 +1,6 @@
 // Player character
 
-const defaultShootAngle = 45 * Math.PI / 180 // 135 degrees
+const defaultShootAngle = 135 * Math.PI / 180 // 135 degrees
 console.log(defaultShootAngle)
 const defaultShootSpeed = 0.8
 

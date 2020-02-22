@@ -99,7 +99,7 @@ function updatePlayers() {
 function moveToTop(entity) {
     let x = Math.round(entity.x + entity.width / 2)
     let y = Math.round(entity.y + entity.height)
-    while(gameScreen[x][y]) {
+    while (gameScreen[x][y]) {
         y--
     }
     return y - entity.height + 1
@@ -143,8 +143,9 @@ function drawBullets() {
 function generateTerrain(amp) {
     let randomizer = Math.random()
     for (let x = 0; x < WIDTH; x++) {
-        let y = amp * Math.sin(x * Math.PI / 180) + 3 / 4 * HEIGHT
-        y += Math.sin(x * Math.PI / (Math.max(randomizer, 0.2) * 150)) * amp
+        // let y = amp * Math.sin(x * Math.PI / 180) + 3 / 4 * HEIGHT
+        // y += Math.sin(x * Math.PI / (Math.max(randomizer, 0.2) * 150)) * amp
+        let y = 50
         y = Math.round(y)
 
 
@@ -163,26 +164,23 @@ function drawTerrain() {
     ctx.fillRect(0, 0, WIDTH, HEIGHT)
     ctx.fillStyle = groundColor
 
-    let x = 0
     let highest = [0, 0]
-    let highestY0 = 0
+    let prevCoords = [0, 0]
 
     // find first terrain occurence in first column
-    for (let y = 0; y < HEIGHT; y++) {
-        if (gameScreen[x][y]) {
-            highestY0 = y
-            highest = [x, y]
-            break
-        }
-    }
+    highest[1] = gameScreen[0].indexOf(1)
+    highestFirstX = highest[1] // for the finishing line
+
+    //console.log("Starting high", highest)
 
     ctx.beginPath()
     ctx.moveTo(highest[0], highest[1])
 
     // follow the path
-    while (x < WIDTH - 1) {
-        highest = findHighestNeighbour(x, highest[1])
-        x = highest[0]
+    while (highest[0] < WIDTH - 1) {
+        newCoords = findHighestNeighbour(highest, prevCoords)
+        prevCoords = highest
+        highest = newCoords
         ctx.lineTo(highest[0], highest[1])
     }
 
@@ -195,17 +193,79 @@ function drawTerrain() {
     }
     ctx.lineTo(WIDTH, HEIGHT)
     ctx.lineTo(0, HEIGHT)
-    ctx.lineTo(0, highestY0)
+    ctx.lineTo(0, highestFirstX)
     ctx.fill()
 }
 
+function findBlocks([x, y]) {
+    let airs = []
+    let terrains = []
+   console.log('Start coords:' + [x, y])
+    for (let col = Math.max(x, 0); col <= Math.min(x + 1, WIDTH - 1); col++) {
+        for (let row = Math.max(y - 1, 0); row <= Math.min(y + 1, HEIGHT - 1); row++) {
+            // disregard middle block
+            if (row == y && col == x) {
+                continue
+            }
+            if (!gameScreen[col][row]) {
+                //if((row == y && col != x) || (row != y && col == x))
+                    airs.push([col, row])
+            } else {
+                terrains.push([col, row])
+            }
+        }
+    }
 
-function findHighestNeighbour(x, y) {
+    /*let coords = [
+        [x + 1, y],
+        [x - 1, y],
+        [x, y + 1],
+        [x, y - 1]
+    ]
+
+    coords.forEach(coord => {
+        if(coord[0] < 0) coord[0] = 0
+        if(coord[1] > HEIGHT) coord[1] = HEIGHT
+
+        if(coordsEqual(coord, [x, y])) return
+
+        if(gameScreen[Math.max(coord[0], 0)][Math.min(coord[1], HEIGHT - 1)])
+            terrains.push(coord)
+        else
+            airs.push(coord)        
+    });*/
+
+    return [airs, terrains]
+}
+
+// returns true if the coordinates are the same
+function coordsEqual(coord1, coord2) {
+    if (coord1[0] === coord2[0] && coord1[1] === coord2[1]) {
+        return true
+    }
+    return false
+}
+
+function findHighestNeighbour([x, y], prevCoords) {
 
     //TODO not remove everything on top of right cav shoot
     //TODO fix left cave shot lineTo correctly
-    
-    if(gameScreen[x + 1][y]) { // there is a pixel beside current to the right
+
+    let [airs, terrains] = findBlocks([x, y])
+
+    let res = terrains.find(terrain => {
+        if (coordsEqual(terrain, prevCoords)) {
+            return false
+        }
+
+        let [airsNext] = findBlocks(terrain)
+
+        return airsNext.some(airNext => airs.some(air => coordsEqual(air, airNext)))
+    });
+
+    return res
+
+    /*if(gameScreen[x + 1][y]) { // there is a pixel beside current to the right
         while (gameScreen[x + 1][y - 1]) {
             y--
         }
@@ -239,58 +299,7 @@ function findHighestNeighbour(x, y) {
             }
         }
         return [x + 1, y]
-    }
-    // check if there are pixels top right of the current one
-    /*if (gameScreen[x + 1][y - 1]) {
-        // case where next pixel is two or more up to the right
-        while (gameScreen[x + 1][y - 1]) {
-            y--
-        }
-        return [x + 1, y]
-    }
-
-    // check if there are pixels to the right of current one
-    if (gameScreen[x + 1][y]) {
-            return [x + 1, y]
-    }
-
-    // check if there are pixels down right of current one
-    if (gameScreen[x + 1][y + 1]) {
-        return [x + 1, y + 1]
-    }
-
-    // Straight down
-    if(gameScreen[x][y + 1]) {
-        return [x, y + 1]
-    }
-    
-    // There can be cave-like formations, and therefore we also have to check to the left
-    // Straight left and down
-    console.log('ha')
-    console.log(gameScreen[x - 1][y])
-    console.log(gameScreen[x][y])
-    if(gameScreen[x - 1][y]) {
-        while(gameScreen[x - 1][y]) {
-            console.log('going down' + y)
-            console.log('and left? x: ' + x)
-            y++
-            if(y >= HEIGHT)
-            y--
-            break
-        }
-        console.log('returning: ' + [x - 1, y])
-        return [x - 1, y]
-    }
-    
-    // case where next pixel is two or more down to the right
-    while (!gameScreen[x + 1][y + 1]) {
-        y++
-        console.log('no wY')
-        if(y >= HEIGHT)
-            return [x + 1, HEIGHT - 1]
-    }
-    console.log('could not match')*/
-    
+    }*/
 
 }
 
