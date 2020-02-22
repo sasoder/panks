@@ -71,7 +71,6 @@ function updateBullets() {
 
     bulletList.forEach((bullet, i) => {
         if (terrainCollision(bullet) || playerCollision(bullet)) {
-            console.log('explode time')
             explodeBullet(bullet)
             bulletList.splice(i, 1)
         }
@@ -85,8 +84,6 @@ function explodeBullet(bullet) {
     let rad = bullet.bombRadius
     let x = Math.round(bullet.x)
     let y = Math.round(bullet.y)
-    console.log(x)
-    console.log(y)
     for (let col = Math.max(Math.round(x - rad), 0); col < Math.min(Math.round(x + rad), WIDTH); col++) {
         for (let row = Math.max(Math.round(y - rad), 0); row < Math.min(Math.round(y + rad), HEIGHT); row++) {
             let comp1 = col - x
@@ -108,8 +105,7 @@ function damagePlayers(coords, rad) {
         let comp2 = coords[1] - center[1]
 
         if(comp1*comp1 + comp2*comp2 < rad * rad * 2) {
-            p.hp -= Math.sqrt(comp1*comp1 + comp2*comp2) / rad * 250
-            console.log('player ' + p + ' got hit')
+            p.hp -= Math.sqrt(comp1*comp1 + comp2*comp2) / rad * 25
         }
     })
 }
@@ -170,7 +166,6 @@ function playerCollision(bullet) {
     let centerBullet = centerOfObject(bullet)
     return playerList.some((p, i) => {
         if((centerBullet[0] >= p.x && centerBullet[0] <= p.x + p.width) && (centerBullet[1] >= p.y && centerBullet[1] <= p.y + p.height)) {
-            console.log('hit the player with bullet, index: ' + i)
             return true
         }
     })
@@ -266,7 +261,6 @@ function drawTerrain() {
 
     // find first terrain occurence in first column
     highest[1] = gameScreen[0].indexOf(1)
-    // console.log('ayayayay' + highest[1])
     highestFirstX = highest[1] // for the finishing line
 
     ctx.beginPath()
@@ -303,7 +297,6 @@ function drawPlayerInfo(){
         ctx.fillRect(WIDTH - hpBarLen - infoPadding / 2, infoPadding / 2 + infoPadding * i, hpBarLen, hpBarHeight)
         
         ctx.fillStyle = p.colour
-        console.log('hp be like' + p.hp)
         ctx.fillRect(WIDTH - hpBarLen - infoPadding / 2 + 5, infoPadding / 2 + infoPadding * i + 5, (hpBarLen - 10) * (p.hp / 100), hpBarHeight - 10)
     });
 }
