@@ -6,9 +6,9 @@ class Bullet {
         this.y = y
         this.velX = Math.cos(shootAngle) * shootSpeed * shootAmp
         this.velY = -Math.sin(shootAngle) * shootSpeed * shootAmp
-        this.width = 2
-        this.height = 2
-        this.bombRadius = 25
+        this.width = 3
+        this.height = 3
+        this.bombRadius = 15
         this.colour = 'black'
     }
 
