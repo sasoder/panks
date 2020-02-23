@@ -9,17 +9,19 @@ const hpBarLen = 100
 const hpBarHeight = 20
 const infoPadding = 30
 
-const skyColor = "aliceblue",
-    groundColor = "#ccc"
+const skyColours = ['#e8ffff', '#d9f1ff','#bfe6ff', '#8cd3ff']
+let skyColour
+const groundColours = ["#ccc", '#bd9874', '#f9e4b7', '#66a103', '#654321', '#ffffffff']
+let groundColor
+
+let currentPlayerNum
 
 const gravity = 0.5
 let playerList = []
-let colourList = ['black', 'green', 'red', 'blue', 'yellow', 'purple', 'brown', 'teal', 'tomato']
+
 let gameScreen = []
 let currentPlayer
 let bulletList = []
-
-console.log(colourList[Math.floor(Math.random() * colourList.length)])
 
 const ctx = canvas.getContext("2d");
 
@@ -43,11 +45,15 @@ function init(n) {
     for (let i = 0; i < n; i++) {
         playerList[i] = spawnPlayer()
     }
-    currentPlayer = playerList[0]
+    currentPlayerNum = 0
+    currentPlayer = playerList[currentPlayerNum]
 
-    generateTerrain(100)
+    bulletList  = []
+    skyColour = skyColours[Math.floor(Math.random() * skyColours.length)]
+    groundColor = groundColours[Math.floor(Math.random() * groundColours.length)]
+    generateTerrain(100) // amplitude argument
+
     //temporary
-    console.log(interval)
     if (interval) clearInterval(interval)
     interval = setInterval(update, 1000 / 30)
 
@@ -103,21 +109,24 @@ function damagePlayers(coords, rad) {
         let comp1 = coords[0] - center[0]
         let comp2 = coords[1] - center[1]
 
-        if (comp1 * comp1 + comp2 * comp2 < rad * rad * 2) {
-            let dmg = Math.sqrt(comp1 * comp1 + comp2 * comp2) / rad * 25
+        let distFromPlayer = Math.sqrt(comp1 * comp1 + comp2 * comp2)
+
+        if (distFromPlayer < rad) {
+            let dmg = rad * rad / distFromPlayer
             p.hp -= dmg
 
-            // TODO this gives the player who kills an  "overkill" dmg boost, even when they are dead - maybe move dead players away?
-            if (p == currentPlayer)
-                currentPlayer.score -= Math.round(dmg)
-            else
-                currentPlayer.score += Math.round(dmg)
+            if (p == currentPlayer) currentPlayer.score -= dmg
+            else currentPlayer.score += dmg
         }
     })
 }
 
 function updatePlayers() {
-    playerList.forEach(p => {
+    playerList.forEach((p, i) => {
+        if(!p.isAlive()) {
+            playerList.splice(i, 1)
+            return
+        }
         p.updatePlayer()
         if (!terrainCollision(p)) {
             p.applyGravity()
@@ -241,9 +250,9 @@ function coordsEqual(coord1, coord2) {
     return false
 }
 
-function findHighestNeighbour([x, y]) {
+function findNextCoords([x, y]) {
 
-    // TODO can't go all the way down
+    if(y == HEIGHT) y-- // if last draw was at height 800, we need to decrement it for gameScreen's 0-799 indices
 
     if (gameScreen[x + 1][y]) { // there is a pixel beside current to the right
         while (gameScreen[x + 1][y - 1]) {
@@ -255,12 +264,12 @@ function findHighestNeighbour([x, y]) {
     //straight down
     if (gameScreen[x][y + 1]) return [x, y + 1]
 
-    if (!gameScreen[x + 1][y + 1]) {
-        while (!gameScreen[x + 1][y + 1]) {
+    // down right
+    if (!gameScreen[x + 1][y]) {
+        while (!gameScreen[x + 1][y]) {
             y++
             if (y >= HEIGHT) {
-                y--
-                break
+                return [x + 1, HEIGHT]
             }
         }
         return [x + 1, y]
@@ -282,7 +291,7 @@ function drawBullets() {
     }
 }
 function drawTerrain() {
-    ctx.fillStyle = skyColor
+    ctx.fillStyle = skyColour
     ctx.fillRect(0, 0, WIDTH, HEIGHT)
     ctx.fillStyle = groundColor
 
@@ -297,7 +306,7 @@ function drawTerrain() {
 
     // follow the path
     while (highest[0] < WIDTH - 1) {
-        highest = findHighestNeighbour(highest)
+        highest = findNextCoords(highest)
         ctx.lineTo(highest[0], highest[1])
     }
 
@@ -320,7 +329,7 @@ function drawPlayerInfo() {
     playerList.forEach((p, i) => {
         ctx.textAlign = 'right'
         ctx.fillStyle = 'black'
-        ctx.fillText(p.name + ' ' + p.score + ' pts', WIDTH - hpBarLen - infoPadding, infoPadding + infoPadding * i)
+        ctx.fillText(p.name + ' ' + Math.round(p.score) + ' pts', WIDTH - hpBarLen - infoPadding, infoPadding + infoPadding * i)
 
         ctx.fillStyle = 'grey'
         ctx.fillRect(WIDTH - hpBarLen - infoPadding / 2, infoPadding / 2 + infoPadding * i, hpBarLen, hpBarHeight)
@@ -339,20 +348,16 @@ function degreeToRad(degree) {
     return (degree * Math.PI / 180)
 }
 
+function nextPlayer() {
+    return playerList[(++currentPlayerNum) % playerList.length]
+}
+
 // Event listeners
-
-const rect = canvas.getBoundingClientRect();
-
-canvas.addEventListener('mousedown', e => {
-    x = e.clientX - rect.left;
-    y = e.clientY - rect.top;
-    console.log("fire in the hole")
-});
-
 window.addEventListener('keydown', e => {
 
-    console.log('key down')
     let keys = {
+        up: 38,
+        down: 40,
         left: 37,
         right: 39,
         space: 32
@@ -361,14 +366,21 @@ window.addEventListener('keydown', e => {
     if (gameStarted) {
 
         switch (e.keyCode) {
-            case keys.left:
+            case keys.down:
                 currentPlayer.rotateBarrel('left')
                 break
-            case keys.right:
+            case keys.up:
                 currentPlayer.rotateBarrel('right')
+                break
+            case keys.left:
+                currentPlayer.move('left')
+                break
+            case keys.right:
+                currentPlayer.move('right')
                 break
             case keys.space:
                 bulletList.push(currentPlayer.shoot())
+                currentPlayer = nextPlayer()
                 break
         }
     }
