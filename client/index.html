@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="shortcut icon" type="image/png" href="/favicon.png" />
+    <title>PANKS!</title>
+    <h1>Panks</h1>
+</head>
+
+<body>
+    <form>
+        <button type="button" id="start-btn">Start</button>
+        <input type="number" id="num-players" placeholder="num players" min="1" max="100">
+        <input type="number" id="amp" placeholder="terrain amplitude">
+        <input type="number" id="width" placeholder="width" min="100" max="1500">
+        <input type="number" id="height" placeholder="height" min="100" max="1500">
+    </form>
+    <canvas id="gameCanvas"></canvas>
+</body>
+<script src="main.js" type="module"></script>

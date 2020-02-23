@@ -1,6 +1,6 @@
 // Noise generator made by /u/grinde on Reddit
 
-class Perlin {
+export default class Perlin {
     constructor() {
         // Quick and dirty permutation table
         this.perm = (() => {

@@ -1,0 +1,26 @@
+{
+  "name": "panks",
+  "version": "1.0.0",
+  "description": "A simple tanks clone with online multiplayer support",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sasoder/panks.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sasoder/panks/issues"
+  },
+  "homepage": "https://github.com/sasoder/panks#readme",
+  "devDependencies": {
+    "eslint": "^6.8.0"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
