@@ -4,8 +4,8 @@ class Bullet {
     constructor(x, y, shootAngle, shootSpeed) {
         this.x = x
         this.y = y
-        this.velX = Math.cos(shootAngle) * shootSpeed * shootAmp
-        this.velY = -Math.sin(shootAngle) * shootSpeed * shootAmp
+        this.velX = Math.cos(degreeToRad(shootAngle)) * shootSpeed * shootAmp
+        this.velY = -Math.sin(degreeToRad(shootAngle)) * shootSpeed * shootAmp
         this.width = 3
         this.height = 3
         this.bombRadius = 15

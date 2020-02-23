@@ -14,7 +14,7 @@ const skyColor = "aliceblue",
 
 const gravity = 0.5
 let playerList = []
-let colourList = ['black', 'green', 'red', 'blue', 'yellow']
+let colourList = ['black', 'green', 'red', 'blue', 'yellow', 'purple', 'brown', 'teal', 'tomato']
 let gameScreen = []
 let currentPlayer
 let bulletList = []
@@ -23,10 +23,6 @@ console.log(colourList[Math.floor(Math.random() * colourList.length)])
 
 const ctx = canvas.getContext("2d");
 
-function shoot(player) {
-    let center = centerOfObject(player)
-    bulletList.push(new Bullet(center[0], center[1] - currentPlayer.height, currentPlayer.shootAngle, currentPlayer.shootSpeed))
-}
 
 function centerOfObject(obj) {
     return [
@@ -40,18 +36,22 @@ function spawnPlayer() {
 }
 
 // n = how many players connected
+let interval
+let gameStarted = false
 function init(n) {
+    gameStarted = true
     for (let i = 0; i < n; i++) {
         playerList[i] = spawnPlayer()
     }
     currentPlayer = playerList[0]
     
-    generateTerrain(15)
+    generateTerrain(51)
     //temporary
-    setInterval(update, 1000 / 30)
+    console.log(interval)
+    if (interval) clearInterval(interval)
+    interval = setInterval(update, 1000 / 30)
     
 }
-
 function update() {
     updateBullets()
     updatePlayers()
@@ -68,7 +68,6 @@ function draw() {
 }
 // apply gravity to all bullets, check collision
 function updateBullets() {
-
     bulletList.forEach((bullet, i) => {
         if (terrainCollision(bullet) || playerCollision(bullet)) {
             explodeBullet(bullet)
@@ -105,9 +104,64 @@ function damagePlayers(coords, rad) {
         let comp2 = coords[1] - center[1]
 
         if(comp1*comp1 + comp2*comp2 < rad * rad * 2) {
-            p.hp -= Math.sqrt(comp1*comp1 + comp2*comp2) / rad * 25
+            let dmg = Math.sqrt(comp1*comp1 + comp2*comp2) / rad * 25
+            p.hp -= dmg
+
+            // TODO this gives the player who kills an  "overkill" dmg boost, even when they are dead - maybe move dead players away?
+            if(p == currentPlayer)
+                currentPlayer.score -= Math.round(dmg)
+            else
+                currentPlayer.score += Math.round(dmg)
         }
     })
+}
+
+function updatePlayers() {
+    playerList.forEach(p => {
+        p.updatePlayer()
+        if(!terrainCollision(p)) {
+            p.applyGravity()
+        } else {
+            p.velY = 0
+            p.y = moveToTop(p);
+        }
+
+    })
+
+}
+
+// returns the y-val of the entity (to make up for it falling too hard into the terrain)
+function moveToTop(entity) {
+    let x = Math.round(entity.x + entity.width / 2)
+    let y = Math.round(entity.y + entity.height)
+    while (gameScreen[x][y]) {
+        y--
+    }
+    return y - entity.height + 1
+}
+
+function playerCollision(bullet) {
+    let centerBullet = centerOfObject(bullet)
+    // returns true when the bullet is within the bounds of the first player it flies through
+    return playerList.some(p => {
+        if((centerBullet[0] >= p.x && centerBullet[0] <= p.x + p.width) && (centerBullet[1] >= p.y && centerBullet[1] <= p.y + p.height)) {
+            return true
+        }
+    })
+}
+
+function terrainCollision(entity) {
+    if (Math.round(entity.x) <= 0 || Math.round(entity.x + entity.width) >= WIDTH)
+        return true
+
+    if (Math.round(entity.y)> HEIGHT)
+        return true
+
+    // if bullet is above game screen it can still move
+    if (Math.round(entity.y) < 0)
+        return false
+
+    return gameScreen[Math.round(centerOfObject(entity)[0])][Math.round(entity.y + entity.height)]
 }
 
 // moves flying terrain and terrain arches to the ground
@@ -138,60 +192,11 @@ function cleanTerrain() {
     }
 }
 
-function updatePlayers() {
-    playerList.forEach(p => {
-        p.updatePlayer()
-        if(!terrainCollision(p)) {
-            p.applyGravity()
-        } else {
-            p.velY = 0
-            p.y = moveToTop(p);
-        }
-
-    })
-
-}
-
-// returns the y-val of the entity (to make up for it falling too hard into the terrain)
-function moveToTop(entity) {
-    let x = Math.round(entity.x + entity.width / 2)
-    let y = Math.round(entity.y + entity.height)
-    while (gameScreen[x][y]) {
-        y--
-    }
-    return y - entity.height + 1
-}
-
-function playerCollision(bullet) {
-    let centerBullet = centerOfObject(bullet)
-    return playerList.some((p, i) => {
-        if((centerBullet[0] >= p.x && centerBullet[0] <= p.x + p.width) && (centerBullet[1] >= p.y && centerBullet[1] <= p.y + p.height)) {
-            return true
-        }
-    })
-}
-
-function terrainCollision(entity) {
-    if (Math.round(entity.x) <= 0 || Math.round(entity.x + entity.width) >= WIDTH)
-        return true
-
-    if (Math.round(entity.y)> HEIGHT)
-        return true
-
-    // if bullet is above game screen it can still move
-    if (Math.round(entity.y) < 0)
-        return false
-
-    return gameScreen[Math.round(centerOfObject(entity)[0])][Math.round(entity.y + entity.height)]
-}
-
-
-
 // Generate the terrain for current level
 function generateTerrain(amp) {
     let randomizer = Math.random()
     for (let x = 0; x < WIDTH; x++) {
-        let y = amp * Math.sin(x * Math.PI / 180) + 3 / 4 * HEIGHT
+        let y = amp * Math.sin(x * Math.PI / 180 - x*0.05) - x*0.05 + 3 / 4 * HEIGHT
         y += Math.sin(x * Math.PI / (Math.max(randomizer, 0.2) * 150)) * amp
         y = Math.round(y)
         
@@ -215,6 +220,8 @@ function coordsEqual(coord1, coord2) {
 }
 
 function findHighestNeighbour([x, y]) {
+
+    // TODO can't go all the way down
 
     if(gameScreen[x + 1][y]) { // there is a pixel beside current to the right
         while (gameScreen[x + 1][y - 1]) {
@@ -283,23 +290,33 @@ function drawTerrain() {
     ctx.lineTo(0, HEIGHT)
     ctx.lineTo(0, highestFirstX)
     ctx.lineWidth = 2
-    // ctx.stroke()
+    ctx.stroke()
     ctx.fill()
 }
 
 function drawPlayerInfo(){
-    ctx.textAlign = 'right'
     playerList.forEach((p, i) => {
+        ctx.textAlign = 'right'
         ctx.fillStyle = 'black'
-        ctx.fillText(p.name, WIDTH - hpBarLen - infoPadding, infoPadding + infoPadding * i)
+        ctx.fillText(p.name + ' ' + p.score + ' pts', WIDTH - hpBarLen - infoPadding, infoPadding + infoPadding * i)
 
         ctx.fillStyle = 'grey'
         ctx.fillRect(WIDTH - hpBarLen - infoPadding / 2, infoPadding / 2 + infoPadding * i, hpBarLen, hpBarHeight)
         
         ctx.fillStyle = p.colour
         ctx.fillRect(WIDTH - hpBarLen - infoPadding / 2 + 5, infoPadding / 2 + infoPadding * i + 5, (hpBarLen - 10) * (p.hp / 100), hpBarHeight - 10)
+
     });
 }
+
+function radToAngle(rad) {
+    return (rad * 180 / Math.PI)
+}
+
+function degreeToRad(degree) {
+    return (degree * Math.PI / 180)
+}
+
 // Event listeners
 
 const rect = canvas.getBoundingClientRect();
@@ -307,6 +324,31 @@ const rect = canvas.getBoundingClientRect();
 canvas.addEventListener('mousedown', e => {
     x = e.clientX - rect.left;
     y = e.clientY - rect.top;
-    shoot(currentPlayer)
     console.log("fire in the hole")
 });
+
+window.addEventListener('keydown', e => {
+
+    console.log('key down')
+    let keys = {
+        left: 37,
+        right: 39,
+        space: 32
+    }
+
+    if (gameStarted) {
+
+        switch (e.keyCode) {
+            case keys.left:
+                currentPlayer.rotateBarrel('left')
+                break
+            case keys.right:
+                currentPlayer.rotateBarrel('right')
+                break
+            case keys.space:
+                bulletList.push(currentPlayer.shoot())
+                break
+            }
+    }
+
+})
