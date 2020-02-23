@@ -44,13 +44,13 @@ function init(n) {
         playerList[i] = spawnPlayer()
     }
     currentPlayer = playerList[0]
-    
-    generateTerrain(51)
+
+    generateTerrain(100)
     //temporary
     console.log(interval)
     if (interval) clearInterval(interval)
     interval = setInterval(update, 1000 / 30)
-    
+
 }
 function update() {
     updateBullets()
@@ -64,7 +64,7 @@ function draw() {
     drawPlayers()
     drawPlayerInfo()
 
-   
+
 }
 // apply gravity to all bullets, check collision
 function updateBullets() {
@@ -88,7 +88,7 @@ function explodeBullet(bullet) {
             let comp1 = col - x
             let comp2 = row - y
 
-            if(comp1*comp1 + comp2*comp2 <= rad*rad) {
+            if (comp1 * comp1 + comp2 * comp2 <= rad * rad) {
                 gameScreen[col][row] = 0
             }
         }
@@ -103,12 +103,12 @@ function damagePlayers(coords, rad) {
         let comp1 = coords[0] - center[0]
         let comp2 = coords[1] - center[1]
 
-        if(comp1*comp1 + comp2*comp2 < rad * rad * 2) {
-            let dmg = Math.sqrt(comp1*comp1 + comp2*comp2) / rad * 25
+        if (comp1 * comp1 + comp2 * comp2 < rad * rad * 2) {
+            let dmg = Math.sqrt(comp1 * comp1 + comp2 * comp2) / rad * 25
             p.hp -= dmg
 
             // TODO this gives the player who kills an  "overkill" dmg boost, even when they are dead - maybe move dead players away?
-            if(p == currentPlayer)
+            if (p == currentPlayer)
                 currentPlayer.score -= Math.round(dmg)
             else
                 currentPlayer.score += Math.round(dmg)
@@ -119,7 +119,7 @@ function damagePlayers(coords, rad) {
 function updatePlayers() {
     playerList.forEach(p => {
         p.updatePlayer()
-        if(!terrainCollision(p)) {
+        if (!terrainCollision(p)) {
             p.applyGravity()
         } else {
             p.velY = 0
@@ -144,7 +144,7 @@ function playerCollision(bullet) {
     let centerBullet = centerOfObject(bullet)
     // returns true when the bullet is within the bounds of the first player it flies through
     return playerList.some(p => {
-        if((centerBullet[0] >= p.x && centerBullet[0] <= p.x + p.width) && (centerBullet[1] >= p.y && centerBullet[1] <= p.y + p.height)) {
+        if ((centerBullet[0] >= p.x && centerBullet[0] <= p.x + p.width) && (centerBullet[1] >= p.y && centerBullet[1] <= p.y + p.height)) {
             return true
         }
     })
@@ -154,7 +154,7 @@ function terrainCollision(entity) {
     if (Math.round(entity.x) <= 0 || Math.round(entity.x + entity.width) >= WIDTH)
         return true
 
-    if (Math.round(entity.y)> HEIGHT)
+    if (Math.round(entity.y) > HEIGHT)
         return true
 
     // if bullet is above game screen it can still move
@@ -171,38 +171,60 @@ function cleanTerrain() {
         let firstAir = HEIGHT
         let countDrops = false //whether or not we should count floating terrain or not
         for (let row = HEIGHT - 1; row >= 0; row--) {
-            if(!gameScreen[col][row]) { // first occurence of air
+            if (!gameScreen[col][row]) { // first occurence of air
                 countDrops = true
-                if(firstAir == HEIGHT)
+                if (firstAir == HEIGHT)
                     firstAir = row
             }
-            if(countDrops && gameScreen[col][row]) {
+            if (countDrops && gameScreen[col][row]) {
                 amtToDrop++ // add one to amount to drop
             }
         }
         for (let row = 0; row <= firstAir; row++) {
             gameScreen[col][row] = 0 //clean the terrain
-            
+
         }
         for (let row = firstAir - amtToDrop + 1; row <= firstAir; row++) {
             gameScreen[col][row] = 1 // add the dropped terrain bits
-            
+
         }
-        
+
     }
 }
+
+const slopeAt = [];
+for (let i = 0; i < 10; i++) {
+    slopeAt[i] = (Math.random() * 2) - 1;
+}
+function samplePerlin(x) {
+    const lo = Math.floor(x);
+    const hi = lo + 1;
+    const dist = x - lo;
+    loSlope = slopeAt[lo];
+    hiSlope = slopeAt[hi];
+    loPos = loSlope * dist;
+    hiPos = -hiSlope * (1 - dist);
+    const u = dist * dist * (3.0 - 2.0 * dist);  // cubic curve
+    return (loPos * (1 - u)) + (hiPos * u);  // interpolate
+}
+
 
 // Generate the terrain for current level
 function generateTerrain(amp) {
     let randomizer = Math.random()
+    const noise = new Perlin()
+
+
+
     for (let x = 0; x < WIDTH; x++) {
-        let y = amp * Math.sin(x * Math.PI / 180 - x*0.05) - x*0.05 + 3 / 4 * HEIGHT
-        y += Math.sin(x * Math.PI / (Math.max(randomizer, 0.2) * 150)) * amp
+        // perlin noise
+        let y = noise.getValue(x * Math.min(0.03 * randomizer, 0.02)) * amp + 300
+
         y = Math.round(y)
-        
+
         // initialize the array position
         gameScreen[x] = []
-        
+
         //Fills the ground with colour
         for (let filler = y; filler < HEIGHT; filler++) {
             gameScreen[x][filler] = 1
@@ -223,20 +245,20 @@ function findHighestNeighbour([x, y]) {
 
     // TODO can't go all the way down
 
-    if(gameScreen[x + 1][y]) { // there is a pixel beside current to the right
+    if (gameScreen[x + 1][y]) { // there is a pixel beside current to the right
         while (gameScreen[x + 1][y - 1]) {
             y--
         }
         return [x + 1, y] // return the highest one
     }
-    
+
     //straight down
-    if(gameScreen[x][y + 1]) return [x, y + 1]
-    
-    if(!gameScreen[x + 1][y + 1]) {
-        while(!gameScreen[x + 1][y + 1]) {
+    if (gameScreen[x][y + 1]) return [x, y + 1]
+
+    if (!gameScreen[x + 1][y + 1]) {
+        while (!gameScreen[x + 1][y + 1]) {
             y++
-            if(y >= HEIGHT) {
+            if (y >= HEIGHT) {
                 y--
                 break
             }
@@ -244,7 +266,7 @@ function findHighestNeighbour([x, y]) {
         return [x + 1, y]
     }
 
-    
+
 }
 
 // draw functions
@@ -294,7 +316,7 @@ function drawTerrain() {
     ctx.fill()
 }
 
-function drawPlayerInfo(){
+function drawPlayerInfo() {
     playerList.forEach((p, i) => {
         ctx.textAlign = 'right'
         ctx.fillStyle = 'black'
@@ -302,7 +324,7 @@ function drawPlayerInfo(){
 
         ctx.fillStyle = 'grey'
         ctx.fillRect(WIDTH - hpBarLen - infoPadding / 2, infoPadding / 2 + infoPadding * i, hpBarLen, hpBarHeight)
-        
+
         ctx.fillStyle = p.colour
         ctx.fillRect(WIDTH - hpBarLen - infoPadding / 2 + 5, infoPadding / 2 + infoPadding * i + 5, (hpBarLen - 10) * (p.hp / 100), hpBarHeight - 10)
 
@@ -348,7 +370,7 @@ window.addEventListener('keydown', e => {
             case keys.space:
                 bulletList.push(currentPlayer.shoot())
                 break
-            }
+        }
     }
 
 })
