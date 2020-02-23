@@ -57,7 +57,6 @@ class Player {
     shoot() {
         let center = centerOfObject(this)
 
-        // TODO spawn from end of barrel
         let barrelEnd = this.getBarrelEnd()
         return (new Bullet(barrelEnd[0], barrelEnd[1], this.shootAngle, this.shootSpeed))
     }
