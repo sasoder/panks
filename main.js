@@ -18,6 +18,7 @@ let currentPlayerNum
 
 const gravity = 0.5
 let playerList = []
+let deadPlayerList = []
 
 let gameScreen = []
 let currentPlayer
@@ -68,7 +69,7 @@ function draw() {
     drawTerrain()
     drawBullets()
     drawPlayers()
-    drawPlayerInfo()
+    drawAllPlayerInfo()
 
 
 }
@@ -124,7 +125,9 @@ function damagePlayers(coords, rad) {
 function updatePlayers() {
     playerList.forEach((p, i) => {
         if(!p.isAlive()) {
+            p.hp = 0
             playerList.splice(i, 1)
+            deadPlayerList.push(p)
             return
         }
         p.updatePlayer()
@@ -325,18 +328,27 @@ function drawTerrain() {
     ctx.fill()
 }
 
-function drawPlayerInfo() {
-    playerList.forEach((p, i) => {
+function drawAllPlayerInfo() {
+    
+    drawPlayerList(playerList, 0)
+    drawPlayerList(deadPlayerList, playerList.length)
+}
+
+function drawPlayerList(list, offset) {
+    offset *= infoPadding
+    list.forEach((p, i) => {
         ctx.textAlign = 'right'
-        ctx.fillStyle = 'black'
-        ctx.fillText(p.name + ' ' + Math.round(p.score) + ' pts', WIDTH - hpBarLen - infoPadding, infoPadding + infoPadding * i)
+        ctx.font = '15px Arial'
+        if (p == currentPlayer) ctx.fillStyle = 'red'
+        else ctx.fillStyle = 'black'
+        ctx.fillText(p.name + ' ' + Math.round(p.score) + ' pts', WIDTH - hpBarLen - infoPadding, infoPadding + infoPadding * i + offset)
 
         ctx.fillStyle = 'grey'
-        ctx.fillRect(WIDTH - hpBarLen - infoPadding / 2, infoPadding / 2 + infoPadding * i, hpBarLen, hpBarHeight)
+        ctx.fillRect(WIDTH - hpBarLen - infoPadding / 2, infoPadding / 2 + infoPadding * i + offset, hpBarLen, hpBarHeight)
 
         ctx.fillStyle = p.colour
-        ctx.fillRect(WIDTH - hpBarLen - infoPadding / 2 + 5, infoPadding / 2 + infoPadding * i + 5, (hpBarLen - 10) * (p.hp / 100), hpBarHeight - 10)
-
+        console.log('player ' + p.hp)
+        ctx.fillRect(WIDTH - hpBarLen - infoPadding / 2 + 5, infoPadding / 2 + infoPadding * i + 5 + offset, (hpBarLen - 10) * (p.hp / 100), hpBarHeight - 10)
     });
 }
 
