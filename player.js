@@ -1,10 +1,11 @@
 // Player character
 
-const defaultShootAngle = 45 // 45 degrees
-console.log(defaultShootAngle)
+const defaultShootAngle = 45
 const defaultShootSpeed = 0.8
 const barrelLen = 15
 const barrelThickness = 4
+let colourList = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#e6beff', '#fffac8', '#800000', '#aaffc3', '#ffd8b1', '#000075']
+const steepNessAbility = 3
 
 class Player {
     constructor() {
@@ -20,6 +21,7 @@ class Player {
         this.colour = colourList[Math.floor(Math.random() * colourList.length)]
         this.name = 'Pierre'
         this.score = 0
+        this.fuel = 1000
     }
     updatePlayer() {
         if(this.hp <= 0) {
@@ -43,22 +45,45 @@ class Player {
 
     }
 
+    isAlive() {
+        return this.hp > 0
+    }
 
+    canMove(dir) {
+        let cent = centerOfObject(this)
+
+        if(this.isGoingLeft(dir)) return !gameScreen[Math.max(cent[0] - 1, 0)][this.y + this.height - steepNessAbility]
+        else return !gameScreen[Math.min(cent[0] + 1, WIDTH - 1)][this.y + this.height - steepNessAbility]
+    }
+
+    move(dir) {
+        if(this.canMove(dir) && this.fuel > 0) {
+            this.fuel--
+            console.log(this.fuel)
+            if(this.isGoingLeft(dir)) this.x = Math.max(this.x - 1, -this.width / 2)
+            else this.x = Math.min(this.x + 1, WIDTH - 1 - this.width / 2)
+        }
+    }
+
+    isGoingLeft(dir) {
+        return dir === 'left'
+    }
 
     rotateBarrel(dir) {
-        console.log('barrel:' + this.shootAngle )
-        if(dir === 'left') {
-            this.shootAngle += 1
-        } else {
-            this.shootAngle -= 1
+        switch (dir) {
+            case 'left':
+                this.shootAngle += 1
+                break
+                
+            case 'right':
+                this.shootAngle -= 1
+                break
         }
     }
 
     shoot() {
-        let center = centerOfObject(this)
-
         let barrelEnd = this.getBarrelEnd()
-        return (new Bullet(barrelEnd[0], barrelEnd[1], this.shootAngle, this.shootSpeed))
+        return (new Bullet(barrelEnd[0], barrelEnd[1] + 2, this.shootAngle, this.shootSpeed))
     }
 
     getBarrelEnd() {
