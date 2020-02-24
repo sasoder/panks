@@ -1,10 +1,8 @@
 import Perlin from './perlin.js'
 import Player from './player.js'
 import { centerOfObject } from './helpFunctions.js'
+
 export default class Game {
-
-
-
 
     constructor(numberOfPlayers, width, height, amp) {
         let canvas = document.getElementById("gameCanvas")
@@ -239,6 +237,7 @@ export default class Game {
 
     findNextCoords([x, y]) {
 
+        // up right
         if (y == this.height) y-- // if last draw was at height 800, we need to decrement it for gameScreen's 0-799 indices
 
         if (this.gameScreen[x + 1][y]) { // there is a pixel beside current to the right
@@ -247,9 +246,6 @@ export default class Game {
             }
             return [x + 1, y] // return the highest one
         }
-
-        //straight down
-        if (this.gameScreen[x][y + 1]) return [x, y + 1]
 
         // down right
         if (!this.gameScreen[x + 1][y]) {
@@ -261,7 +257,6 @@ export default class Game {
             }
             return [x + 1, y]
         }
-
 
     }
 

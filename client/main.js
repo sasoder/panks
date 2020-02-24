@@ -13,7 +13,7 @@ document.getElementById('start-btn')
             document.getElementById('screen').appendChild(c)
         }
         // don't have start focused anymore
-        document.activeElement.blur();
+        document.activeElement.blur()
         start(parseInt(playersInput.value), parseInt(widthInput.value), parseInt(heightInput.value), parseInt(amplitudeInput.value))
     }
     )
@@ -23,5 +23,5 @@ let game = null
 // eslint-disable-next-line no-unused-vars
 function start(n, width, height, amp) {
     if (game !== null) game.destroy()
-    game = new Game(n, width, height, amp) //TODO 100 is amplitude, change this to input from user
+    game = new Game(n, width, height, amp)
 }

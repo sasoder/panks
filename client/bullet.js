@@ -1,5 +1,6 @@
 import Entity from './entity.js'
 import { degreeToRad, centerOfObject } from './helpFunctions.js'
+
 export default class Bullet extends Entity {
     constructor(x, y, shootAngle, shootPower, shooter) {
         super()
@@ -55,13 +56,11 @@ export default class Bullet extends Entity {
         if (distFromPlayer < playerBlow) {
             let damageMultiplier = 50
             let dmg = (playerBlow - distFromPlayer) / playerBlow * damageMultiplier
-            //if (dmg > this.dmgCap) dmg = this.dmgCap
+            if (dmg > player.hp) dmg = player.hp
             player.damage(dmg)
 
-            if (dmg > player.hp) dmg = player.hp
-
-            if (this.shooter.id === player.id) player.score -= dmg
-            else this.shooter.score += dmg
+            if (this.shooter.id === player.id) player.addScore(-dmg)
+            else this.shooter.addScore(dmg)
         }
     }
 

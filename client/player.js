@@ -1,12 +1,12 @@
 
 import Entity from './entity.js'
 import Bullet from './bullet.js'
-import {degreeToRad, centerOfObject} from './helpFunctions.js'
+import { degreeToRad, centerOfObject } from './helpFunctions.js'
 
 export default class Player extends Entity {
     // Player character
-    
-    
+
+
     constructor(gameWidth, id) {
         super();
         this.defaultShootAngle = 45
@@ -16,7 +16,7 @@ export default class Player extends Entity {
         this.barrelThickness = 4
         this.steepNessAbility = 3
         this.colourList = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#e6beff', '#fffac8', '#800000', '#aaffc3', '#ffd8b1', '#000075']
-        
+
         this.x = Math.floor((Math.random() * 8 / 10 * gameWidth) + gameWidth / 10)
         this.width = 20
         this.height = 10
@@ -26,7 +26,7 @@ export default class Player extends Entity {
         this.colour = this.colourList[Math.floor(Math.random() * this.colourList.length)]
         this.maxShots = 1
         this.shots = this.maxShots
-        
+
         this.hp = 100
         this.shootAngle = this.defaultShootAngle
         this.shootPower = this.defaultshootPower
@@ -49,9 +49,9 @@ export default class Player extends Entity {
         this.isAlive = true
         this.isGrounded = false
     }
-    
+
     update(gravity, gameScreen, gameWidth, gameHeight) {
-        if(!this.isGrounded) {
+        if (!this.isGrounded) {
             this.applyGravity(gravity)
         } else {
             this.velY = 0
@@ -59,16 +59,16 @@ export default class Player extends Entity {
         }
         this.inputMove(gameScreen, gameWidth)
         this.changePower()
-        if(this.hp <= 0) {
+        if (this.hp <= 0) {
             this.isAlive = false
         }
-        if(this.y >= gameHeight) {
+        if (this.y >= gameHeight) {
             this.hp = 0
         }
-        if(this.shootAngle > 180) {
+        if (this.shootAngle > 180) {
             this.shootAngle = 180
         }
-        if(this.shootAngle < 0) {
+        if (this.shootAngle < 0) {
             this.shootAngle = 0
         }
 
@@ -76,11 +76,15 @@ export default class Player extends Entity {
 
     damage(dmg) {
         this.hp -= dmg
-        if(this.hp < 0) {
+        if (this.hp < 0) {
             this.hp = 0
         }
     }
-    
+
+    addScore(dmg) {
+        this.score += dmg
+    }
+
     applyGravity(gravity) {
         // apply gravity and velocity to player
         this.velY += gravity
@@ -88,8 +92,8 @@ export default class Player extends Entity {
 
     }
 
-    
-    
+
+
     canClimbLeft(gameScreen) {
         let cent = centerOfObject(this)
         return !gameScreen[Math.max(cent[0] - 1, 0)][this.y + this.height - this.steepNessAbility]
@@ -106,22 +110,22 @@ export default class Player extends Entity {
         this.moveTank.tankRight = false
         this.moveTank.tankLeft = false
     }
-    
+
     inputMove(gameScreen, gameWidth) {
-        if(this.canMove) {
-            if(this.moveTank.barrelRight) this.shootAngle -= 1
-            if(this.moveTank.barrelLeft) this.shootAngle += 1
-    
-            if(this.moveTank.tankRight && this.canMoveRight(gameWidth) && this.canClimbRight(gameScreen, gameWidth)) {
+        if (this.canMove) {
+            if (this.moveTank.barrelRight) this.shootAngle -= 1
+            if (this.moveTank.barrelLeft) this.shootAngle += 1
+
+            if (this.moveTank.tankRight && this.canMoveRight(gameWidth) && this.canClimbRight(gameScreen, gameWidth)) {
                 this.x++
                 this.fuel--
             }
-            if(this.moveTank.tankLeft && this.canMoveLeft() && this.canClimbLeft(gameScreen)) {
+            if (this.moveTank.tankLeft && this.canMoveLeft() && this.canClimbLeft(gameScreen)) {
                 this.x--
                 this.fuel--
             }
         }
-        
+
     }
 
     resetShots() {
@@ -130,25 +134,25 @@ export default class Player extends Entity {
 
 
     changePower() {
-        if(this.powerDir.up) this.increasePower()
+        if (this.powerDir.up) this.increasePower()
 
-        if(this.powerDir.down) this.decreasePower()
+        if (this.powerDir.down) this.decreasePower()
     }
     increasePower() {
         this.shootPower += 1
-        if(this.shootPower > this.maxShootPower) this.shootPower = this.maxShootPower
+        if (this.shootPower > this.maxShootPower) this.shootPower = this.maxShootPower
     }
 
     decreasePower() {
         this.shootPower -= 1
-        if(this.shootPower < 0) this.shootPower = 0
+        if (this.shootPower < 0) this.shootPower = 0
     }
 
 
 
     shoot() {
         this.shots--
-        if(this.shots <= 0) this.stopMoving()
+        if (this.shots <= 0) this.stopMoving()
         let barrelEnd = this.getBarrelEnd()
         return (new Bullet(barrelEnd[0], barrelEnd[1] + 2, this.shootAngle, this.shootPower / 7, this))
     }
@@ -158,20 +162,20 @@ export default class Player extends Entity {
     }
 
     drawPlayer(ctx) {
-        if(this.hp > 0) {
+        if (this.hp > 0) {
             ctx.translate(this.x + this.width / 2, this.y)
 
             ctx.rotate(-degreeToRad(this.shootAngle - 90))
-            
+
             ctx.fillStyle = 'black'
             ctx.fillRect(-this.barrelThickness / 2, -this.barrelLen, this.barrelThickness, this.barrelLen)
-            
+
             ctx.rotate(degreeToRad(this.shootAngle - 90))
-            
+
             ctx.translate(-(this.x + this.width / 2), -(this.y))
             ctx.fillStyle = this.colour
             ctx.fillRect(this.x, this.y, this.width, this.height)
-            
+
         }
     }
 }
