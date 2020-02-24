@@ -1,5 +1,5 @@
 import Entity from './entity.js'
-import {degreeToRad, centerOfObject} from './helpFunctions.js'
+import { degreeToRad, centerOfObject } from './helpFunctions.js'
 export default class Bullet extends Entity {
     constructor(x, y, shootAngle, shootPower, shooter) {
         super()
@@ -12,6 +12,7 @@ export default class Bullet extends Entity {
         this.bombRadius = 15
         this.colour = 'black'
         this.shooter = shooter
+        this.dmgCap = 50
     }
 
     // apply gravity and velocity to player
@@ -31,7 +32,7 @@ export default class Bullet extends Entity {
             for (let row = Math.max(Math.round(y - rad), 0); row < Math.min(Math.round(y + rad), height); row++) {
                 let comp1 = col - x
                 let comp2 = row - y
-    
+
                 if (comp1 * comp1 + comp2 * comp2 <= rad * rad) {
                     gameScreen[col][row] = 0
                 }
@@ -43,19 +44,25 @@ export default class Bullet extends Entity {
     }
 
     damagePlayer(coords, rad, player) {
-            let center = centerOfObject(player)
-            let comp1 = coords[0] - center[0]
-            let comp2 = coords[1] - center[1]
-    
-            let distFromPlayer = Math.sqrt(comp1 * comp1 + comp2 * comp2)
-    
-            if (distFromPlayer < rad * 2) {
-                let dmg = rad * rad / distFromPlayer
-                player.damage(dmg)
-                
-                if (this.shooter.id == player.id) player.score -= dmg
-                else this.shooter.score += dmg
-            }
+        let center = centerOfObject(player)
+        let comp1 = coords[0] - center[0]
+        let comp2 = coords[1] - center[1]
+
+        let distFromPlayer = Math.sqrt(comp1 * comp1 + comp2 * comp2)
+
+        let playerBlow = rad * 2
+
+        if (distFromPlayer < playerBlow) {
+            let damageMultiplier = 50
+            let dmg = (playerBlow - distFromPlayer) / playerBlow * damageMultiplier
+            //if (dmg > this.dmgCap) dmg = this.dmgCap
+            player.damage(dmg)
+
+            if (dmg > player.hp) dmg = player.hp
+
+            if (this.shooter.id === player.id) player.score -= dmg
+            else this.shooter.score += dmg
+        }
     }
 
     drawBullet(ctx) {
