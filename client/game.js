@@ -319,9 +319,11 @@ export default class Game {
         switch (e.keyCode) {
             case this.keys.down:
                 mT.barrelLeft = true
+                // TODO: Include false for barrelRight?
                 break
             case this.keys.up:
                 mT.barrelRight = true
+                // TODO: Include false for barrelLeft?
                 break
             case this.keys.left:
                 mT.tankLeft = true
