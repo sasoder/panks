@@ -201,7 +201,8 @@ export default class Game {
             this.ctx.font = '15px Arial'
             if (p == this.currentPlayer) this.ctx.fillStyle = 'red'
             else this.ctx.fillStyle = 'black'
-            this.ctx.fillText(p.name + ' ' + Math.round(p.score) + ' pts', this.width - this.hudBarLen - this.infoPadding, this.infoPadding + this.infoPadding * i)
+
+            this.ctx.fillText((p.id == this.currentPlayer.id ? '> ' : '') + p.name + ' ' + Math.round(p.score) + ' pts', this.width - this.hudBarLen - this.infoPadding, this.infoPadding + this.infoPadding * i)
 
             this.ctx.fillStyle = 'grey'
             this.ctx.fillRect(this.width - this.hudBarLen - this.infoPadding / 2, this.infoPadding / 2 + this.infoPadding * i, this.hudBarLen, this.hudBarHeight)
