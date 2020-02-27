@@ -5,7 +5,12 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./server/server.js"
+    "client:build": "cd client && npm run build",
+    "server:start": "cd server && npm run start",
+    "start": "npm run client:build && npm run server:start",
+    "client:install": "cd client && npm install",
+    "server:install": "cd server && npm install",
+    "install": "npm run client:install && npm run server:install"
   },
   "repository": {
     "type": "git",
@@ -21,6 +26,8 @@
     "eslint": "^6.8.0"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "@vue/cli": "^4.2.2",
+    "express": "^4.17.1",
+    "vue": "^2.6.11"
   }
 }
