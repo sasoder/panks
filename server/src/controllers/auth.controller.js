@@ -6,7 +6,7 @@ const { sequelize } = require('../database');
 
 
 const requireAuth = (req, res, next) => {
-    const maybeUser = model.findAssistant(req.session.userID);
+    const maybeUser = model.findUser(req.session.userID);
     console.log(maybeUser);
     // "auth" check
     if (maybeUser === undefined) {
@@ -59,21 +59,21 @@ router.post('/login', (req, res) => {
     const maybeUser = model.user(req.body.username);
     console.log(maybeUser);
     console.log('before check if user is undefined');
-    // check if assistant exists as a model before checking database
+    // check if user exists as a model before checking database
     if (maybeUser !== undefined) {
         sequelize.model('user').findOne({
             where: {
                 username: req.body.username,
             },
         }).then((user) => {
-            console.log(`\n\nvalid pass test: ${user.validPassword(req.body.password)}\n\n`);
+            console.log(`\n\nValid login: ${user.validPassword(req.body.password)}\n\n`);
             return user.validPassword(req.body.password);
         })
             .then((correctPassword) => {
                 if (correctPassword) {
                     req.session.save((err) => {
                         if (err) console.error(err);
-                        else console.debug(`Saved userID: ${req.session.assistantID}`);
+                        else console.debug(`Saved userID: ${req.session.userID}`);
                     });
                     console.log('User exists, logging in...');
                     // Update the userID of the currently active session
@@ -91,7 +91,7 @@ router.post('/login', (req, res) => {
                 res.sendStatus(400);
             });
     } else {
-        console.log('Assistant does not exist');
+        console.log('User does not exist');
         res.sendStatus(404); // Status: Not Found
     }
 });
