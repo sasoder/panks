@@ -27,7 +27,7 @@ export default {
   }),
   methods: {
     login() {
-      fetch('/api/authenticate', {
+      fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,7 +38,26 @@ export default {
         }),
       })
         .then((resp) => {
-          if (resp.ok) return resp;
+          let message = '';
+          switch (resp.status) {
+            case 200: // OK
+              return resp;
+            case 401: // Unauthorized
+              message = 'Invalid login';
+              break;
+            case 403: // Forbidden
+              message = 'User is already logged in';
+              break;
+             case 404: // Not Found
+              message = 'User doesn\'t exist';
+              break;
+            default: // Other faulting case
+              message = 'Something unexpected went wrong.';
+          }
+          // Set status message according to response status
+          this.statusMessage = message;
+          this.$store.commit('setIsAuthenticated', false);
+          throw new Error('Invalid login');
         })
         .then(() => {
           this.$store.commit('setIsAuthenticated', true);
@@ -46,9 +65,8 @@ export default {
             path: '/lobby',
           });
         })
-        .catch((error) => {
-          console.error('Authentication failed unexpectedly');
-          throw error;
+        .catch((err) => {
+          console.error(`Authentication failed unexpectedly: ${err}`);
         });
     },
     register() {

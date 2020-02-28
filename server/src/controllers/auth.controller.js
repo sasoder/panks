@@ -53,46 +53,50 @@ router.post('/register', (req, res) => {
 
 });
 
-// TODO: Change to that it is a user object instead of assistant
-// TODO: Check against database instead of model
 router.post('/login', (req, res) => {
-    const maybeUser = model.user(req.body.username);
-    console.log(maybeUser);
-    console.log('before check if user is undefined');
-    // check if user exists as a model before checking database
-    if (maybeUser !== undefined) {
+    const maybeUser = model.findUser(req.body.username);
+    console.log('Before check if user is logged in: ' + maybeUser);
+    // Only try to login if user isn't already logged in (is inside server as model)
+    if (maybeUser === undefined) {
         sequelize.model('user').findOne({
             where: {
                 username: req.body.username,
             },
         }).then((user) => {
-            console.log(`\n\nValid login: ${user.validPassword(req.body.password)}\n\n`);
-            return user.validPassword(req.body.password);
+            // User was not found on server
+            if (user === undefined) {
+                throw new Error('No user');
+            } else {
+                console.log(`\n\nValid login: ${user.validPassword(req.body.password)}\n\n`);
+                return user.validPassword(req.body.password);
+            }
         })
             .then((correctPassword) => {
                 if (correctPassword) {
+                    console.log('User exists, logging in...');
+                    // Update the userID of the currently active session
+                    req.session.userID = req.body.username;
                     req.session.save((err) => {
                         if (err) console.error(err);
                         else console.debug(`Saved userID: ${req.session.userID}`);
                     });
-                    console.log('User exists, logging in...');
-                    // Update the userID of the currently active session
-                    req.session.userID = maybeUser.username;
                     // Status: OK
                     res.sendStatus(200);
                 } else {
-                    console.log('Password was wrong');
+                    console.log('Login was invalid');
                     // Status: Unauthorized
                     res.sendStatus(401);
                 }
             })
             .catch((err) => {
-                console.log(`Some error occured with saving session object: ${err}`);
-                res.sendStatus(400);
+                console.log(`Some error occured: ${err}`);
+                // Status: Not Found
+                res.sendStatus(404);
             });
     } else {
-        console.log('User does not exist');
-        res.sendStatus(404); // Status: Not Found
+        console.log('User is already logged in');
+        // Status: Forbidden
+        res.sendStatus(403);
     }
 });
 

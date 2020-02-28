@@ -8,7 +8,7 @@
 </template>
 
 <script>
-// TODO: Import this into children later
+// TODO: Maybe import this into children later
 export default {
   methods: {
     redirect(target) {
