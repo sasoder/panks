@@ -6,7 +6,6 @@ class User {
         this.socket = null;
         this.currentRoom = null;
         this.name = name;
-        this.timeOfReservation = 0;
     }
 }
 

@@ -12,7 +12,6 @@ class Tank {
         this.colour = colour
         this.score = 0
         this.name = name;
-        this.timeOfReservation = 0;
     }
 }
 
