@@ -25,7 +25,7 @@ router.get('/isAuthenticated', (req, res) => {
     });
 });
 
-// TODO: Hash password
+// TODO: Hash password?
 router.post('/register', (req, res) => {
     console.log(`registering user: ${req.body.username}`);
 
@@ -33,18 +33,9 @@ router.post('/register', (req, res) => {
         username: req.body.username,
         password: req.body.password
     }).then((data) => {
-        req.session.save((err) => {
-            if (err) console.error(err);
-            else console.debug(`Saved userID: ${req.session.userID}`);
-        });
-        // Update the userID of the currently active session
-        req.session.userID = req.body.username;
-        // Add the user to the model
-        model.addUser(req.body.username, req.session.socketID);
+        console.log(data.get({plain:true}));
         // Status: OK
         res.status(200);
-        // ? What happens here?
-        res.json(data.get({ plain: true }));
     }).catch((error) => {
         // Status: Internal server error
         res.status(500);
@@ -76,6 +67,7 @@ router.post('/login', (req, res) => {
                     console.log('User exists, logging in...');
                     // Update the userID of the currently active session
                     req.session.userID = req.body.username;
+                    // Saving session to user
                     req.session.save((err) => {
                         if (err) console.error(err);
                         else console.debug(`Saved userID: ${req.session.userID}`);

@@ -81,11 +81,11 @@ export default {
         }),
       })
         .then((resp) => {
-          if (resp.ok) return resp;
-          this.statusMessage = 'Registration failed';
-        })
-        .then(() => {
-          this.statusMessage = 'Registration successful';
+          if (resp.ok) {
+            this.statusMessage = 'Registration successful';
+          } else {
+            this.statusMessage = 'Registration failed';
+          }
         });
     },
   },
