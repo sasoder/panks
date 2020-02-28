@@ -2,7 +2,6 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import LobbyView from '../views/Lobby.vue';
 import LoginView from '../views/Login.vue';
-import RegisterView from '../views/Register.vue';
 import RoomView from '../views/Room.vue';
 
 import store from '../store';
@@ -13,7 +12,6 @@ const routes = [
     { path: '/', redirect: '/login' },
     { path: '/lobby', component: LobbyView },
     { path: '/login', component: LoginView },
-    { path: '/register', component: RegisterView },
     { path: '/room/:roomName', component: RoomView },
 ];
 

@@ -2,7 +2,8 @@
  * @class Tank
  */
 class Tank {
-    constructor(userID, x, y, colour, name) {
+    constructor(userID, x, y, colour) {
+        // Also used as name for tank
         this.userID = userID
         this.x = x
         this.y = y
@@ -11,7 +12,6 @@ class Tank {
         this.shootPower = 60
         this.colour = colour
         this.score = 0
-        this.name = name;
     }
 }
 

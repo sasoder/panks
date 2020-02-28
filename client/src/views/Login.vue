@@ -1,13 +1,17 @@
 <template>
   <div>
     <h1>Log in:</h1>
-    <form v-on:submit.prevent="done()">
+    <form v-on:submit.prevent="login()">
+      <p>Username</p>
       <input type="text" v-model="name" required autofocus />
-      <input class="form-control" type="password" v-model="password" required autofocus />
+      <br>
+      <p>Password</p>
+      <input type="password" v-model="password" required />
+      <br>
       <input type="submit" value="Login" />
     </form>
-    <button v-on:click.prevent="register()">Click to register a new account</button>
-    <br />
+    <button v-on:click="register()">Register with given credentials</button>
+    <br>
     <h4 class="statusMessage">{{ statusMessage }}</h4>
   </div>
 </template>
@@ -22,7 +26,7 @@ export default {
     statusMessage: '',
   }),
   methods: {
-    done() {
+    login() {
       fetch('/api/authenticate', {
         method: 'POST',
         headers: {
@@ -39,7 +43,7 @@ export default {
         .then(() => {
           this.$store.commit('setIsAuthenticated', true);
           this.$router.push({
-            path: '/user/timeSlotList',
+            path: '/lobby',
           });
         })
         .catch((error) => {
@@ -69,3 +73,10 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+  form {
+    text-align:center;
+    margin-bottom:20px;
+  }
+</style>

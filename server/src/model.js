@@ -49,6 +49,9 @@ exports.addUnregisteredSocket = (socket) => {
     unregisteredSockets[socketID] = socket;
     return socketID;
 };
+
+// Once you connect, a socket is assigned to the pool that corresponds to your connection.
+// Once you actually log in (addUser) the socket gets assigned to you.
 const assignUnregisteredSocket = (socketID) => {
     const socket = unregisteredSockets[socketID];
     unregisteredSockets = Object.keys(unregisteredSockets)

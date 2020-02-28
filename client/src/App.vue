@@ -1,6 +1,8 @@
 <template>
   <div id="app">
-    <h1>TANKS</h1>
+    <header>
+      <h1>PANKS</h1>
+    </header>
     <router-view></router-view>
   </div>
 </template>
@@ -21,5 +23,10 @@ html,
 body {
   margin: 0;
   padding: 0;
+}
+
+header {
+  background:grey;
+  color:white;
 }
 </style>
