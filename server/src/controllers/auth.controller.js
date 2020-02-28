@@ -80,6 +80,10 @@ router.post('/login', (req, res) => {
                         if (err) console.error(err);
                         else console.debug(`Saved userID: ${req.session.userID}`);
                     });
+                    // Update the userID of the currently active session
+                    req.session.userID = req.body.username;
+                    // Add the user to the model
+                    model.addUser(req.body.username, req.session.socketID);
                     // Status: OK
                     res.sendStatus(200);
                 } else {
