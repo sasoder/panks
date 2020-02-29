@@ -12,7 +12,7 @@ const routes = [
     { path: '/', redirect: '/login' },
     { path: '/lobby', component: LobbyView },
     { path: '/login', component: LoginView },
-    { path: '/room/:roomName', component: RoomView },
+    { path: '/room/:roomID', component: RoomView },
 ];
 
 const router = new VueRouter({
