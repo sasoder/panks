@@ -2,10 +2,11 @@
  * @class Room
  */
 class Room {
-    constructor(name) {
+    constructor(id, name) {
+        this.id = id;
+        this.name = name;
         this.messages = [];
         this.players = [];
-        this.name = name;
     }
 
     addMessage(message) {

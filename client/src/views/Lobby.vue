@@ -1,7 +1,10 @@
 <template>
   <div>
     <p>Welcome to lobby!</p>
-    <button @click="addRoom">Add Room!</button>
+    <form v-on:submit.prevent="addRoom">
+        <input v-model="newRoomName" type="text" placeholder="Name of new room">
+        <button type="submit">Add Room!</button>
+    </form>
     <RoomItem v-for="room in roomList" :key="room.id" :room="room" @removeRoom="removeRoomByID"/>
   </div>
 </template>
@@ -10,29 +13,86 @@
 import RoomItem from './RoomItem.vue';
 
 export default {
-    data: () => ({
-        idCounter: 0,
-        roomList: [],
-    }),
     components: {
         RoomItem,
+    },
+    data: () => ({
+        roomList: [],
+        newRoomName: '',
+    }),
+    created() {
+        this.socket = this.$root.socket;
+        this.socket.on('newRoom', (newRoom) => {
+            this.roomList = [...this.roomList, newRoom];
+        });
+        this.socket.on('updatedRoomList', (rooms) => {
+            this.roomList = rooms;
+        });
+        this.getActiveRooms();
     },
     methods: {
         // TODO: Implement fetching of active rooms.
         getActiveRooms() {
-            console.log('Later this fetches rooms...');
+            fetch('/api/user/roomList', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(res => res.json())
+            .then((data) => {
+                this.roomList = data.rooms;
+            })
+            .catch(console.error);
         },
         // TODO: Implement adding a room
+        // TODO: Make "add button" into a form that creates a room and emits on server
         addRoom() {
-            console.log('Simulating adding a room...');
-            this.roomList.push({
-                id: this.idCounter += 1,
+            if (this.newRoomName === '') {
+                console.log('Insufficient input data!');
+                return;
+            }
+            fetch('api/user/addRoom', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    roomName: this.newRoomName,
+                }),
+            })
+            .then((resp) => {
+                // We don't have to add to RoomList here since
+                // the emit-socket-event takes care of that
+                if (!resp.ok) {
+                    throw new Error('Error with adding new room...');
+                }
+                // Clear name of 'new Room'
+                this.newRoomName = '';
+            }).catch((err) => {
+                console.error(err);
             });
         },
-        // Testing emitting from child component
+        // Emitting event from child component
+        // TODO: Add so that only creater of room can remove?
         removeRoomByID(roomID) {
-            this.roomList = this.roomList
-                .filter(room => room.id !== roomID);
+            fetch('api/user/removeRoom', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    roomID,
+                }),
+            })
+            .then((resp) => {
+                // If something on server side went wrong...
+                if (!resp.ok) {
+                    throw new Error('Error with adding new room...');
+                }
+            }).catch((err) => {
+                console.error(err);
+            });
         },
     },
 };

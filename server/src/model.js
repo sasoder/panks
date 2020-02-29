@@ -12,6 +12,7 @@ const Room = require('./models/room.model');
 /**
  * rooms & users are effectively hash maps with the name of the entry serving as a unique key.
  */
+let nextRoomID = 0;
 let rooms = {};
 let users = {};
 
@@ -105,13 +106,11 @@ exports.updateUserSocket = (name, socket) => {
 exports.findUser = (name) => users[name];
 
 
-/**
- * Creates a room with the given name.
- * @param {String} name - The name of the room.
- * @returns {void}
- */
+// TODO: Rememeber to remove room objects once a game is finished. Once ID counter goes over limit (back to zero) then old games should be gone from that index.
 exports.addRoom = (name) => {
-    rooms[name] = new Room(name);
+    rooms[nextRoomID] = new Room(nextRoomID, name);
+    exports.io.emit('newRoom', rooms[nextRoomID]);
+    nextRoomID += 1;
 };
 
 /**
@@ -125,10 +124,11 @@ exports.getRooms = () => Object.values(rooms);
  * @param {String} name - The name of the room.
  * @returns {void}
  */
-exports.removeRoom = (name) => {
+exports.removeRoom = (id) => {
     rooms = Object.values(rooms)
-        .filter((room) => room.name !== name)
-        .reduce((res, room) => ({ ...res, [room.name]: room }), {});
+        .filter((room) => room.id !== id)
+        .reduce((res, room) => ({ ...res, [room.id]: room }), {});
+    exports.io.emit('updatedRoomList', rooms);
 };
 
 /**

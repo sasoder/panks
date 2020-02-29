@@ -7,13 +7,12 @@ const { sequelize } = require('../database');
 
 const requireAuth = (req, res, next) => {
     const maybeUser = model.findUser(req.session.userID);
-    console.log(maybeUser);
+    console.log('RequireAuth - Name of logged in user: ' + maybeUser.name);
     // "auth" check
     if (maybeUser === undefined) {
         res.status(401).send('Unauthorized. Please make sure you are logged in before attempting this action again.');
         return;
     }
-
     next();
 };
 
