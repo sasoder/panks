@@ -1,6 +1,7 @@
 const path = require('path'); // helper library for resolving relative paths
 const { Sequelize, DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
+const saltRounds = 8;
 
 const sequelize = new Sequelize({
     dialect: 'sqlite',
@@ -19,6 +20,10 @@ const User = sequelize.define('user', {
     tableName: 'Users',
 });
 
+User.prototype.setHashPassword = function setHashPassword(password) {
+    this.set('password', bcrypt.hashSync(password, saltRounds));
+};
+
 User.prototype.validPassword = function validPassword(password) {
     return bcrypt.compareSync(password, this.password);
 };
@@ -28,7 +33,6 @@ User.prototype.validPassword = function validPassword(password) {
 
 const pass1 = '123';
 const pass2 = '234';
-const saltRounds = 8;
 (async () => {
     await sequelize.sync();
     const user1 = await User.create({

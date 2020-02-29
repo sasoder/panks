@@ -25,21 +25,23 @@ router.get('/isAuthenticated', (req, res) => {
     });
 });
 
-// TODO: Hash password?
 router.post('/register', (req, res) => {
     console.log(`registering user: ${req.body.username}`);
 
     sequelize.model('user').create({
-        username: req.body.username,
-        password: req.body.password
+        username: req.body.username
     }).then((data) => {
-        console.log(data.get({plain:true}));
+        // Set password field after once we have the object created
+        data.setHashPassword(req.body.password);
+        data.save();
+    }).then( () => {
+        // Awaiting save...
         // Status: OK
-        res.status(200);
-    }).catch((error) => {
+        res.sendStatus(200);
+    }).catch((err) => {
+        console.error(`Something went wrong during registration: ${err}`);
         // Status: Internal server error
-        res.status(500);
-        res.json({ error: error, stackError: error.stack });
+        res.sendStatus(500);
     });
 
 });
