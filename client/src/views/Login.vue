@@ -3,7 +3,7 @@
     <h1>Log in:</h1>
     <form v-on:submit.prevent="login()">
       <p>Username</p>
-      <input type="text" v-model="name" required autofocus />
+      <input type="text" v-model="name" required />
       <br>
       <p>Password</p>
       <input type="password" v-model="password" required />
@@ -45,7 +45,7 @@ export default {
               message = 'Invalid login';
               break;
             case 403: // Forbidden
-              message = 'User is already logged in';
+              message = 'Looks like you\'re already logged in...';
               break;
              case 404: // Not Found
               message = 'User doesn\'t exist';
