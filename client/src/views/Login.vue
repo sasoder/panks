@@ -19,7 +19,6 @@
 <script>
 export default {
   name: 'Login',
-  components: {},
   data: () => ({
     name: '',
     password: '',
