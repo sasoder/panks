@@ -31,7 +31,7 @@ User.prototype.validPassword = function validPassword(password) {
 
 // * - Code used for hardcoding in Users as a start
 
-const pass1 = '123';
+/*const pass1 = '123';
 const pass2 = '234';
 (async () => {
     await sequelize.sync();
@@ -49,7 +49,7 @@ const pass2 = '234';
     await user2.save();
     console.log(user1.toJSON());
     console.log(user2.toJSON());
-})();
+})();*/
 
 
 module.exports = {
