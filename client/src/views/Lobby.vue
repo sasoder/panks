@@ -5,7 +5,13 @@
         <input v-model="newRoomName" type="text" placeholder="Name of new room">
         <button type="submit">Add Room!</button>
     </form>
-    <RoomItem v-for="room in roomList" :key="room.id" :room="room" @removeRoom="removeRoomByID"/>
+    <RoomItem
+        v-for="room in roomList"
+        :key="room.id"
+        :room="room"
+        @removeRoom="removeRoomByID"
+        @joinRoom="joinRoomByID"
+    />
   </div>
 </template>
 
@@ -31,7 +37,6 @@ export default {
         this.getActiveRooms();
     },
     methods: {
-        // TODO: Implement fetching of active rooms.
         getActiveRooms() {
             fetch('/api/user/roomList', {
                 method: 'GET',
@@ -45,8 +50,6 @@ export default {
             })
             .catch(console.error);
         },
-        // TODO: Implement adding a room
-        // TODO: Make "add button" into a form that creates a room and emits on server
         addRoom() {
             if (this.newRoomName === '') {
                 console.log('Insufficient input data!');
@@ -72,6 +75,11 @@ export default {
             }).catch((err) => {
                 console.error(err);
             });
+        },
+        // Emitting event from child component
+        // TODO: Implement joining a room
+        joinRoomByID(roomID) {
+            console.log(`Trying to join Room with ID: ${roomID}`);
         },
         // Emitting event from child component
         // TODO: Add so that only creater of room can remove?

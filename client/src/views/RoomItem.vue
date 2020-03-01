@@ -5,6 +5,7 @@
       <br>Name: {{ room.name }}
       <br>Players: {{ room.players.length }}
     </p>
+    <button @click="$emit('joinRoom', room.id)">Join room</button>
     <button @click="$emit('removeRoom', room.id)">Remove room</button>
   </div>
 </template>
