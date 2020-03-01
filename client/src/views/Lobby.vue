@@ -5,7 +5,7 @@
         <input v-model="newRoomName" type="text" placeholder="Name of new room">
         <button type="submit">Add Room!</button>
     </form>
-    <RoomItem
+    <RoomCard
         v-for="room in roomList"
         :key="room.id"
         :room="room"
@@ -16,11 +16,11 @@
 </template>
 
 <script>
-import RoomItem from './RoomItem.vue';
+import RoomCard from './RoomCard.vue';
 
 export default {
     components: {
-        RoomItem,
+        RoomCard,
     },
     data: () => ({
         roomList: [],
