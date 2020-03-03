@@ -1,10 +1,10 @@
 <template>
   <div>
     <p>Welcome to lobby!</p>
-    <form v-on:submit.prevent="addRoom">
+    <div>
         <input v-model="newRoomName" type="text" placeholder="Name of new room">
-        <button type="submit">Add Room!</button>
-    </form>
+        <button @click="addRoom" v-if="!userHasRoom()" type="submit">Add Room!</button>
+    </div>
     <RoomCard
         v-for="room in roomList"
         :key="room.id"
@@ -23,19 +23,25 @@ export default {
     data: () => ({
         roomList: [],
         newRoomName: '',
+        canAddRoom: false,
     }),
     created() {
         this.socket = this.$root.socket;
         this.socket.on('newRoom', (newRoom) => {
             this.roomList = [...this.roomList, newRoom];
+            // this.canAddRoom = !this.userHasRoom();
         });
         this.socket.on('updatedRoomList', (rooms) => {
             console.log(`Rooms array on updating: ${JSON.stringify(rooms)}`);
             this.roomList = rooms;
+            // this.canAddRoom = !this.userHasRoom();
         });
         this.getActiveRooms();
     },
     methods: {
+        userHasRoom() {
+            return this.roomList.some(room => room.creator === this.$store.state.isAuthenticated);
+        },
         getActiveRooms() {
             fetch('/api/user/roomList', {
                 method: 'GET',
@@ -46,6 +52,7 @@ export default {
             .then(res => res.json())
             .then((data) => {
                 this.roomList = data.rooms;
+                // this.canAddRoom = !this.userHasRoom();
             })
             .catch(console.error);
         },
@@ -69,6 +76,7 @@ export default {
                 if (!resp.ok) {
                     throw new Error('Error with adding new room...');
                 }
+                this.canAddRoom = false;
                 // Clear name of 'new Room'
                 this.newRoomName = '';
             }).catch((err) => {

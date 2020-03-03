@@ -114,11 +114,15 @@ exports.updateUserSocket = (userID, socket) => {
 exports.findUser = (userID) => users[userID];
 
 
+const userHasRoom = (userID) => {
+    return Object.values(rooms).some(room => room.creator === userID)
+}
+
 // TODO: Rememeber to remove room objects once a game is finished. Once ID counter goes over limit (back to zero) then old games should be gone from that index.
 exports.addRoom = (roomName, creatorID) => {
 
     // Don't allow a user to have more than one room
-    if (Object.values(rooms).some(room => room.creator === creatorID)) {
+    if (userHasRoom(creatorID)) {
         return false;
     }
     

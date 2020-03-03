@@ -9,7 +9,16 @@ router.get('/roomList', (req, res) => {
 });
 
 router.post('/addRoom', (req, res) => {
+
     let addedRoom = model.addRoom(req.body.roomName, req.session.userID);
+
+    if(addedRoom) {
+        res.sendStatus(200)
+    } else {
+        // Could not add room
+        res.sendStatus(400)
+    }
+    
     // TODO send message if room was added or not
 });
 
