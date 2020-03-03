@@ -2,18 +2,24 @@
  * @class Room
  */
 class Room {
-    constructor(id, name) {
+    constructor(id, name, creator) {
         this.id = id;
         this.name = name;
         this.messages = [];
-        this.players = [];
+        // Array of userIDs
+        this.users = [];
+        // UserID that created the room
+        this.creator = creator
     }
 
     addMessage(message) {
         this.messages.push(message);
     }
-    addPlayer(player) {
-        this.players.push(player);
+    addUser(user) {
+        this.users.push(user);
+    }
+    removeUser(userID) {
+        this.users = this.users.filter((user) => user !== userID);
     }
 }
 

@@ -2,10 +2,10 @@
  * @class User
  */
 class User {
-    constructor(name) {
+    constructor(userID) {
+        this.userID = userID;
         this.socket = null;
         this.currentRoom = null;
-        this.name = name;
     }
 }
 

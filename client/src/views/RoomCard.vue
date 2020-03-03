@@ -1,12 +1,16 @@
 <template>
   <div id="roomContainer">
-    <p>ROOM:
-      <br>ID: {{ room.id }}
+    <p>
+      ID: {{ room.id }}
+      <br>Created by: {{ room.creator }}
       <br>Name: {{ room.name }}
-      <br>Players: {{ room.players.length }}
+      <br>Players: {{ room.users.length }}
     </p>
     <button @click="joinRoom(room.id)">Join room</button>
-    <button @click="removeRoom(room.id)">Remove room</button>
+    <button
+      v-if="room.creator === this.currentUser"
+      @click="removeRoom(room.id)"
+    >Remove room</button>
   </div>
 </template>
 
@@ -17,6 +21,13 @@ export default {
       type: Object,
       required: true,
     },
+  },
+  data: () => ({
+    currentUser: null,
+  }),
+  created() {
+    console.log(this.$store.state.isAuthenticated);
+    this.currentUser = this.$store.state.isAuthenticated;
   },
   methods: {
     // Emitting event from child component

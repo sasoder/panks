@@ -40,7 +40,7 @@ export default {
           let message = '';
           switch (resp.status) {
             case 200: // OK
-              return resp;
+              return resp.json();
             case 401: // Unauthorized
               message = 'Invalid login';
               break;
@@ -55,11 +55,11 @@ export default {
           }
           // Set status message according to response status
           this.statusMessage = message;
-          this.$store.commit('setIsAuthenticated', false);
+          this.$store.commit('setIsAuthenticated', null);
           throw new Error('Invalid login');
         })
-        .then(() => {
-          this.$store.commit('setIsAuthenticated', true);
+        .then((data) => {
+          this.$store.commit('setIsAuthenticated', data.userID);
           this.$router.push({
             path: '/lobby',
           });

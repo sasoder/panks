@@ -17,7 +17,6 @@ let rooms = {};
 let users = {};
 
 let tanks = {};
-let lobbies = {};
 
 /**
  * unregisteredSockets is used as a temporary pool of sockets
@@ -62,78 +61,97 @@ const assignUnregisteredSocket = (socketID) => {
     return socket;
 };
 
-/**
- * Add a message to a room & push out the message to all connected clients
- * @param {String} roomName - The name of the room to add the message to.
- * @param {String} message - The message to add.
- * @returns {void}
- */
-exports.addMessage = (roomName, message) => {
-    exports.findRoom(roomName).addMessage(message);
-    exports.io.in(roomName).emit('msg', message);
-    console.log(roomName, message);
+exports.addMessage = (roomID, message) => {
+    const room = rooms[roomID]
+    rooms[roomID].addMessage(message);
+    exports.io.in(roomID).emit('msg', message);
+    console.log(roomID, room.name, message);
 };
 
-/**
- * Creates a user with the given name.
- * @param {String} name - The name of the user.
- * @param {Number} socketID - An optional ID of a socket.io socket in the unregistered sockets pool.
- * @see model.addUnregisteredSocket
- * @returns {void}
- */
-exports.addUser = (name, socketID = undefined) => {
-    users[name] = new User(name);
+exports.joinRoom = (roomID, userID) => {
+    let room = rooms[roomID];
+    // Set the current room of the user
+    users[userID].currentRoom = roomID;
+    // Join the right socket.io room
+    users[userID].socket.leave('lobby');
+    users[userID].socket.join(roomID);
+    // Add the user to the corresponding room
+    rooms[roomID].addUser(userID);
+    // Updated Rooms with users
+    exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms)); 
+    exports.io.in(roomID).emit('updatedUserList', room.users); 
+    console.log("Added user to room ", roomID, " with ID: ", userID);
+};
+
+exports.leaveRoom = (roomID, userID) => {
+    // Set the current room of the user to null
+    users[userID].currentRoom = null;
+    // Join the right socket.io room
+    users[userID].socket.leave(roomID);
+    users[userID].socket.join('lobby');
+    // Remove the user to the corresponding room
+    rooms[roomID].removeUser(userID);
+    
+    // Updated Rooms with users
+    exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms));
+    exports.io.in(roomID).emit('updatedUserList', rooms[roomID].users);
+    console.log("User left room ", roomID, " with ID: ", userID);
+};
+
+exports.addUser = (userID, socketID = undefined) => {
+    users[userID] = new User(userID);
     if (socketID !== undefined) {
-        users[name].socket = assignUnregisteredSocket(socketID);
+        users[userID].socket = assignUnregisteredSocket(socketID);
     }
+    // Log in the user into the lobby at creation
+    users[userID].socket.join('lobby');
 };
 
-/**
- * Updated the socket associated with the user with the given name.
- * @param {String} name - The name of the user.
- * @param {SocketIO.Socket} socket - A socket.io socket.
- * @returns {void}
- */
-exports.updateUserSocket = (name, socket) => {
-    users[name].socket = socket;
+exports.updateUserSocket = (userID, socket) => {
+    users[userID].socket = socket;
 };
 
-/**
- * Returns the user object with the given name.
- * @param {String} name - The name of the user.
- * @returns {User}
- */
-exports.findUser = (name) => users[name];
+exports.findUser = (userID) => users[userID];
 
 
 // TODO: Rememeber to remove room objects once a game is finished. Once ID counter goes over limit (back to zero) then old games should be gone from that index.
-exports.addRoom = (name) => {
-    rooms[nextRoomID] = new Room(nextRoomID, name);
-    exports.io.emit('newRoom', rooms[nextRoomID]);
+exports.addRoom = (roomName, creatorID) => {
+
+    // Don't allow a user to have more than one room
+    if (Object.values(rooms).some(room => room.creator === creatorID)) {
+        return false;
+    }
+    
+    rooms[nextRoomID] = new Room(nextRoomID, roomName, creatorID);
+    // Make it so that only people in lobby get emitted of this info
+    exports.io.in('lobby').emit('newRoom', rooms[nextRoomID]);
     nextRoomID += 1;
+    return true
 };
 
-/**
- * Returns all the Rooms.
- * @returns {Room[]}
- */
 exports.getRooms = () => Object.values(rooms);
 
-/**
- * Removes the room object with the matching name.
- * @param {String} name - The name of the room.
- * @returns {void}
- */
 exports.removeRoom = (id) => {
+    // Clean out all users from room
+    // TODO uncaught in promise for user who left room
+    const room = rooms[id];
+    const roomUsers = room.users;
+    roomUsers.forEach(userID => {
+        // Set the current room of the user to null
+        users[userID].currentRoom = null;
+        // Join the right socket.io room
+        users[userID].socket.join('lobby');
+    })
+
+    // Remove room from server
     rooms = Object.values(rooms)
         .filter((room) => room.id !== id)
         .reduce((res, room) => ({ ...res, [room.id]: room }), {});
-    exports.io.emit('updatedRoomList', rooms);
+
+    // Make it so that only people in lobby get emitted of this info
+    // Doing Object.values since we want an array of rooms, not the dictionary
+    exports.io.in(id).emit('deletedRoom');
+    exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms));
 };
 
-/**
- * Return the room object with the matching name.
- * @param {String} name - The name of the room.
- * @returns {Room}
- */
-exports.findRoom = (name) => rooms[name];
+exports.findRoom = (id) => rooms[id];

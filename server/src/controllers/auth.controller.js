@@ -7,7 +7,7 @@ const { sequelize } = require('../database');
 
 const requireAuth = (req, res, next) => {
     const maybeUser = model.findUser(req.session.userID);
-    console.log('RequireAuth - Name of logged in user: ' + maybeUser.name);
+    console.log('RequireAuth - Name of logged in user: ' + maybeUser.userID);
     // "auth" check
     if (maybeUser === undefined) {
         res.status(401).send('Unauthorized. Please make sure you are logged in before attempting this action again.');
@@ -20,7 +20,8 @@ const requireAuth = (req, res, next) => {
 router.get('/isAuthenticated', (req, res) => {
     const maybeUser = model.findUser(req.session.userID);
     res.status(200).json({
-        isAuthenticated: maybeUser !== undefined,
+        // if user does not exist, send null, otherwise their name
+        isAuthenticated: maybeUser === undefined ? null : maybeUser.userID,
     });
 });
 
@@ -73,12 +74,12 @@ router.post('/login', (req, res) => {
                         if (err) console.error(err);
                         else console.debug(`Saved userID: ${req.session.userID}`);
                     });
-                    // Update the userID of the currently active session
-                    req.session.userID = req.body.username;
                     // Add the user to the model
-                    model.addUser(req.body.username, req.session.socketID);
+                    model.addUser(req.session.userID, req.session.socketID);
                     // Status: OK
-                    res.sendStatus(200);
+                    res.status(200).json({
+                        userID: req.session.userID
+                    });
                 } else {
                     console.log('Login was invalid');
                     // Status: Unauthorized
@@ -96,5 +97,8 @@ router.post('/login', (req, res) => {
         res.sendStatus(403);
     }
 });
+
+// TODO: Logout endpoint
+// TODO: Set isAuthenticated to null in Store
 
 module.exports = { router, requireAuth };

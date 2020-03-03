@@ -30,6 +30,7 @@ export default {
             this.roomList = [...this.roomList, newRoom];
         });
         this.socket.on('updatedRoomList', (rooms) => {
+            console.log(`Rooms array on updating: ${JSON.stringify(rooms)}`);
             this.roomList = rooms;
         });
         this.getActiveRooms();
