@@ -11,11 +11,12 @@ router.get('/roomList', (req, res) => {
 
 
 router.post('/addRoom', (req, res) => {
-    if (model.userHasRoom(eq.session.userID)) {
+    if (model.userHasRoom(req.session.userID) !== undefined) {
         res.sendStatus(404);
         return;
     }
 
+    console.log('adding room');
     // Add room since all is fine!
     model.addRoom(req.body.roomName, req.session.userID);
 });
@@ -83,7 +84,33 @@ router.post('/:roomID/message', (req, res) => {
     model.addMessage(req.params.roomID, `${user.userID}: ${req.body.message}`);
   
     res.sendStatus(200);
-  });
+});
+
+
+router.post('/logout', (req, res) => {
+    const user = model.findUser(req.session.userID);
+    const roomOfUser = model.findRoom(req.session.userID);
+    console.debug("\n\nRoomofuser: ", roomOfUser, "\n\n");
+
+    // If user is host of a room, change the host
+    if (roomOfUser !== undefined) {
+        // If host is not alone in room while logging out
+        if (roomOfUser.users.length > 1) {
+            // Notify that user disconnected
+            model.addMessage(user.currentRoom, `${user.userID} disconnected. Changing host to next in command!`);
+            // Let user leave room
+            model.leaveRoom(roomOfUser.id, req.session.userID);
+        } else {
+            // Only one person in room
+            console.log('ahahaha ', roomOfUser.id)
+            model.removeRoom(roomOfUser.id);
+        }
+    }
+
+    // Finally log out the user once everything is cleared
+    model.removeUser(req.session.userID);
+    // TODO ?: add logout msgs in lobby on logout?
+});
 
 
 module.exports = { router };

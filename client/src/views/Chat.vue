@@ -1,0 +1,59 @@
+<template>
+  <div>
+    <p>Chat thing!</p>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    room: {
+      type: Object,
+      required: true,
+    },
+  },
+  created() {
+    console.log(this.$store.state.isAuthenticated);
+    this.currentUser = this.$store.state.isAuthenticated;
+  },
+  methods: {
+    // Emitting event from child component
+    joinRoom(roomID) {
+        console.log(`Trying to join Room with ID: ${roomID}`);
+        this.$router.push(`/room/${roomID}`);
+    },
+    // Emitting event from child component
+    removeRoom(roomID) {
+        fetch('api/user/removeRoom', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                roomID,
+            }),
+        })
+        .then((resp) => {
+            // If something on server side went wrong...
+            if (!resp.ok) {
+                throw new Error('Error with adding new room...');
+            }
+        }).catch((err) => {
+            console.error(err);
+        });
+    },
+  },
+};
+</script>
+
+<style scoped>
+
+#roomContainer {
+  background:lightgrey;
+  margin:20px;
+  padding:10px;
+  border-radius:5px;
+  border:1px solid black;
+}
+
+</style>

@@ -10,16 +10,24 @@ class Room {
         this.users = [];
         // UserID that created the room
         this.creator = creator
+        this.game = null
     }
 
     addMessage(message) {
         this.messages.push(message);
     }
+
     addUser(user) {
         this.users.push(user);
     }
+
     removeUser(userID) {
         this.users = this.users.filter((user) => user !== userID);
+    }
+
+    // TODO: Will this add new complexities on logging out and leaving rooms? probably :)
+    addGame(game) {
+        this.game = game;
     }
 }
 

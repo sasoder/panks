@@ -26,7 +26,6 @@ export default {
     currentUser: null,
   }),
   created() {
-    console.log(this.$store.state.isAuthenticated);
     this.currentUser = this.$store.state.isAuthenticated;
   },
   methods: {

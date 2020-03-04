@@ -1,6 +1,5 @@
 <template>
   <div>
-    <button @click="logout">Logout</button>
     <p>Welcome to lobby!</p>
     <div>
         <input v-model="newRoomName" type="text" placeholder="Name of new room">
@@ -31,12 +30,10 @@ export default {
         this.socket = this.$root.socket;
         this.socket.on('newRoom', (newRoom) => {
             this.roomList = [...this.roomList, newRoom];
-            // this.canAddRoom = !this.userHasRoom();
         });
         this.socket.on('updatedRoomList', (rooms) => {
             console.log(`Rooms array on updating: ${JSON.stringify(rooms)}`);
             this.roomList = rooms;
-            // this.canAddRoom = !this.userHasRoom();
         });
         this.getActiveRooms();
     },
@@ -54,13 +51,12 @@ export default {
             .then(res => res.json())
             .then((data) => {
                 this.roomList = data.rooms;
-                // this.canAddRoom = !this.userHasRoom();
             })
             .catch(console.error);
         },
         addRoom() {
             if (this.newRoomName === '') {
-                console.log('Insufficient input data!');
+                console.error('Insufficient input data!');
                 return;
             }
             fetch('api/user/addRoom', {

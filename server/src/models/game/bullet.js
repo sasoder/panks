@@ -1,5 +1,5 @@
-import Entity from './entity.js'
-import { degreeToRad, centerOfObject } from './helpFunctions.js'
+import Entity from './entity.js.js'
+import { degreeToRad, centerOfObject } from './helpFunctions.js.js'
 
 export default class Bullet extends Entity {
     constructor(x, y, shootAngle, shootPower, shooter) {

@@ -1,7 +1,7 @@
 
-import Entity from './entity.js'
-import Bullet from './bullet.js'
-import { degreeToRad, centerOfObject } from './helpFunctions.js'
+import Entity from './entity.js.js'
+import Bullet from './bullet.js.js'
+import { degreeToRad, centerOfObject } from './helpFunctions.js.js'
 
 export default class Player extends Entity {
     // Player character

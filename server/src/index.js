@@ -50,10 +50,14 @@ app.use(express.static(publicPath));
 
 const auth = require('./controllers/auth.controller.js');
 const user = require('./controllers/user.controller.js');
+const game = require('./controllers/game.controller.js/index.js');
 
 app.use('/api', auth.router);
 // All user endpoints require that we have logged in
 app.use('/api/user', auth.requireAuth, user.router);
+// All game endpoints require that we are in the actual game
+// TODO: Have multiple middleware constants?
+app.use('/api/game', auth.requireAuth, auth.requireInGame, game.router);
 
 
 

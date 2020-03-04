@@ -10,6 +10,8 @@
         {{ user }}
       </li>
     </ul>
+    <GameSettings :roomID="this.roomID"/>
+    <GameScreen/>
     <ul>
       <li v-for="(message, index) in messages" v-bind:key="index">
         {{ message }}
@@ -18,9 +20,18 @@
   </div>
 </template>
 
-<!-- We need to integrate keybutton input somehow... -->
 <script>
+import GameSettings from './GameSettings.vue';
+import GameScreen from './GameScreen.vue';
+
 export default {
+  // TODO: Show GameSettings only for creator
+  // TODO: Show GameScreen once creator has set
+  components: {
+    // TODO: Does these need any props or emits?
+    GameSettings,
+    GameScreen,
+  },
   data() {
     // ! - Can't use arrow notation with data because of the use of route?
     return {

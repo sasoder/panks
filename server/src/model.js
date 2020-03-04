@@ -4,10 +4,10 @@
 
 // a lobby has rooms
 const Lobby = require('./models/lobby.model');
-
 const User = require('./models/user.model');
-const Tank = require('./models/tank.model');
+
 const Room = require('./models/room.model');
+const Game = require('./models/game.model');
 
 /**
  * rooms & users are effectively hash maps with the name of the entry serving as a unique key.
@@ -15,8 +15,6 @@ const Room = require('./models/room.model');
 let nextRoomID = 0;
 let rooms = {};
 let users = {};
-
-let tanks = {};
 
 /**
  * unregisteredSockets is used as a temporary pool of sockets
@@ -77,6 +75,7 @@ exports.joinRoom = (roomID, userID) => {
     users[userID].socket.join(roomID);
     // Add the user to the corresponding room
     rooms[roomID].addUser(userID);
+    
     // Updated Rooms with users
     exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms)); 
     exports.io.in(roomID).emit('updatedUserList', room.users); 
@@ -113,20 +112,45 @@ exports.updateUserSocket = (userID, socket) => {
 
 exports.findUser = (userID) => users[userID];
 
+exports.startGame = (roomID, width, height, amplitude) => {
+    let room = rooms[roomID];
+    let numPlayers = room.users.length;
+    rooms[roomID].addGame(new Game(numPlayers, width, height, amplitude));
+    exports.io.in(roomID).emit('startGame');
+}
+
+exports.removeUser = (userID) => {
+    // Remove user from server
+    users = Object.values(users)
+        .filter((user) => user.id !== userID)
+        .reduce((res, user) => ({ ...res, [user.id]: user }), {});
+
+    // TODO: Emit somehting?
+};
 
 exports.userHasRoom = (userID) => {
-    return Object.values(rooms).some(room => room.creator === userID)
+    return Object.values(rooms).find(room => room.creator === userID);
+}
+
+// Assumes from outer call that user has a room
+exports.changeCreator = (userID) => {
+    let userRoom = exports.userHasRoom(userID);
+    // Change to next player
+    let newCreator = userRoom.users[0];
+    userRoom.creator = newCreator.userID;
 }
 
 // TODO: Rememeber to remove room objects once a game is finished. Once ID counter goes over limit (back to zero) then old games should be gone from that index.
-exports.addRoom = (roomName, creatorID) => {
-    rooms[nextRoomID] = new Room(nextRoomID, roomName, creatorID);
+exports.addRoom = (roomName, creator) => {
+    rooms[nextRoomID] = new Room(nextRoomID, roomName, creator);
     // Make it so that only people in lobby get emitted of this info
     exports.io.in('lobby').emit('newRoom', rooms[nextRoomID]);
     nextRoomID += 1;
 };
 
+
 exports.getRooms = () => Object.values(rooms);
+
 
 exports.removeRoom = (id) => {
     // Clean out all users from room

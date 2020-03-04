@@ -16,6 +16,16 @@ const requireAuth = (req, res, next) => {
     next();
 };
 
+// TODO: (see comments)
+const requireInGame = (req, res, next) => {
+
+    // Get room with roomID
+    // Get game of room with room.game
+    // Check if req.session.userID is in array of players inside game.players
+
+    next();
+};
+
 // for main.js (setting store)
 router.get('/isAuthenticated', (req, res) => {
     const maybeUser = model.findUser(req.session.userID);
@@ -98,7 +108,5 @@ router.post('/login', (req, res) => {
     }
 });
 
-// TODO: Logout endpoint
-// TODO: Set isAuthenticated to null in Store
 
 module.exports = { router, requireAuth };
