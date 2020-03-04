@@ -45,8 +45,9 @@ router.get('/:roomID/init', (req, res) => {
   
     // Send response with messages
     res.status(200).json({
-      list: room.messages,
-      users: room.users,
+        creator: room.creator,
+        messages: room.messages,
+        users: room.users,
     });
 });
 
@@ -65,6 +66,7 @@ router.post('/:roomID/leave', (req, res) => {
     // Let user leave room
     model.leaveRoom(req.params.roomID, req.session.userID);
     
+    // Status: OK
     res.sendStatus(200);
 });
 
@@ -82,7 +84,8 @@ router.post('/:roomID/message', (req, res) => {
 
     // Send message
     model.addMessage(req.params.roomID, `${user.userID}: ${req.body.message}`);
-  
+
+    // Status: OK
     res.sendStatus(200);
 });
 
@@ -101,14 +104,19 @@ router.post('/logout', (req, res) => {
             // Let user leave room
             model.leaveRoom(roomOfUser.id, req.session.userID);
         } else {
-            // Only one person in room
-            console.log('ahahaha ', roomOfUser.id)
+            // Only host left in room
+            console.debug('Only host left in room!  ', roomOfUser.id)
             model.removeRoom(roomOfUser.id);
         }
     }
 
     // Finally log out the user once everything is cleared
     model.removeUser(req.session.userID);
+    
+    // TODO: Keep sending 200-messages.
+    // TODO: -- This messed up the routing thing on logout
+    // TODO: -- It didn't interpret resp as "resp.ok"
+    res.sendStatus(200);
     // TODO ?: add logout msgs in lobby on logout?
 });
 

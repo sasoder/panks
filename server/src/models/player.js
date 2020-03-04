@@ -1,12 +1,13 @@
-
-import Entity from './entity.js.js'
+/* import Entity from './entity.js.js'
 import Bullet from './bullet.js.js'
-import { degreeToRad, centerOfObject } from './helpFunctions.js.js'
+import { degreeToRad, centerOfObject } from './helpFunctions.js.js' */
 
-export default class Player extends Entity {
+const Entity = require('./entity');
+const Bullet = require('./bullet');
+const { degreeToRad, centerOfObject } = require('./helpFunctions');
+
+class Player extends Entity {
     // Player character
-
-
     constructor(gameWidth, id) {
         super();
         this.defaultShootAngle = 45
@@ -179,3 +180,5 @@ export default class Player extends Entity {
         }
     }
 }
+
+module.exports = Player;

@@ -1,4 +1,4 @@
-export default class Entity {
+class Entity {
     constructor() {
     }
     // returns the y-val of the entity (to make up for it falling too hard into the terrain)
@@ -18,3 +18,5 @@ export default class Entity {
         return this.x - 1 + this.width / 2 > 0
     }
 }
+
+module.exports = Entity;

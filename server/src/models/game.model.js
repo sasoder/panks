@@ -1,6 +1,10 @@
-import Perlin from './game/perlin.js'
-import Player from './game/player.js'
-import { centerOfObject } from './helpFunctions.js'
+/* import Perlin from './perlin.js'
+import Player from '/player.js'
+import { centerOfObject } from './helpFunctions.js' */
+
+const Perlin = require('./perlin');
+const Player = require('./player');
+const { centerOfObject } = require('./helpFunctions');
 
 class Game {
 

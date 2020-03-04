@@ -16,7 +16,6 @@
 <script>
 export default {
   props: {
-    // TODO: Will this work?
     roomID: {
       required: true,
     },
@@ -41,12 +40,12 @@ export default {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: {
+        body: JSON.stringify({
           roomID: this.roomID,
           amplitude: this.amplitude,
           width: this.width,
           height: this.height,
-        },
+        }),
       }).then((resp) => {
         if (!resp.ok) {
           throw new Error('Could not create game... Sad gamer moment!');

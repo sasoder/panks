@@ -2,6 +2,9 @@
  * @class Tank
  */
 class Tank {
+
+    // TODO: Remove this or make use of it in order to send game state? (tanks[])
+    
     constructor(userID, x, y, colour) {
         // Also used as name for tank
         this.userID = userID

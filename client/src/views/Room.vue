@@ -2,21 +2,24 @@
   <div>
     <p>Welcome to Room with ID: {{ this.roomID }}</p>
     <button v-on:click="leaveRoom">Leave room</button>
-    <form v-on:submit.prevent="sendMessage">
-        <input v-model="newMessage" type="text" placeholder="Tell us something...">
-    </form>
     <ul>
       <li v-for="user in users" v-bind:key="user.userID">
         {{ user }}
       </li>
     </ul>
-    <GameSettings :roomID="this.roomID"/>
-    <GameScreen/>
-    <ul>
-      <li v-for="(message, index) in messages" v-bind:key="index">
-        {{ message }}
-      </li>
-    </ul>
+    <GameSettings v-if="isCreator() && !this.activeGame" :roomID="this.roomID"/>
+    <GameScreen v-if="this.activeGame"/>
+    <!-- // TODO: Extract Chat -->
+    <div id="chat">
+      <div id="chat-text-container">
+        <p v-for="(message, index) in messages" v-bind:key="index">
+          {{ message }}
+        </p>
+      </div>
+      <form v-on:submit.prevent="sendMessage">
+        <input v-model="newMessage" type="text" placeholder="Tell us something...">
+      </form>
+    </div>
   </div>
 </template>
 
@@ -25,7 +28,7 @@ import GameSettings from './GameSettings.vue';
 import GameScreen from './GameScreen.vue';
 
 export default {
-  // TODO: Show GameSettings only for creator
+  // TODO: Extract Chat into seperate component (see further todo's - 'Extract Chat')
   // TODO: Show GameScreen once creator has set
   components: {
     // TODO: Does these need any props or emits?
@@ -36,9 +39,11 @@ export default {
     // ! - Can't use arrow notation with data because of the use of route?
     return {
       roomID: this.$route.params.roomID,
+      creator: null,
       messages: [],
       users: [],
       newMessage: '',
+      activeGame: '',
       socket: null,
     };
   },
@@ -46,9 +51,17 @@ export default {
     this.socket = this.$root.socket;
     this.socket.on('msg', (msg) => {
       this.messages = [...this.messages, msg];
+      // TODO: Extract Chat
+      this.scrollChat();
     });
     this.socket.on('updatedUserList', (users) => {
       this.users = users;
+    });
+    this.socket.on('startGame', () => {
+      this.activeGame = true;
+    });
+    this.socket.on('newCreator', (creator) => {
+      this.creator = creator;
     });
     this.socket.on('deletedRoom', () => {
       this.$router.push('/lobby');
@@ -56,6 +69,10 @@ export default {
     this.initRoom();
   },
   methods: {
+    isCreator() {
+      return this.creator === this.$store.state.isAuthenticated;
+    },
+    // TODO: Extract Chat
     sendMessage() {
       if (this.newMessage === '') {
         console.log('Insufficient input message!');
@@ -89,7 +106,8 @@ export default {
         return resp.json();
       })
       .then((data) => {
-        this.messages = data.list;
+        this.creator = data.creator;
+        this.messages = data.messages;
         this.users = data.users;
       })
       .catch((err) => {
@@ -111,9 +129,37 @@ export default {
         console.error(err);
       });
     },
+    // TODO: Extract Chat
+    scrollChat() {
+      const container = this.$el.querySelector('#chat-text-container');
+      container.scrollTop = container.scrollHeight;
+    },
   },
 };
 </script>
 
 <style scoped>
+
+/* //TODO: Extract Chat */
+#chat {
+  position:fixed;
+  bottom:10px;
+  left:10px;
+  width:150px;
+}
+
+#chat input {
+  width:150px;
+  border:1px solid black;
+  border-top:0;
+  padding:4px;
+}
+
+#chat-text-container {
+  height:300px;
+  padding:5px 5px 25px 5px;
+  border:1px solid black;
+  overflow-y:auto;
+}
+
 </style>

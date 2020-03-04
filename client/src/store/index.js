@@ -11,7 +11,6 @@ export default new Vuex.Store({
     },
     mutations: {
         setIsAuthenticated(store, isAuthenticated) {
-            console.log('lalallalala', isAuthenticated);
             store.isAuthenticated = isAuthenticated;
         },
     },

@@ -18,7 +18,6 @@
 
 <script>
 export default {
-  name: 'Login',
   data: () => ({
     name: '',
     password: '',

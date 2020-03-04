@@ -1,6 +1,6 @@
 // Noise generator made by /u/grinde on Reddit
 
-export default class Perlin {
+class Perlin {
     constructor() {
         // Quick and dirty permutation table
         this.perm = (() => {
@@ -39,3 +39,5 @@ export default class Perlin {
         return 0.395 * (n0 + n1); //Output is between -1 and 1.
     }
 }
+
+module.exports = Perlin;

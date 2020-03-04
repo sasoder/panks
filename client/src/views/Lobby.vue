@@ -1,5 +1,6 @@
 <template>
   <div>
+    <button @click="logout">Logout</button>
     <p>Welcome to lobby!</p>
     <div>
         <input v-model="newRoomName" type="text" placeholder="Name of new room">
@@ -41,6 +42,9 @@ export default {
         userHasRoom() {
             return this.roomList.some(room => room.creator === this.$store.state.isAuthenticated);
         },
+        /* userIsLoggedIn() {
+            return this.$store.state.isAuthenticated !== null;
+        }, */
         getActiveRooms() {
             fetch('/api/user/roomList', {
                 method: 'GET',
@@ -80,6 +84,26 @@ export default {
             }).catch((err) => {
                 console.error(err);
             });
+        },
+        logout() {
+          fetch('api/user/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+          })
+          .then((resp) => {
+              // If something on server side went wrong...
+              if (!resp.ok) {
+                  throw new Error('Error while logging out...');
+              }
+              // Clear "store variable"
+              this.$store.commit('setIsAuthenticated', null);
+              // Go back to homescreen
+              this.$router.push('/login');
+          }).catch((err) => {
+              console.error(err);
+          });
         },
     },
 };

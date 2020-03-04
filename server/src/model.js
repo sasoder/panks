@@ -78,7 +78,7 @@ exports.joinRoom = (roomID, userID) => {
     
     // Updated Rooms with users
     exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms)); 
-    exports.io.in(roomID).emit('updatedUserList', room.users); 
+    exports.io.in(roomID).emit('updatedUserList', room.users);
     console.log("Added user to room ", roomID, " with ID: ", userID);
 };
 
@@ -112,12 +112,6 @@ exports.updateUserSocket = (userID, socket) => {
 
 exports.findUser = (userID) => users[userID];
 
-exports.startGame = (roomID, width, height, amplitude) => {
-    let room = rooms[roomID];
-    let numPlayers = room.users.length;
-    rooms[roomID].addGame(new Game(numPlayers, width, height, amplitude));
-    exports.io.in(roomID).emit('startGame');
-}
 
 exports.removeUser = (userID) => {
     // Remove user from server
@@ -138,6 +132,9 @@ exports.changeCreator = (userID) => {
     // Change to next player
     let newCreator = userRoom.users[0];
     userRoom.creator = newCreator.userID;
+    // Need to emit info about new creator, since that person should now see settings
+    // TODO: Test if this works
+    exports.io.in(userRoom.id).emit('newCreator', newCreator.userID);
 }
 
 // TODO: Rememeber to remove room objects once a game is finished. Once ID counter goes over limit (back to zero) then old games should be gone from that index.
@@ -175,3 +172,12 @@ exports.removeRoom = (id) => {
 };
 
 exports.findRoom = (id) => rooms[id];
+
+
+exports.startGame = (roomID, width, height, amplitude) => {
+    let room = rooms[roomID];
+    let numPlayers = room.users.length;
+    // TODO: Uncomment once game.model is cleaned up
+    // rooms[roomID].addGame(new Game(numPlayers, width, height, amplitude));
+    exports.io.in(roomID).emit('startGame');
+}

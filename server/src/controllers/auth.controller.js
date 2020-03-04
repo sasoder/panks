@@ -22,6 +22,7 @@ const requireInGame = (req, res, next) => {
     // Get room with roomID
     // Get game of room with room.game
     // Check if req.session.userID is in array of players inside game.players
+    console.log("Passed requireInGame!");
 
     next();
 };
@@ -109,4 +110,4 @@ router.post('/login', (req, res) => {
 });
 
 
-module.exports = { router, requireAuth };
+module.exports = { router, requireAuth, requireInGame };

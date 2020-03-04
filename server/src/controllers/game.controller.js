@@ -19,3 +19,5 @@ router.post('/start', (req, res) => {
     // Start the game with given arguments
     model.startGame(roomID, width, height, amplitude);
 });
+
+module.exports = { router };

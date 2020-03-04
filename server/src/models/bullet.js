@@ -1,7 +1,10 @@
-import Entity from './entity.js.js'
-import { degreeToRad, centerOfObject } from './helpFunctions.js.js'
+/* import Entity from './entity.js.js'
+import { degreeToRad, centerOfObject } from './helpFunctions.js.js' */
 
-export default class Bullet extends Entity {
+const Entity = require('./entity');
+const { degreeToRad, centerOfObject } = require('./helpFunctions');
+
+class Bullet extends Entity {
     constructor(x, y, shootAngle, shootPower, shooter) {
         super()
         this.x = x
@@ -69,3 +72,5 @@ export default class Bullet extends Entity {
         ctx.fillRect(this.x, this.y, this.width, this.height)
     }
 }
+
+module.exports = Bullet;
