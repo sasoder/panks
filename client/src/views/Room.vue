@@ -29,7 +29,6 @@ import GameScreen from './GameScreen.vue';
 
 export default {
   // TODO: Extract Chat into seperate component (see further todo's - 'Extract Chat')
-  // TODO: Show GameScreen once creator has set
   components: {
     // TODO: Does these need any props or emits?
     GameSettings,
