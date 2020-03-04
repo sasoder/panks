@@ -48,6 +48,7 @@ router.get('/:roomID/init', (req, res) => {
         creator: room.creator,
         messages: room.messages,
         users: room.users,
+        activeGame: room.game !== null,
     });
 });
 

@@ -42,7 +42,7 @@ export default {
       messages: [],
       users: [],
       newMessage: '',
-      activeGame: '',
+      activeGame: null,
       socket: null,
     };
   },
@@ -58,6 +58,7 @@ export default {
     });
     this.socket.on('startGame', () => {
       this.activeGame = true;
+      // TODO: Should something else happen?
     });
     this.socket.on('newCreator', (creator) => {
       this.creator = creator;
@@ -108,6 +109,7 @@ export default {
         this.creator = data.creator;
         this.messages = data.messages;
         this.users = data.users;
+        this.activeGame = data.activeGame;
       })
       .catch((err) => {
         console.error(err);

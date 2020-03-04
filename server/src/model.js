@@ -131,13 +131,14 @@ exports.changeCreator = (userID) => {
     let userRoom = exports.userHasRoom(userID);
     // Change to next player
     let newCreator = userRoom.users[0];
+    // TODO: Does this change the actual dictionary 'rooms'?
     userRoom.creator = newCreator.userID;
     // Need to emit info about new creator, since that person should now see settings
     // TODO: Test if this works
     exports.io.in(userRoom.id).emit('newCreator', newCreator.userID);
 }
 
-// TODO: Rememeber to remove room objects once a game is finished. Once ID counter goes over limit (back to zero) then old games should be gone from that index.
+// TODO: Remember to remove room objects once a game is finished. Once ID counter goes over limit (back to zero) then old games should be gone from that index.
 exports.addRoom = (roomName, creator) => {
     rooms[nextRoomID] = new Room(nextRoomID, roomName, creator);
     // Make it so that only people in lobby get emitted of this info
@@ -179,5 +180,7 @@ exports.startGame = (roomID, width, height, amplitude) => {
     let numPlayers = room.users.length;
     // TODO: Uncomment once game.model is cleaned up
     // rooms[roomID].addGame(new Game(numPlayers, width, height, amplitude));
+    // Placeholder to make sure game doesn't stay null in Room.game
+    rooms[roomID].addGame("game");
     exports.io.in(roomID).emit('startGame');
 }
