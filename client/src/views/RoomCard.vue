@@ -31,13 +31,11 @@ export default {
   },
   methods: {
     // Emitting event from child component
-    // TODO: Implement joining a room
     joinRoom(roomID) {
         console.log(`Trying to join Room with ID: ${roomID}`);
         this.$router.push(`/room/${roomID}`);
     },
     // Emitting event from child component
-    // TODO: Add so that only creater of room can remove?
     removeRoom(roomID) {
         fetch('api/user/removeRoom', {
             method: 'POST',

@@ -7,17 +7,6 @@
   </div>
 </template>
 
-<script>
-// TODO: Maybe import this into children later
-export default {
-  methods: {
-    redirect(target) {
-      this.$router.push(target);
-    },
-  },
-};
-</script>
-
 <style>
 html,
 body {

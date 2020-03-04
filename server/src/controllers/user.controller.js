@@ -3,32 +3,29 @@ const model = require('../model.js');
 
 const router = express.Router();
 
+
 router.get('/roomList', (req, res) => {
     const rooms = model.getRooms();
     res.status(200).json({ rooms });
 });
 
+
 router.post('/addRoom', (req, res) => {
-
-    let addedRoom = model.addRoom(req.body.roomName, req.session.userID);
-
-    if(addedRoom) {
-        res.sendStatus(200)
-    } else {
-        // Could not add room
-        res.sendStatus(400)
+    if (model.userHasRoom(eq.session.userID)) {
+        res.sendStatus(404);
+        return;
     }
-    
-    // TODO send message if room was added or not
+
+    // Add room since all is fine!
+    model.addRoom(req.body.roomName, req.session.userID);
 });
 
-// TODO: Add so that only creater of room can remove?
+
 router.post('/removeRoom', (req, res) => {
     model.removeRoom(req.body.roomID);
 });
 
-// TODO: Set up join endpoint
-// TODO: Add current user to the array of users in room
+
 router.get('/:roomID/init', (req, res) => {
     const room = model.findRoom(req.params.roomID);
     if (room === undefined) {
@@ -52,7 +49,7 @@ router.get('/:roomID/init', (req, res) => {
     });
 });
 
-// TODO: Set up 'leave' endpoint.
+
 router.post('/:roomID/leave', (req, res) => {
     const user = model.findUser(req.session.userID);
     if (user.currentRoom !== parseInt(req.params.roomID)) {
@@ -87,5 +84,6 @@ router.post('/:roomID/message', (req, res) => {
   
     res.sendStatus(200);
   });
+
 
 module.exports = { router };

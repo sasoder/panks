@@ -1,8 +1,10 @@
 <template>
   <div>
+    <button @click="logout">Logout</button>
     <p>Welcome to lobby!</p>
     <div>
         <input v-model="newRoomName" type="text" placeholder="Name of new room">
+        <!-- Only display "add button" if user is not currently hosting a room -->
         <button @click="addRoom" v-if="!userHasRoom()" type="submit">Add Room!</button>
     </div>
     <RoomCard

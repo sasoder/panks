@@ -114,30 +114,22 @@ exports.updateUserSocket = (userID, socket) => {
 exports.findUser = (userID) => users[userID];
 
 
-const userHasRoom = (userID) => {
+exports.userHasRoom = (userID) => {
     return Object.values(rooms).some(room => room.creator === userID)
 }
 
 // TODO: Rememeber to remove room objects once a game is finished. Once ID counter goes over limit (back to zero) then old games should be gone from that index.
 exports.addRoom = (roomName, creatorID) => {
-
-    // Don't allow a user to have more than one room
-    if (userHasRoom(creatorID)) {
-        return false;
-    }
-    
     rooms[nextRoomID] = new Room(nextRoomID, roomName, creatorID);
     // Make it so that only people in lobby get emitted of this info
     exports.io.in('lobby').emit('newRoom', rooms[nextRoomID]);
     nextRoomID += 1;
-    return true
 };
 
 exports.getRooms = () => Object.values(rooms);
 
 exports.removeRoom = (id) => {
     // Clean out all users from room
-    // TODO uncaught in promise for user who left room
     const room = rooms[id];
     const roomUsers = room.users;
     roomUsers.forEach(userID => {
