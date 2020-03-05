@@ -1,5 +1,5 @@
 <template>
-  <div id="roomContainer">
+  <div id="roomcard-container">
     <p>
       ID: {{ room.id }}
       <br>Created by: {{ room.creator }}
@@ -60,7 +60,7 @@ export default {
 
 <style scoped>
 
-#roomContainer {
+#roomcard-container {
   background:lightgrey;
   margin:20px;
   padding:10px;
