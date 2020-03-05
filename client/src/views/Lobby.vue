@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import RoomCard from './RoomCard.vue';
+import RoomCard from './components/RoomCard.vue';
 
 export default {
     components: {
