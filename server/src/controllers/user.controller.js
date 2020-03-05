@@ -19,11 +19,15 @@ router.post('/addRoom', (req, res) => {
     console.log('adding room');
     // Add room since all is fine!
     model.addRoom(req.body.roomName, req.session.userID);
+    // Status: OK
+    res.sendStatus(200);
 });
 
 
 router.post('/removeRoom', (req, res) => {
     model.removeRoom(req.body.roomID);
+    // Status: OK
+    res.sendStatus(200);
 });
 
 

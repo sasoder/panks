@@ -2,11 +2,11 @@
   <div>
     <button @click="logout">Logout</button>
     <p>Welcome to lobby!</p>
-    <div>
+    <form v-on:submit.prevent="addRoom">
         <input v-model="newRoomName" type="text" placeholder="Name of new room">
         <!-- Only display "add button" if user is not currently hosting a room -->
-        <button @click="addRoom" v-if="!userHasRoom()" type="submit">Add Room!</button>
-    </div>
+        <button v-if="!userHasRoom()" type="submit">Add Room!</button>
+    </form>
     <RoomCard
         v-for="room in roomList"
         :key="room.id"
@@ -25,7 +25,6 @@ export default {
     data: () => ({
         roomList: [],
         newRoomName: '',
-        canAddRoom: false,
     }),
     created() {
         this.socket = this.$root.socket;
@@ -42,9 +41,6 @@ export default {
         userHasRoom() {
             return this.roomList.some(room => room.creator === this.$store.state.isAuthenticated);
         },
-        /* userIsLoggedIn() {
-            return this.$store.state.isAuthenticated !== null;
-        }, */
         getActiveRooms() {
             fetch('/api/user/roomList', {
                 method: 'GET',
@@ -59,6 +55,12 @@ export default {
             .catch(console.error);
         },
         addRoom() {
+            // Is user allowed to add?
+            if (this.userHasRoom()) {
+                console.error('You already have a room bro!');
+                return;
+            }
+            // Check input
             if (this.newRoomName === '') {
                 console.error('Insufficient input data!');
                 return;
@@ -78,7 +80,6 @@ export default {
                 if (!resp.ok) {
                     throw new Error('Error with adding new room...');
                 }
-                this.canAddRoom = false;
                 // Clear name of 'new Room'
                 this.newRoomName = '';
             }).catch((err) => {
