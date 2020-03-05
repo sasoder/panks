@@ -2,12 +2,12 @@
   <div>
     <p>Welcome to Room with ID: {{ this.roomID }}</p>
     <button v-on:click="leaveRoom">Leave room</button>
-    <ul>
-      <li v-for="user in users" v-bind:key="user.userID">
-        {{ user }}
-      </li>
-    </ul>
-    <GameSettings v-if="isCreator() && !this.activeGame" :roomID="this.roomID"/>
+    <UserList
+      :users="users"
+    />
+    <GameSettings v-if="isCreator() && !this.activeGame"
+      :roomID="roomID"
+    />
     <GameScreen v-if="this.activeGame"/>
     <Chat
       ref="chat"
@@ -18,12 +18,14 @@
 </template>
 
 <script>
+import UserList from './components/UserList.vue';
 import GameSettings from './components/GameSettings.vue';
 import GameScreen from './components/GameScreen.vue';
 import Chat from './components/Chat.vue';
 
 export default {
   components: {
+    UserList,
     GameSettings,
     GameScreen,
     Chat,
