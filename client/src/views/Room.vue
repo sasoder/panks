@@ -9,7 +9,6 @@
     </ul>
     <GameSettings v-if="isCreator() && !this.activeGame" :roomID="this.roomID"/>
     <GameScreen v-if="this.activeGame"/>
-    <!-- // TODO: Extract Chat -->
     <Chat
       ref="chat"
       :roomID="roomID"
