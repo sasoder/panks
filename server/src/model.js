@@ -184,3 +184,11 @@ exports.startGame = (roomID, width, height, amplitude) => {
     rooms[roomID].addGame("game");
     exports.io.in(roomID).emit('startGame');
 }
+
+exports.updateGame = (roomID, gameState) => {
+
+    // update gameState with new info
+    exports.findRoom(roomID).game.gameState = gameState
+    // ... and emit it to all players in the room
+    exports.io.in(roomID).emit('updateGame')
+}
