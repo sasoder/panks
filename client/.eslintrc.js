@@ -16,7 +16,7 @@ module.exports = {
     "indent": 0,
     "consistent-return": "off",
     "no-plusplus": "off",
-    "no-param-reassign": "off"
+    "no-param-reassign": "off",
   },
   parserOptions: {
     parser: 'babel-eslint',
