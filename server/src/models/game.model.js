@@ -46,8 +46,17 @@ class Game {
 
         // gamestate that will be sent at every emission
         this.gamestate = {
+            width: this.width,
+            height: this.height,
+            gravity: this.gravity,
+    
+            skyColour: this.skyColour,
+            groundColor: this.groundColor,
+
             players: this.players,
+            currentPlayerIndex: this.currentPlayerIndex,
             gameScreen: this.gameScreen,
+            bullets: this.bullets
         }
 
         this.keydownListener = this.keydownListener.bind(this)
