@@ -44,6 +44,12 @@ class Game {
             p: 80
         }
 
+        // gamestate that will be sent at every emission
+        this.gamestate = {
+            players: this.players,
+            gameScreen: this.gameScreen,
+        }
+
         this.keydownListener = this.keydownListener.bind(this)
         this.keyupListener = this.keyupListener.bind(this)
 
