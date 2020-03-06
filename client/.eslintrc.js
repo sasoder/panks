@@ -14,7 +14,9 @@ module.exports = {
       2, 'single', 'avoid-escape'
     ],
     "indent": 0,
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "no-plusplus": "off",
+    "no-param-reassign": "off"
   },
   parserOptions: {
     parser: 'babel-eslint',
