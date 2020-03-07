@@ -20,7 +20,6 @@ class Game {
         this.groundColours = ["#ccc", '#bd9874', '#f9e4b7', '#66a103', '#654321', '#ffffffff']
         this.currentPlayerIndex = 0
         this.gravity = 0.3
-        this.players = []
         this.bullets = []
 
         this.width = width
@@ -28,24 +27,24 @@ class Game {
         this.skyColour = this.skyColours[Math.floor(Math.random() * this.skyColours.length)]
         this.groundColor = this.groundColours[Math.floor(Math.random() * this.groundColours.length)]
         // initialize game with array of room users
-        this.init(players, amp)
         
-
+        
         // gamestate that will be sent at every emission
         this.gamestate = {
             width: this.width,
             height: this.height,
             gravity: this.gravity,
-    
+            
             skyColour: this.skyColour,
             groundColor: this.groundColor,
-
-            players: this.players,
+            bullets: this.bullets,
+            
+            players: [],
             currentPlayerIndex: this.currentPlayerIndex,
             gameScreen: this.gameScreen,
-            bullets: this.bullets
         }
-
+        
+        this.init(players, amp)
         
     }
 
@@ -54,23 +53,10 @@ class Game {
         this.gameScreen = this.generateTerrain(amp)
         this.currentPlayerIndex = 0
         this.currentPlayer.canMove = true
-        this.currentPlayer.isTurn = true
         this.interval = setInterval(this.update.bind(this), 1000 / 30)
 
-        // gamestate that will be sent at every emission
-        this.gamestate = {
-            width: this.width,
-            height: this.height,
-            gravity: this.gravity,
-    
-            skyColour: this.skyColour,
-            groundColor: this.groundColor,
-
-            players: this.players,
-            currentPlayerIndex: this.currentPlayerIndex,
-            gameScreen: this.gameScreen,
-            bullets: this.bullets
-        }
+        // update players
+        this.gamestate.players = this.players
 
     }
 
