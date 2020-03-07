@@ -5,10 +5,12 @@
     <UserList
       :users="users"
     />
-    <GameSettings v-if="isCreator() && !this.activeGame"
+    <GameSettings v-if="isCreator && !this.activeGame"
       :roomID="roomID"
     />
-    <GameScreen v-if="this.activeGame"/>
+    <GameScreen v-if="this.activeGame"
+      :roomID="roomID"
+    />
     <Chat
       ref="chat"
       :roomID="roomID"
@@ -64,9 +66,6 @@ export default {
     this.initRoom();
   },
   methods: {
-    isCreator() {
-      return this.creator === this.$store.state.isAuthenticated;
-    },
     initRoom() {
       fetch(`/api/user/${this.roomID}/init`)
       .then((resp) => {
@@ -99,6 +98,11 @@ export default {
       }).catch((err) => {
         console.error(err);
       });
+    },
+  },
+  computed: {
+    isCreator() {
+      return this.creator === this.$store.state.isAuthenticated;
     },
   },
 };
