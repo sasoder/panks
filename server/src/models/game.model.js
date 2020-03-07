@@ -8,8 +8,6 @@ const { centerOfObject } = require('./helpFunctions');
 
 class Game {
 
-    // TODO: Clear event listeners and instead connect to fetches
-
     constructor(players, width, height, amp) {
 
         this.hudBarLen = 100
@@ -29,8 +27,8 @@ class Game {
         // initialize game with array of room users
         
         
-        // gamestate that will be sent at every emission
-        this.gamestate = {
+        // gameState that will be sent at every emission
+        this.gameState = {
             width: this.width,
             height: this.height,
             gravity: this.gravity,
@@ -56,7 +54,7 @@ class Game {
         this.interval = setInterval(this.update.bind(this), 1000 / 30)
 
         // update players
-        this.gamestate.players = this.players
+        this.gameState.players = this.players
 
     }
 
@@ -83,8 +81,8 @@ class Game {
             this.currentPlayer.resetShots()
             this.changeTurn()
         }
-        // gamestate that will be sent at every emission
-        this.gamestate = {
+        // gameState that will be sent at every emission
+        this.gameState = {
             width: this.width,
             height: this.height,
             gravity: this.gravity,
