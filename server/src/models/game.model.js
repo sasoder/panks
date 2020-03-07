@@ -29,8 +29,8 @@ class Game {
         
         // gameState that will be sent at every emission
         this.gameState = {
-            width: this.width,
-            height: this.height,
+            width: width,
+            height: height,
             gravity: this.gravity,
             
             skyColour: this.skyColour,
@@ -39,7 +39,7 @@ class Game {
             
             players: [],
             currentPlayerIndex: this.currentPlayerIndex,
-            gameScreen: this.gameScreen,
+            gameScreen: [],
         }
         
         this.init(players, amp)
@@ -55,6 +55,7 @@ class Game {
 
         // update players
         this.gameState.players = this.players
+        this.gameState.gameScreen = this.gameScreen
 
     }
 
