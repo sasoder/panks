@@ -178,10 +178,9 @@ exports.findRoom = (id) => rooms[id];
 exports.startGame = (roomID, width, height, amplitude) => {
     let room = rooms[roomID];
     let numPlayers = room.users.length;
-    // TODO: Uncomment once game.model is cleaned up
-    // rooms[roomID].addGame(new Game(numPlayers, width, height, amplitude));
-    // Placeholder to make sure game doesn't stay null in Room.game
-    rooms[roomID].addGame("game");
+    
+    rooms[roomID].addGame(new Game(numPlayers, width, height, amplitude));
+
     exports.io.in(roomID).emit('startGame');
 }
 
