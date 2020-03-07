@@ -13,13 +13,12 @@
 export default {
   data() {
     return {
-      // TODO import help functions
       gameState: this.getGameState(this.$route.params.roomID),
       socket: null,
       canvas: document.getElementById('gameCanvas'),
       ctx: this.canvas.getContext('2d'),
 
-    // variables independent of game that shouldn't be in gameState
+      // variables independent of game that shouldn't be in gameState
       hudBarLen: 100,
       hudBarHeight: 20,
       barFillThickness: 3,
@@ -70,12 +69,12 @@ export default {
         if (p.hp > 0) {
             this.ctx.translate(p.x + p.width / 2, p.y);
 
-            this.ctx.rotate(-degreeToRad(p.shootAngle - 90));
+            this.ctx.rotate(-this.degreeToRad(p.shootAngle - 90));
 
             this.ctx.fillStyle = 'black';
             this.ctx.fillRect(-p.barrelThickness / 2, -p.barrelLen, p.barrelThickness, p.barrelLen);
 
-            this.ctx.rotate(degreeToRad(p.shootAngle - 90));
+            this.ctx.rotate(this.degreeToRad(p.shootAngle - 90));
 
             this.ctx.translate(-(p.x + p.width / 2), -(p.y));
             this.ctx.fillStyle = p.colour;
@@ -220,6 +219,10 @@ export default {
     get currentPlayer() {
       const { players, currentPlayerIndex } = this.gameState;
         return players[currentPlayerIndex];
+    },
+
+    degreeToRad(degree) {
+        return (degree * Math.PI / 180);
     },
   },
 };
