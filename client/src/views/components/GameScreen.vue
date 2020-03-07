@@ -2,7 +2,7 @@
   <div>
     <p>Good luck!</p>
     <div id="screen">
-      <canvas id="gameCanvas"></canvas>
+      <canvas ref="gameCanvas"></canvas>
     </div>
   </div>
 </template>
@@ -11,6 +11,11 @@
 <script>
 
 export default {
+  props: {
+    roomID: {
+      required: true,
+    },
+  },
   data() {
     return {
       gameState: null,
@@ -27,12 +32,22 @@ export default {
   },
 
   created() {
-    // Set up vue data
-    this.gameState = this.getGameState(this.$route.params.roomID);
-    this.canvas = document.getElementById('gameCanvas');
-    this.ctx = this.canvas.getContext('2d');
-    console.log(this.gameState);
+    // TODO set up eventlisteners correctly (this is mostly copypasted from game model)
+    // Event listeners
+        this.keys = {
+          up: 38,
+            down: 40,
+            left: 37,
+            right: 39,
+            space: 32,
+            o: 79,
+            p: 80,
+        };
+        this.keydownListener = this.keydownListener.bind(this);
+        this.keyupListener = this.keyupListener.bind(this);
 
+        window.addEventListener('keydown', this.keydownListener);
+        window.addEventListener('keyup', this.keyupListener);
 
     this.socket = this.$root.socket;
     // change gameState when something is emitted
@@ -41,6 +56,13 @@ export default {
       // draw screen with new gamestate
       this.draw(gameState);
     });
+  },
+  mounted() {
+    // Set up vue data
+    this.gameState = this.getGameState(this.$route.params.roomID);
+    this.canvas = this.$refs.gameCanvas;
+    this.ctx = this.canvas.getContext('2d');
+    console.log('gamestate:', this.gameState);
   },
   methods: {
     // for getting initial gamestate
@@ -54,6 +76,15 @@ export default {
             .then(res => res.json())
             .then((data) => {
                 this.gameState = data.gameState;
+            })
+            .catch(console.error);
+    },
+    updateGameState(roomID) {
+      fetch(`/api/game/updateGameState/${roomID}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             })
             .catch(console.error);
     },
@@ -223,15 +254,73 @@ export default {
         this.hudBarHeight - barFillThickness * 2);
     },
 
-    get currentPlayer() {
-      const { players, currentPlayerIndex } = this.gameState;
-        return players[currentPlayerIndex];
-    },
-
     degreeToRad(degree) {
         return (degree * Math.PI / 180);
     },
+  // Eventlisteners
+  // TODO set up eventlisteners correctly (this is mostly copypasted from game model)
+  keydownListener(e) {
+        const mT = this.currentPlayer.moveTank;
+        switch (e.keyCode) {
+            case this.keys.down:
+                mT.barrelLeft = true;
+                break;
+            case this.keys.up:
+                mT.barrelRight = true;
+                break;
+            case this.keys.left:
+                mT.tankLeft = true;
+                mT.tankRight = false;
+                break;
+            case this.keys.right:
+                mT.tankRight = true;
+                mT.tankLeft = false;
+                break;
+            case this.keys.space:
+                if (this.bullets.length === 0) {
+                    this.bullets.push(this.currentPlayer.shoot());
+                }
+                break;
+            case this.keys.o:
+                this.currentPlayer.powerDir.down = true;
+                this.currentPlayer.powerDir.up = false;
+                break;
+            case this.keys.p:
+                this.currentPlayer.powerDir.down = false;
+                this.currentPlayer.powerDir.up = true;
+        }
+    },
+
+    keyupListener(e) {
+        const mT = this.currentPlayer.moveTank;
+        switch (e.keyCode) {
+            case this.keys.down:
+                mT.barrelLeft = false;
+                break;
+            case this.keys.up:
+                mT.barrelRight = false;
+                break;
+            case this.keys.left:
+                mT.tankLeft = false;
+                break;
+            case this.keys.right:
+                mT.tankRight = false;
+                break;
+            case this.keys.o:
+                this.currentPlayer.powerDir.down = false;
+                break;
+            case this.keys.p:
+                this.currentPlayer.powerDir.up = false;
+        }
+    },
   },
+
+    computed: {
+    currentPlayer() {
+      const { players, currentPlayerIndex } = this.gameState;
+        return players[currentPlayerIndex];
+    },
+    },
 };
 </script>
 
