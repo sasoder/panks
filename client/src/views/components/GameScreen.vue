@@ -13,10 +13,10 @@
 export default {
   data() {
     return {
-      gameState: this.getGameState(this.$route.params.roomID),
+      gameState: null,
       socket: null,
-      canvas: document.getElementById('gameCanvas'),
-      ctx: this.canvas.getContext('2d'),
+      canvas: null,
+      ctx: null,
 
       // variables independent of game that shouldn't be in gameState
       hudBarLen: 100,
@@ -27,6 +27,13 @@ export default {
   },
 
   created() {
+    // Set up vue data
+    this.gameState = this.getGameState(this.$route.params.roomID);
+    this.canvas = document.getElementById('gameCanvas');
+    this.ctx = this.canvas.getContext('2d');
+    console.log(this.gameState);
+
+
     this.socket = this.$root.socket;
     // change gameState when something is emitted
     this.socket.on('gameUpdate', (gameState) => {
