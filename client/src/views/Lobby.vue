@@ -5,7 +5,7 @@
     <form v-on:submit.prevent="addRoom">
         <input v-model="newRoomName" type="text" placeholder="Name of new room">
         <!-- Only display "add button" if user is not currently hosting a room -->
-        <button v-if="!userHasRoom()" type="submit">Add Room!</button>
+        <button v-if="!userHasRoom()" type="submit">Create Room!</button>
     </form>
     <RoomCard
         v-for="room in roomList"
