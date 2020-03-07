@@ -31,7 +31,18 @@ export default {
     };
   },
 
-  created() {
+  async mounted() {
+    // Set up vue data
+    // TODO cleanup, drawing of screen buggy!
+    this.canvas = this.$refs.gameCanvas;
+    this.ctx = this.canvas.getContext('2d');
+    this.gameState = await this.getGameState(this.roomID);
+    this.$refs.gameCanvas.setAttribute('width', this.gameState.width);
+    this.$refs.gameCanvas.setAttribute('height', this.gameState.height);
+    this.draw(this.gameState);
+
+    console.log(this.$refs.gameCanvas);
+
     // TODO set up eventlisteners correctly (this is mostly copypasted from game model)
     // Event listeners
         this.keys = {
@@ -50,6 +61,7 @@ export default {
         window.addEventListener('keyup', this.keyupListener);
 
     this.socket = this.$root.socket;
+    // TODO update screen on a regular interval on the server
     // change gameState when something is emitted
     this.socket.on('gameUpdate', (gameState) => {
       this.gameState = gameState;
@@ -57,17 +69,10 @@ export default {
       this.draw(gameState);
     });
   },
-  mounted() {
-    // Set up vue data
-    this.gameState = this.getGameState(this.$route.params.roomID);
-    this.canvas = this.$refs.gameCanvas;
-    this.ctx = this.canvas.getContext('2d');
-    console.log('gamestate:', this.gameState);
-  },
   methods: {
     // for getting initial gamestate
-    getGameState(roomID) {
-      fetch(`/api/game/gameState/${roomID}`, {
+   getGameState(roomID) {
+      return fetch(`/api/game/gameState/${roomID}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -75,7 +80,8 @@ export default {
             })
             .then(res => res.json())
             .then((data) => {
-                this.gameState = data.gameState;
+              console.log(data.gameState);
+                return data.gameState;
             })
             .catch(console.error);
     },
@@ -315,12 +321,12 @@ export default {
     },
   },
 
-    computed: {
-    currentPlayer() {
-      const { players, currentPlayerIndex } = this.gameState;
-        return players[currentPlayerIndex];
-    },
-    },
+  computed: {
+  currentPlayer() {
+    const { players, currentPlayerIndex } = this.gameState;
+      return players[currentPlayerIndex];
+  },
+  },
 };
 </script>
 
