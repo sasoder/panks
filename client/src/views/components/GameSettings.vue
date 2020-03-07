@@ -45,6 +45,7 @@ export default {
           amplitude: this.amplitude,
           width: this.width,
           height: this.height,
+          users: this.users,
         }),
       }).then((resp) => {
         if (!resp.ok) {
