@@ -178,8 +178,7 @@ exports.findRoom = (id) => rooms[id];
 exports.startGame = (roomID, width, height, amplitude) => {
     let room = rooms[roomID];
     
-    rooms[roomID].addGame(new Game(room.users, width, height, amplitude));
-
+    room.addGame(new Game(room.users, width, height, amplitude));
     exports.io.in(roomID).emit('startGame');
 }
 
