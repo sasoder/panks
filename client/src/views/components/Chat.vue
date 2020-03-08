@@ -62,7 +62,7 @@ export default {
 #chat {
   position:fixed;
   bottom:10px;
-  left:10px;
+  right:10px;
   width:150px;
 }
 
@@ -74,6 +74,7 @@ export default {
 }
 
 #chat-text-container {
+  background:white;
   height:300px;
   padding:5px 5px 25px 5px;
   border:1px solid black;

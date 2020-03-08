@@ -25,6 +25,7 @@ router.post('/start', (req, res) => {
     // Start the game with given arguments
     console.log('starting agme:')
     model.startGame(roomID, width, height, amplitude, users);
+    res.sendStatus(200);
 });
 
 

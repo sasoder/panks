@@ -5,10 +5,11 @@ import { centerOfObject } from './helpFunctions.js' */
 const Perlin = require('./perlin');
 const Player = require('./player');
 const { centerOfObject } = require('./helpFunctions');
+const model = require('../model.js')
 
 class Game {
 
-    constructor(players, width, height, amp) {
+    constructor(roomID, players, width, height, amp) {
 
         this.hudBarLen = 100
         this.hudBarHeight = 20
@@ -26,9 +27,10 @@ class Game {
         this.groundColor = this.groundColours[Math.floor(Math.random() * this.groundColours.length)]
         // initialize game with array of room users
         
-        
         // gameState that will be sent at every emission
-        this.gameState = {
+        // TODO can clean this up (gravity, colors etc don't need to be in here)
+        this.initGameState = {
+            roomID: roomID,
             width: width,
             height: height,
             gravity: this.gravity,
@@ -41,6 +43,8 @@ class Game {
             currentPlayerIndex: this.currentPlayerIndex,
             gameScreen: [],
         }
+
+        d
         
         this.init(players, amp)
         
@@ -54,17 +58,15 @@ class Game {
         this.interval = setInterval(this.update.bind(this), 1000 / 30)
 
         // update players
-        this.gameState.players = this.players
-        this.gameState.gameScreen = this.gameScreen
+        this.initGameState.players = this.players
+        this.initGameState.gameScreen = this.gameScreen
+        model.sendInitGameState(this.initGameState)
 
     }
 
     destroy() {
         // kill the frickin game!
         clearInterval(this.interval)
-
-        window.removeEventListener('keydown', this.keydownListener)
-        window.removeEventListener('keyup', this.keyupListener)
     }
 
     update() {
@@ -81,20 +83,6 @@ class Game {
         if ((this.bullets.length === 0 && this.currentPlayer.shots === 0) || !this.currentPlayer.isAlive) {
             this.currentPlayer.resetShots()
             this.changeTurn()
-        }
-        // gameState that will be sent at every emission
-        this.gameState = {
-            width: this.width,
-            height: this.height,
-            gravity: this.gravity,
-    
-            skyColour: this.skyColour,
-            groundColor: this.groundColor,
-
-            players: this.players,
-            currentPlayerIndex: this.currentPlayerIndex,
-            gameScreen: this.gameScreen,
-            bullets: this.bullets
         }
     }
    
@@ -233,7 +221,9 @@ class Game {
                 break
             case this.keys.space:
                 if (this.bullets.length == 0) {
-                    this.bullets.push(this.currentPlayer.shoot())
+                    let b = this.currentPlayer.shoot()
+                    this.bullets.push(b)
+                    model.emitShot(b)
                 }
                 break
             case this.keys.o:

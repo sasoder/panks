@@ -22,8 +22,8 @@ export default {
   },
   data: () => ({
     amplitude: 100,
-    width: 500,
-    height: 800,
+    width: 800,
+    height: 500,
   }),
   methods: {
     startGame() {

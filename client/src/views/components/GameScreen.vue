@@ -20,6 +20,7 @@ export default {
     return {
       gameState: null,
       socket: null,
+      interval: null,
       canvas: null,
       ctx: null,
 
@@ -28,10 +29,21 @@ export default {
       hudBarHeight: 20,
       barFillThickness: 3,
       infoPadding: 30,
+      width: null,
+      height: null,
     };
   },
 
   async mounted() {
+    this.socket = this.$root.socket;
+    // TODO update screen on a regular interval on the server
+    // change gameState when something is emitted
+    this.socket.on('updateGame', (gameState) => {
+      this.gameState = gameState;
+      // draw screen with new gamestate
+      this.draw(gameState);
+    });
+
     // Set up vue data
     // TODO cleanup, drawing of screen buggy!
     this.canvas = this.$refs.gameCanvas;
@@ -39,35 +51,27 @@ export default {
     this.gameState = await this.getGameState(this.roomID);
     this.$refs.gameCanvas.setAttribute('width', this.gameState.width);
     this.$refs.gameCanvas.setAttribute('height', this.gameState.height);
-    this.draw(this.gameState);
 
-    console.log(this.$refs.gameCanvas);
+    this.width = this.gameState.width;
+    this.height = this.gameState.height;
 
     // TODO set up eventlisteners correctly (this is mostly copypasted from game model)
+
+    window.addEventListener('keydown', this.keydownListener);
+    window.addEventListener('keyup', this.keyupListener);
+
     // Event listeners
-        this.keys = {
-          up: 38,
-            down: 40,
-            left: 37,
-            right: 39,
-            space: 32,
-            o: 79,
-            p: 80,
-        };
-        this.keydownListener = this.keydownListener.bind(this);
-        this.keyupListener = this.keyupListener.bind(this);
-
-        window.addEventListener('keydown', this.keydownListener);
-        window.addEventListener('keyup', this.keyupListener);
-
-    this.socket = this.$root.socket;
-    // TODO update screen on a regular interval on the server
-    // change gameState when something is emitted
-    this.socket.on('gameUpdate', (gameState) => {
-      this.gameState = gameState;
-      // draw screen with new gamestate
-      this.draw(gameState);
-    });
+    this.keys = {
+      up: 38,
+        down: 40,
+        left: 37,
+        right: 39,
+        space: 32,
+        o: 79,
+        p: 80,
+    };
+    this.keydownListener = this.keydownListener.bind(this);
+    this.keyupListener = this.keyupListener.bind(this);
   },
   methods: {
     // for getting initial gamestate
@@ -79,10 +83,7 @@ export default {
                 },
             })
             .then(res => res.json())
-            .then((data) => {
-              console.log(data.gameState);
-                return data.gameState;
-            })
+            .then(data => data.gameState)
             .catch(console.error);
     },
     updateGameState(roomID) {
@@ -199,9 +200,7 @@ export default {
     },
 
     drawHud(gameState) {
-      const {
-        players, infoPadding, barFillThickness, hudBarLen,
-        } = gameState;
+      const { players } = gameState;
       players.forEach((p, i) => {
           this.ctx.textAlign = 'right';
           this.ctx.font = '15px Arial';
@@ -209,55 +208,59 @@ export default {
           else this.ctx.fillStyle = 'black';
 
           this.ctx.fillText(`${(p.id === this.currentPlayer.id ? '> ' : '') + p.name} ${Math.round(p.score)} pts`,
-            this.width - hudBarLen - infoPadding,
-            infoPadding + infoPadding * i);
+            this.width - this.hudBarLen - this.infoPadding,
+            this.infoPadding + this.infoPadding * i);
 
           this.ctx.fillStyle = 'grey';
-          this.ctx.fillRect(this.width - hudBarLen - infoPadding / 2,
-            infoPadding / 2 + infoPadding * i,
-            hudBarLen,
+          this.ctx.fillRect(this.width - this.hudBarLen - this.infoPadding / 2,
+            this.infoPadding / 2 + this.infoPadding * i,
+            this.hudBarLen,
             this.hudBarHeight);
 
           this.ctx.fillStyle = p.colour;
-          this.ctx.fillRect(this.width - hudBarLen - infoPadding / 2 + barFillThickness,
-            infoPadding / 2 + infoPadding * i + barFillThickness,
-            (hudBarLen - barFillThickness * 2) * (p.hp / 100),
-            this.hudBarHeight - barFillThickness * 2);
+          this.ctx.fillRect(this.width - this.hudBarLen - this.infoPadding / 2
+           + this.barFillThickness,
+            this.infoPadding / 2 + this.infoPadding * i + this.barFillThickness,
+            (this.hudBarLen - this.barFillThickness * 2) * (p.hp / 100),
+            this.hudBarHeight - this.barFillThickness * 2);
       });
 
       // Fuel
       this.ctx.fillStyle = 'black';
-      this.ctx.fillRect(infoPadding * 2, infoPadding / 2, hudBarLen, this.hudBarHeight);
-
-      this.ctx.textAlign = 'left';
-      this.ctx.fillText('Fuel', infoPadding / 2, infoPadding);
-
-      this.ctx.fillStyle = 'green';
-      this.ctx.fillRect(infoPadding * 2 + barFillThickness,
-        infoPadding / 2 + barFillThickness,
-        (hudBarLen - barFillThickness * 2)
-          * (this.currentPlayer.fuel / this.currentPlayer.maxFuel),
-        this.hudBarHeight - barFillThickness * 2);
-
-      // Shoot power
-      this.ctx.fillStyle = 'black';
-      this.ctx.fillRect(infoPadding * 2,
-        infoPadding / 2 + infoPadding,
-        hudBarLen,
+      this.ctx.fillRect(this.infoPadding * 2,
+        this.infoPadding / 2,
+        this.hudBarLen,
         this.hudBarHeight);
 
       this.ctx.textAlign = 'left';
-      this.ctx.fillText('Pwr', infoPadding / 2, infoPadding + infoPadding);
+      this.ctx.fillText('Fuel', this.infoPadding / 2, this.infoPadding);
+
+      this.ctx.fillStyle = 'green';
+      this.ctx.fillRect(this.infoPadding * 2 + this.barFillThickness,
+        this.infoPadding / 2 + this.barFillThickness,
+        (this.hudBarLen - this.barFillThickness * 2)
+          * (this.currentPlayer.fuel / this.currentPlayer.maxFuel),
+        this.hudBarHeight - this.barFillThickness * 2);
+
+      // Shoot power
+      this.ctx.fillStyle = 'black';
+      this.ctx.fillRect(this.infoPadding * 2,
+        this.infoPadding / 2 + this.infoPadding,
+        this.hudBarLen,
+        this.hudBarHeight);
+
+      this.ctx.textAlign = 'left';
+      this.ctx.fillText('Pwr', this.infoPadding / 2, this.infoPadding + this.infoPadding);
       this.ctx.fillText(this.currentPlayer.shootPower,
-        infoPadding * 5 / 2 + hudBarLen,
-        infoPadding * 2);
+        this.infoPadding * 5 / 2 + this.hudBarLen,
+        this.infoPadding * 2);
 
       this.ctx.fillStyle = 'red';
-      this.ctx.fillRect(infoPadding * 2 + barFillThickness,
-        infoPadding / 2 + barFillThickness + infoPadding,
-        (hudBarLen - barFillThickness * 2)
+      this.ctx.fillRect(this.infoPadding * 2 + this.barFillThickness,
+        this.infoPadding / 2 + this.barFillThickness + this.infoPadding,
+        (this.hudBarLen - this.barFillThickness * 2)
         * (this.currentPlayer.shootPower / this.currentPlayer.maxShootPower),
-        this.hudBarHeight - barFillThickness * 2);
+        this.hudBarHeight - this.barFillThickness * 2);
     },
 
     degreeToRad(degree) {

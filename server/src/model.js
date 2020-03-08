@@ -178,14 +178,29 @@ exports.findRoom = (id) => rooms[id];
 exports.startGame = (roomID, width, height, amplitude) => {
     let room = rooms[roomID];
     
-    room.addGame(new Game(room.users, width, height, amplitude));
+    room.addGame(new Game(roomID, room.users, width, height, amplitude));
     exports.io.in(roomID).emit('startGame');
 }
 
+// the updateGame that the server calls on update
+exports.sendInitGameState = (gameState) => {
+    // ... and emit new gamestate to all players in the room
+    exports.io.in(gameState.roomID).emit('updateGame', gameState);
+}
+
+exports.emitPlayer = (playerUpdate) => {
+    // playerUpdate is of structure {id, barrelRot, pos: {x, y}}
+    // ... and emit new gamestate to all players in the room
+    exports.io.in(gameState.roomID).emit('updateGame', gameState);
+}
+
+
+
+// for players 
 exports.updateGame = (roomID, gameState) => {
 
     // update gameState with new info
-    exports.findRoom(roomID).game.gameState = gameState
+    exports.findRoom(roomID).game.gameState = gameState;
     // ... and emit it to all players in the room
-    exports.io.in(roomID).emit('updateGame')
+    exports.io.in(roomID).emit('updateGame');
 }
