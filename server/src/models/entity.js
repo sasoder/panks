@@ -17,6 +17,15 @@ class Entity {
     canMoveLeft() {
         return this.x - 1 + this.width / 2 > 0
     }
+
+    getData() {
+        return {
+            pos: {
+                x: this.x,
+                y: this.y,
+            }
+        }
+    }
 }
 
 module.exports = Entity;

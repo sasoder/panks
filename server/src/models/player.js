@@ -95,7 +95,16 @@ class Player extends Entity {
 
     }
 
-
+    getData() {
+        return {
+            pos: {
+                x: this.x,
+                y: this.y,
+            },
+            barrelRot: this.barrelRot,
+            hp: this.hp,
+        }
+    }
 
     canClimbLeft(gameScreen) {
         let cent = centerOfObject(this)
@@ -118,11 +127,12 @@ class Player extends Entity {
         if (this.canMove) {
             if (this.moveTank.barrelRight) {
                 this.shootAngle -= 1
-                model.movePlayer()
+                // TODO call with roomID
+                model.movePlayer(this.id, this.getData())
             }
             if (this.moveTank.barrelLeft) {
                 this.shootAngle += 1
-                model.movePlayer()
+                model.movePlayer(this.id, this.getData())
             } 
 
             if (this.moveTank.tankRight && this.canMoveRight(gameWidth) && this.canClimbRight(gameScreen, gameWidth)) {

@@ -26,6 +26,17 @@ class Bullet extends Entity {
         this.x += this.velX
     }
 
+    getData() {
+        return {
+            pos: {
+                x: this.x,
+                y: this.y,
+            },
+            colour: this.colour,
+            velX: this.velX,
+            velY: this.velY,
+        }
+    }
 
     explode(players, gameScreen, width, height) {
         let rad = this.bombRadius
