@@ -73,6 +73,7 @@ export default {
     window.removeEventListener("keyup", this.handleKeyUp);
   },
   async mounted() {
+    // TODO add turn timer
     // GET INITIAL GAME STATE
     this.gameState = await this.getInitGameState(this.roomID);
 
@@ -121,8 +122,6 @@ export default {
     let interval = null;
 
     this.socket.on("newShot", bullet => {
-      // TODO epic do bullet logic, this in incomplete
-
       interval = setInterval(() => {
         this.animateBulletShot(bullet);
       }, 1000 / 30);

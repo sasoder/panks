@@ -148,14 +148,20 @@ class Player extends Entity {
                 model.updatePlayer(this.roomID, this.getData())
             }
 
-            if (this.moveTank.tankRight && this.canMoveRight(gameWidth) && this.canClimbRight(gameScreen, gameWidth)) {
+            if (this.moveTank.tankRight && this.canMoveRight(gameWidth) && this.canClimbRight(gameScreen, gameWidth) && this.fuel > 0) {
                 this.x++
                 this.fuel--
+                if (this.fuel < 0) {
+                    this.fuel = 0
+                }
                 model.updatePlayer(this.roomID, this.getData())
             }
-            if (this.moveTank.tankLeft && this.canMoveLeft() && this.canClimbLeft(gameScreen)) {
+            if (this.moveTank.tankLeft && this.canMoveLeft() && this.canClimbLeft(gameScreen) && this.fuel > 0) {
                 this.x--
                 this.fuel--
+                if (this.fuel < 0) {
+                    this.fuel = 0
+                }
                 model.updatePlayer(this.roomID, this.getData())
             }
         }
