@@ -4,6 +4,8 @@ import { centerOfObject } from './helpFunctions.js' */
 
 const Perlin = require('./perlin');
 const Player = require('./player');
+// for sending crucial playerinfo to client
+const simplePlayer = require('./simplePlayer');
 const { centerOfObject } = require('./helpFunctions');
 const model = require('../model.js')
 
@@ -84,6 +86,18 @@ class Game {
             this.currentPlayer.resetShots()
             this.changeTurn()
         }
+
+
+        this.checkWin()
+
+    }
+
+    checkWin() {
+        let alivePlayers = this.players.filter(p => p.isAlive)
+        if(alivePlayers.length == 1) {
+            model.gameEnd(alivePlayers[0])
+        }
+        return false
     }
    
 
@@ -106,10 +120,22 @@ class Game {
                     bullet.explode(this.players, this.gameScreen, this.width, this.height)
                     this.bullets.splice(i, 1)
                     this.cleanTerrain()
+                    model.bulletExplosion(this.roomID, this.explosionEmit())
                 }
             });
 
         })
+    }
+
+    explosionEmit() {
+        let explEmit = {
+            pList: {},
+            gameScreen: this.gameScreen
+        }
+        this.players.forEach(p => {
+            explEmit.pList[p.id] = p.hp
+        });
+        return explEmit
     }
 
     checkEntityCollision(entity1, entity2) {
@@ -202,60 +228,53 @@ class Game {
         return gameScreen
     }
 
-    keydownListener(e) {
-        let mT = this.currentPlayer.moveTank
-        switch (e.keyCode) {
-            case this.keys.down:
+    findPlayerById(id) {
+        return this.players.find(player => player.id = id)
+    }
+
+
+    /**
+            barrelRight: false,
+            barrelLeft: false,
+            tankLeft: false,
+            tankRight: false,
+            pwrUp: false,
+            pwrDown: false,
+            space: false
+     */
+    movePlayer(id, dirs) {
+        movingPlayer = this.findPlayerById(id)
+        mT = movingPlayer.moveTank
+        pD = movingPlayer.powerDir
+        switch (dirs) {
+            case barrelLeft:
                 mT.barrelLeft = true
                 break
-            case this.keys.up:
+            case barrelRight:
                 mT.barrelRight = true
                 break
-            case this.keys.left:
+            case tankLeft:
                 mT.tankLeft = true
                 mT.tankRight = false
                 break
-            case this.keys.right:
+            case tankRight:
                 mT.tankRight = true
                 mT.tankLeft = false
                 break
-            case this.keys.space:
+            case space:
                 if (this.bullets.length == 0) {
                     let b = this.currentPlayer.shoot()
                     this.bullets.push(b)
-                    model.emitShot(b)
+                    model.emitShot(this.roomID, b)
                 }
                 break
-            case this.keys.o:
-                this.currentPlayer.powerDir.down = true
-                this.currentPlayer.powerDir.up = false
+            case pwrDown:
+                pD.down = true
+                pD.up = false
                 break
-            case this.keys.p:
-                this.currentPlayer.powerDir.down = false
-                this.currentPlayer.powerDir.up = true
-        }
-    }
-
-    keyupListener(e) {
-        let mT = this.currentPlayer.moveTank
-        switch (e.keyCode) {
-            case this.keys.down:
-                mT.barrelLeft = false
-                break
-            case this.keys.up:
-                mT.barrelRight = false
-                break
-            case this.keys.left:
-                mT.tankLeft = false
-                break
-            case this.keys.right:
-                mT.tankRight = false
-                break
-            case this.keys.o:
-                this.currentPlayer.powerDir.down = false
-                break
-            case this.keys.p:
-                this.currentPlayer.powerDir.up = false
+            case pwrUp:
+                pD.down = false
+                pD.up = true
         }
     }
 }
