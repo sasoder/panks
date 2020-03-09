@@ -5,8 +5,9 @@ const Entity = require('./entity');
 const { degreeToRad, centerOfObject } = require('./helpFunctions');
 
 class Bullet extends Entity {
-    constructor(x, y, shootAngle, shootPower, shooter) {
+    constructor(roomID, x, y, shootAngle, shootPower, shooter) {
         super()
+        this.roomID = roomID
         this.x = x
         this.y = y
         this.velX = Math.cos(degreeToRad(shootAngle)) * shootPower
@@ -35,7 +36,8 @@ class Bullet extends Entity {
             velX: this.velX,
             velY: this.velY,
             width: this.width,
-            height: this.height
+            height: this.height,
+            colour: this.colour
         }
     }
 
@@ -74,8 +76,13 @@ class Bullet extends Entity {
             if (dmg > player.hp) dmg = player.hp
             player.damage(dmg)
 
-            if (this.shooter.id === player.id) player.addScore(-dmg)
-            else this.shooter.addScore(dmg)
+            if (this.shooter.id === player.id) {
+                player.addScore(-dmg)
+
+            } else {
+                this.shooter.addScore(dmg)
+
+            }
         }
     }
 }

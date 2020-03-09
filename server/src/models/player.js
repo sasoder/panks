@@ -63,7 +63,7 @@ class Player extends Entity {
             this.velY = 0
             this.moveToTop(gameScreen)
             // see if moveToTop has done anything. If it has, emit
-            if(tempY !== this.y) {
+            if (tempY !== this.y) {
                 console.log('LAND momemnt')
                 model.updatePlayer(this.roomID, this.getData())
             }
@@ -90,10 +90,12 @@ class Player extends Entity {
         if (this.hp < 0) {
             this.hp = 0
         }
+        model.updatePlayer(this.roomID, this.getData())
     }
 
     addScore(dmg) {
         this.score += dmg
+        model.updatePlayer(this.roomID, this.getData())
     }
 
     applyGravity(gravity) {
@@ -110,7 +112,9 @@ class Player extends Entity {
                 y: this.y,
             },
             shootAngle: this.shootAngle,
-            shootPower: this.shootPower
+            shootPower: this.shootPower,
+            hp: this.hp,
+            score: this.score
         }
     }
 
@@ -141,8 +145,8 @@ class Player extends Entity {
                 this.shootAngle += 1
                 console.log('updating barrel! and emittng', this.getData())
                 model.updatePlayer(this.roomID, this.getData())
-            } 
-            
+            }
+
             if (this.moveTank.tankRight && this.canMoveRight(gameWidth) && this.canClimbRight(gameScreen, gameWidth)) {
                 this.x++
                 this.fuel--
@@ -173,7 +177,7 @@ class Player extends Entity {
             this.decreasePower()
             model.updatePlayer(this.roomID, this.getData())
         }
-        
+
     }
     increasePower() {
         this.shootPower += 1
@@ -191,7 +195,7 @@ class Player extends Entity {
         this.shots--
         if (this.shots <= 0) this.stopMoving()
         let barrelEnd = this.getBarrelEnd()
-        return (new Bullet(barrelEnd[0], barrelEnd[1] + 2, this.shootAngle, this.shootPower / 7, this))
+        return (new Bullet(this.roomID, barrelEnd[0], barrelEnd[1] + 2, this.shootAngle, this.shootPower / 7, this))
     }
 
     getBarrelEnd() {

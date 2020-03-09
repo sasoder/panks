@@ -26,25 +26,29 @@ class Game {
         this.skyColour = this.skyColours[Math.floor(Math.random() * this.skyColours.length)]
         this.groundColor = this.groundColours[Math.floor(Math.random() * this.groundColours.length)]
         // initialize game with array of room users
-        
+
         // gameState that will be sent at every emission
         this.initGameState = {
             roomID: roomID,
             width: width,
             height: height,
             gravity: this.gravity,
-            
+
             skyColour: this.skyColour,
             groundColor: this.groundColor,
+            hudBarHeight: this.hudBarHeight,
+            hudBarLen: this.hudBarLen,
+            barFillThickness: this.barFillThickness,
+            infoPadding: this.infoPadding,
+
             bullets: this.bullets,
-            
             players: [],
             currentPlayerIndex: this.currentPlayerIndex,
             gameScreen: [],
         }
-        
+
         this.init(players, amp)
-        
+
     }
 
     init(players, amp) {
@@ -89,12 +93,12 @@ class Game {
 
     checkWin() {
         let alivePlayers = this.players.filter(p => p.isAlive)
-        if(alivePlayers.length == 1) {
+        if (alivePlayers.length == 1) {
             model.gameEnd(alivePlayers[0])
         }
         return false
     }
-   
+
 
     //spawns a Player at a random x-position in the sky
     spawnPlayers(players) {
@@ -115,22 +119,11 @@ class Game {
                     bullet.explode(this.players, this.gameScreen, this.width, this.height)
                     this.bullets.splice(i, 1)
                     this.cleanTerrain()
-                    model.bulletExplosion(this.roomID, this.explosionEmit())
+                    model.bulletExplosion(this.roomID, this.gameScreen)
                 }
             });
 
         })
-    }
-
-    explosionEmit() {
-        let explEmit = {
-            pList: {},
-            gameScreen: this.gameScreen
-        }
-        this.players.forEach(p => {
-            explEmit.pList[p.id] = p.hp
-        });
-        return explEmit
     }
 
     checkEntityCollision(entity1, entity2) {
@@ -159,6 +152,7 @@ class Game {
             this.nextPlayer()
         } while (!this.currentPlayer.isAlive)
         this.currentPlayer.canMove = true
+        model.changeTurn(this.currentPlayerIndex)
     }
 
     get currentPlayer() {
