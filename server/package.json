@@ -19,6 +19,8 @@
         "express": "^4.16.4",
         "express-session": "^1.15.6",
         "express-socket.io-session": "^1.3.5",
+        "helmet": "^3.21.3",
+        "helmet-csp": "^2.9.5",
         "sequelize": "^5.21.4",
         "socket.io": "^1.7.4",
         "sqlite3": "^4.1.1"

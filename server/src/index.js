@@ -1,17 +1,40 @@
 
 /*  ------  ***  ------   INITIALIZE CONTEXT   ------  ***  ------  */
 
+// Helper library for resolving relative paths
+const path = require('path');
+
 // Foundation
 const http = require('http');
+const https = require('https');
 const express = require('express');
 const app = express();
 
-// Socket.io needs the httpServer directly
-const httpServer = http.Server(app);
-const io = require('socket.io').listen(httpServer); // Creates socket.io app
+// Package for reading files (File System)
+const fs = require('fs');
 
-// Gathering of database
-const { sequelize } = require('./database');
+// Creating a HTTPS server with self-signed certificate
+const port = 3000;
+const httpsServer = https.createServer({ 
+    key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
+    cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem')),
+    // TODO: Remove password from file?
+    passphrase: 'vigillarhttps'
+    // TODO: Necessary?
+    // requestCert: false,
+    // rejectUnauthorized: false
+}, app).listen(port, () => {
+    console.log(`Listening on https://localhost:${port}`);
+});
+
+
+// const httpServer = http.createServer(app).listen(port, () => {
+//     console.log(`Listening on https://localhost:${port}`);
+// });;
+
+// Socket.io needs the httpServer directly
+// const io = require('socket.io').listen(httpServer); // Creates socket.io app
+const io = require('socket.io').listen(httpsServer); // Creates socket.io app
 
 // Adding middlewares
 app.use(express.json());
@@ -38,9 +61,67 @@ io.use(socketIOSession(session, {
 
 
 
+/*  ------  ***  ------   SETUP PREVENTION OF XSS   ------  ***  ------  */
+
+const helmet = require('helmet');
+app.use(helmet());
+
+// Code mostly taken from package's description of usage: https://www.npmjs.com/package/helmet-csp
+
+// const csp = require('helmet-csp');
+// app.use(csp({
+//     directives: {
+//         // Any non-declared directives fall under this
+//         defaultSrc: ["'self'"],
+//         // TODO: Remove 'unsafe-inline'
+//         // 'unsafe-inline': Allow for changing and moving script code (unsafe, we don't do that right?)
+//         scriptSrc: ["'self'", "'unsafe-eval'"],
+//         // TODO: Add boostrap stuff if we use it
+//         styleSrc: ["'self'", "'unsafe-inline'"],
+//         fontSrc: ["'self'"],
+//         imgSrc: ["'self'"],
+//         // The sandbox applies a same origin policy, prevents popups, plugins and script execution
+//         // is blocked. You can keep the sandbox value empty to keep all restrictions in place, or
+//         // add values: 'allow-forms', 'allow-scripts'
+//         sandbox: ['allow-forms', 'allow-scripts', 'allow-same-origin'],
+//         // TODO: Not necessary?
+//         reportUri: '/api/csp/report-violation',
+//         objectSrc: ["'none'"],
+//         // TODO: Not necessary?
+//         upgradeInsecureRequests: true,
+//     },
+
+//     // This module will detect common mistakes in your directives and throw errors
+//     // if it finds any. To disable this, enable "loose mode".
+//     loose: false,
+
+//     // Set to true if you only want browsers to report errors, not block them.
+//     // You may also set this to a function(req, res) in order to decide dynamically
+//     // whether to use reportOnly mode, e.g., to allow for a dynamic kill switch.
+//     reportOnly: false,
+
+//     // Set to true if you want to blindly set all headers: Content-Security-Policy,
+//     // X-WebKit-CSP, and X-Content-Security-Policy.
+//     setAllHeaders: false,
+
+//     // Set to true if you want to disable CSP on Android where it can be buggy.
+//     disableAndroid: false,
+
+//     // Set to false if you want to completely disable any user-agent sniffing.
+//     // This may make the headers less compatible but it will be much faster.
+//     // This defaults to `true`.
+//     browserSniff: true
+// }));
+
+// app.post(`/api/csp/report-violation`, (req, res) => {
+//     console.log("CSP header violation", req.body);
+//     // Status: No Content
+//     res.sendStatus(204);
+// });
+
+
 
 /*  ------  ***  ------   SERVE CLIENT   ------  ***  ------  */
-const path = require('path'); // helper library for resolving relative paths
 const publicPath = path.join(__dirname, '..', '..', 'client', 'dist');
 app.use(express.static(publicPath));
 
@@ -81,19 +162,11 @@ io.on('connection', (socket) => {
             else console.debug(`Saved socketID: ${socket.handshake.session.socketID}`);
         });
     }
-});
-
-// HANDLE USER INPUTS IN-GAME
-io.on('playerMove', (id, playerBools) => {
-    model.updatePlayerBools(playerBools);
-});
-
-
-/*  ------  ***  ------   START SERVER   ------  ***  ------  */
-
-const port = 3000;
-
-// Start server
-httpServer.listen(port, () => {
-    console.log(`Listening on http://localhost:${port}`);
+    
+    // HANDLE USER INPUTS IN-GAME
+    socket.on('playerBools', (data) => {
+        const {roomID, id, playerBools} = data
+        console.log('daddad')
+        model.updatePlayerBools(roomID, id, playerBools);
+    });
 });

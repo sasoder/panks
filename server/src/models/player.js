@@ -10,8 +10,9 @@ const model = require('../model.js')
 
 class Player extends Entity {
     // Player character
-    constructor(gameWidth, id) {
+    constructor(roomID, gameWidth, id) {
         super();
+        this.roomID = roomID
         this.defaultShootAngle = 45
         this.maxShootPower = 100
         this.defaultshootPower = 60
@@ -26,14 +27,13 @@ class Player extends Entity {
         this.y = 100
         this.velX = 0
         this.velY = 0
-        this.colour = this.colourList[Math.floor(Math.random() * colourList.length)]
+        this.colour = colourList[Math.floor(Math.random() * colourList.length)]
         this.maxShots = 1
         this.shots = this.maxShots
 
         this.hp = 100
         this.shootAngle = this.defaultShootAngle
         this.shootPower = this.defaultshootPower
-        this.name = 'Pierre'
         this.id = id
         this.score = 0
         this.maxFuel = 1000
@@ -55,10 +55,18 @@ class Player extends Entity {
 
     update(gravity, gameScreen, gameWidth, gameHeight) {
         if (!this.isGrounded) {
+            console.log('fall momemnt')
+            model.updatePlayer(this.roomID, this.getData())
             this.applyGravity(gravity)
         } else {
+            let tempY = this.y
             this.velY = 0
             this.moveToTop(gameScreen)
+            // see if moveToTop has done anything. If it has, emit
+            if(tempY !== this.y) {
+                console.log('LAND momemnt')
+                model.updatePlayer(this.roomID, this.getData())
+            }
         }
         this.inputMove(gameScreen, gameWidth)
         this.changePower()
@@ -92,17 +100,17 @@ class Player extends Entity {
         // apply gravity and velocity to player
         this.velY += gravity
         this.y += this.velY
-
     }
 
     getData() {
         return {
+            id: this.id,
             pos: {
                 x: this.x,
                 y: this.y,
             },
-            barrelRot: this.barrelRot,
-            hp: this.hp,
+            shootAngle: this.shootAngle,
+            shootPower: this.shootPower
         }
     }
 
@@ -127,21 +135,24 @@ class Player extends Entity {
         if (this.canMove) {
             if (this.moveTank.barrelRight) {
                 this.shootAngle -= 1
-                // TODO call with roomID
-                model.movePlayer(this.id, this.getData())
+                model.updatePlayer(this.roomID, this.getData())
             }
             if (this.moveTank.barrelLeft) {
                 this.shootAngle += 1
-                model.movePlayer(this.id, this.getData())
+                console.log('updating barrel! and emittng', this.getData())
+                model.updatePlayer(this.roomID, this.getData())
             } 
-
+            
             if (this.moveTank.tankRight && this.canMoveRight(gameWidth) && this.canClimbRight(gameScreen, gameWidth)) {
                 this.x++
                 this.fuel--
+                console.log('player moving to the right')
+                model.updatePlayer(this.roomID, this.getData())
             }
             if (this.moveTank.tankLeft && this.canMoveLeft() && this.canClimbLeft(gameScreen)) {
                 this.x--
                 this.fuel--
+                model.updatePlayer(this.roomID, this.getData())
             }
         }
 
@@ -153,9 +164,16 @@ class Player extends Entity {
 
 
     changePower() {
-        if (this.powerDir.up) this.increasePower()
+        if (this.powerDir.up) {
+            this.increasePower()
+            model.updatePlayer(this.roomID, this.getData())
+        }
 
-        if (this.powerDir.down) this.decreasePower()
+        if (this.powerDir.down) {
+            this.decreasePower()
+            model.updatePlayer(this.roomID, this.getData())
+        }
+        
     }
     increasePower() {
         this.shootPower += 1
@@ -178,24 +196,6 @@ class Player extends Entity {
 
     getBarrelEnd() {
         return [this.x + this.width / 2 + Math.cos(degreeToRad(this.shootAngle)) * this.barrelLen / 2, this.y - Math.sin(degreeToRad(this.shootAngle)) * this.barrelLen / 2 - 5]
-    }
-
-    drawPlayer(ctx) {
-        if (this.hp > 0) {
-            ctx.translate(this.x + this.width / 2, this.y)
-
-            ctx.rotate(-degreeToRad(this.shootAngle - 90))
-
-            ctx.fillStyle = 'black'
-            ctx.fillRect(-this.barrelThickness / 2, -this.barrelLen, this.barrelThickness, this.barrelLen)
-
-            ctx.rotate(degreeToRad(this.shootAngle - 90))
-
-            ctx.translate(-(this.x + this.width / 2), -(this.y))
-            ctx.fillStyle = this.colour
-            ctx.fillRect(this.x, this.y, this.width, this.height)
-
-        }
     }
 }
 

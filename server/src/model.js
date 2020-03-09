@@ -178,15 +178,8 @@ exports.findRoom = (id) => rooms[id];
 exports.startGame = (roomID, width, height, amplitude) => {
     let room = rooms[roomID];
     
-    // room.addGame(new Game(roomID, room.users, width, height, amplitude));
-    room.addGame("new Game!");
+    room.addGame(new Game(roomID, room.users, width, height, amplitude));
     exports.io.in(roomID).emit('startGame');
-}
-
-// the updateGame that the server calls on update
-exports.sendInitGameState = (gameState) => {
-    // ... and emit new gamestate to all players in the room
-    exports.io.in(gameState.roomID).emit('updatePlayer', gameState);
 }
 
 // called from game.model
@@ -200,6 +193,8 @@ idHp = {
 exports.bulletExplosion = (roomID, idHp) => {
     exports.io.in(roomID).emit('explosion', idHp)
 }
+
+
 
 // called from game.model with following structure
 /**
@@ -231,17 +226,33 @@ player = {
             space,
         }
 */
-exports.updatePlayerBools = (roomID, id, player) => {
-    exports.findRoom(roomID).game.movePlayer(id, player);
+exports.updatePlayerBools = (roomID, id, playerBools) => {
+    console.log('changing bools and emitting! :)')
+    exports.findRoom(roomID).game.changeBools(id, playerBools);
 }
 
-exports.movePlayer = (roomID, player) => {
-    exports.findRoom(roomID).emit('playerMove', player)
+// called from player.js
+// structure:
+/**
+ * {
+            id: this.id,
+            pos: {
+                x: this.x,
+                y: this.y,
+            },
+            shootAngle: this.shootAngle,
+            hp: this.hp,
+        }
+ */
+exports.updatePlayer = (roomID, player) => {
+    console.log('in model', roomID, player)
+    console.log('poopopoopopopopoppopoop')
+    exports.io.in(roomID).emit('playerMove', player)
 }
 
 /** called from game.model
  * id = playerId of game
  */
 exports.gameEnd = (roomID, id) => {
-    exports.findRoom(roomID).emit('gameOver', id)
+    exports.io.in(roomID).emit('gameOver', id)
 }

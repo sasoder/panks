@@ -3,10 +3,7 @@
     <header>
       <h1>PANKS</h1>
     </header>
-    <!-- Try 'slide-right' -->
-    <transition name="fade">
-      <router-view></router-view>
-    </transition>
+    <router-view></router-view>
   </div>
 </template>
 

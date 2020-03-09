@@ -34,6 +34,8 @@ class Bullet extends Entity {
             },
             velX: this.velX,
             velY: this.velY,
+            width: this.width,
+            height: this.height
         }
     }
 
@@ -75,11 +77,6 @@ class Bullet extends Entity {
             if (this.shooter.id === player.id) player.addScore(-dmg)
             else this.shooter.addScore(dmg)
         }
-    }
-
-    drawBullet(ctx) {
-        ctx.fillStyle = this.colour
-        ctx.fillRect(this.x, this.y, this.width, this.height)
     }
 }
 

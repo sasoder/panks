@@ -4,15 +4,13 @@ import { centerOfObject } from './helpFunctions.js' */
 
 const Perlin = require('./perlin');
 const Player = require('./player');
-// for sending crucial playerinfo to client
-const simplePlayer = require('./simplePlayer');
 const { centerOfObject } = require('./helpFunctions');
 const model = require('../model.js')
 
 class Game {
 
     constructor(roomID, players, width, height, amp) {
-
+        this.roomID = roomID
         this.hudBarLen = 100
         this.hudBarHeight = 20
         this.barFillThickness = 3
@@ -30,7 +28,6 @@ class Game {
         // initialize game with array of room users
         
         // gameState that will be sent at every emission
-        // TODO can clean this up (gravity, colors etc don't need to be in here)
         this.initGameState = {
             roomID: roomID,
             width: width,
@@ -45,8 +42,6 @@ class Game {
             currentPlayerIndex: this.currentPlayerIndex,
             gameScreen: [],
         }
-
-        d
         
         this.init(players, amp)
         
@@ -62,7 +57,7 @@ class Game {
         // update players
         this.initGameState.players = this.players
         this.initGameState.gameScreen = this.gameScreen
-        model.sendInitGameState(this.initGameState)
+        // model.sendInitGameState(this.initGameState)
 
     }
 
@@ -87,8 +82,8 @@ class Game {
             this.changeTurn()
         }
 
-
-        this.checkWin()
+        // TODO activate this when done with rest of online integration
+        // this.checkWin()
 
     }
 
@@ -106,7 +101,7 @@ class Game {
         let newPlayers = []
         for (let i = 0; i < players.length; i++) {
             // new player with id as their name
-            newPlayers[i] = new Player(this.width, players[i])
+            newPlayers[i] = new Player(this.roomID, this.width, players[i])
         }
         return newPlayers
     }
@@ -242,39 +237,47 @@ class Game {
             pwrDown: false,
             space: false
      */
-    movePlayer(id, dirs) {
-        movingPlayer = this.findPlayerById(id)
-        mT = movingPlayer.moveTank
-        pD = movingPlayer.powerDir
-        switch (dirs) {
-            case barrelLeft:
+    changeBools(id, dirs) {
+        console.log('changing bools', id, dirs)
+        let movingPlayer = this.findPlayerById(id)
+        let mT = movingPlayer.moveTank
+        let pD = movingPlayer.powerDir
+        switch (true) {
+            case dirs.barrelLeft:
                 mT.barrelLeft = true
                 break
-            case barrelRight:
+            case dirs.barrelRight:
+                console.log('barrelright')
                 mT.barrelRight = true
                 break
-            case tankLeft:
+            case dirs.tankLeft:
                 mT.tankLeft = true
                 mT.tankRight = false
                 break
-            case tankRight:
+            case dirs.tankRight:
                 mT.tankRight = true
                 mT.tankLeft = false
                 break
-            case space:
+            case dirs.space:
                 if (this.bullets.length == 0) {
                     let b = this.currentPlayer.shoot()
                     this.bullets.push(b)
                     model.emitShot(this.roomID, b.getData())
                 }
                 break
-            case pwrDown:
+            case dirs.pwrDown:
                 pD.down = true
                 pD.up = false
                 break
-            case pwrUp:
+            case dirs.pwrUp:
                 pD.down = false
                 pD.up = true
+                break
+            default:
+                // reset if everything is false
+                Object.keys(mT).forEach(v => mT[v] = false)
+                Object.keys(pD).forEach(v => pD[v] = false)
+                break
         }
     }
 }

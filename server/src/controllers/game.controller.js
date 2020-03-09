@@ -43,7 +43,7 @@ router.get('/gameState/:roomID', (req, res) => {
 
     
     // send gamestate to the client
-    const gameState = model.findRoom(roomID).game.gameState
+    const gameState = model.findRoom(roomID).game.initGameState
     res.status(200).json({
         gameState
     });

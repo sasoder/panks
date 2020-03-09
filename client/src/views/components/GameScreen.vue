@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p>Good luck!</p>
+    <p>{{gameMsg}}</p>
     <div id="screen">
       <canvas ref="gameCanvas"></canvas>
     </div>
@@ -17,6 +17,7 @@ export default {
   },
   data() {
     return {
+      gameMsg: 'Good luck',
       gameState: null,
       socket: null,
       interval: null,
@@ -67,11 +68,6 @@ export default {
 
     // Change gameState when something is emitted
     // TODO: Remove this...
-    /* this.socket.on('updateGame', (gameState) => {
-      this.gameState = gameState;
-      // Draw screen with new gamestate
-      this.draw(gameState);
-    }); */
 
     // Set up event listening
     window.addEventListener('keydown', this.handleKeyDown);
@@ -85,6 +81,7 @@ export default {
       o: 79,
       p: 80,
     };
+    console.log('game created! epic!');
   },
   destroyed() {
     // Remove event listeners when component is destroyed
@@ -93,23 +90,65 @@ export default {
   },
   async mounted() {
     // GET INITIAL GAME STATE
-    // TODO: Modify?
     this.gameState = await this.getGameState(this.roomID);
 
     // SET UP CANVAS
     this.canvas = this.$refs.gameCanvas;
     this.ctx = this.canvas.getContext('2d');
-    this.$refs.gameCanvas.setAttribute('width', 500);
-    this.$refs.gameCanvas.setAttribute('height', 800);
-    // this.$refs.gameCanvas.setAttribute('width', this.gameState.width);
-    // this.$refs.gameCanvas.setAttribute('height', this.gameState.height);
 
     // Save variables for easier access
-    // this.width = this.gameState.width;
-    // this.height = this.gameState.height;
+    this.width = this.gameState.width;
+    this.height = this.gameState.height;
+    this.$refs.gameCanvas.setAttribute('width', this.width);
+    this.$refs.gameCanvas.setAttribute('height', this.height);
+    this.draw(this.gameState);
 
-    this.width = 500;
-    this.height = 800;
+    // SETUP SOCKETS
+    this.socket.on('playerMove', (player) => {
+      // find the player to change values of
+      console.log('hahaha', player.id);
+      const changePlayer = this.gameState.players.find(p => p.id === player.id);
+      changePlayer.x = player.pos.x;
+      changePlayer.y = player.pos.y;
+      changePlayer.shootAngle = player.shootAngle;
+      changePlayer.shootPower = player.shootPower;
+      // Draw screen with new gamestate
+      console.log('draw moment');
+      this.draw(this.gameState);
+    });
+
+    this.socket.on('gameOver', (id) => {
+      // TODO tell who won
+      this.gameMsg = `${id} won the game`;
+    });
+
+    // interval for animating bullets
+    let interval = null;
+
+    this.socket.on('newShot', (bullet) => {
+      // TODO epic do bullet logic, this in incomplete
+
+      interval = setInterval(() => {
+        this.animateBulletShot(bullet);
+      }, 1000 / 30);
+    });
+
+    this.socket.on('explosion', (idHp) => {
+      // TODO hp and clearinterval not functional?
+      clearInterval(interval);
+      this.gameState.gameScreen = idHp.gameScreen;
+      console.log(idHp);
+
+      // TODO can better
+      this.gameState.players.forEach((p) => {
+        Object.values(idHp.pList).forEach((newP) => {
+          if (newP.id === p.id) {
+            p.hp = newP.hp;
+          }
+        });
+      });
+      this.draw(this.gameState);
+    });
   },
 
 
@@ -135,129 +174,110 @@ export default {
       .catch(console.error);
     },
 
-    // TODO: POST player update when user input is something...
-    // id: id of player to move
-    // player: player dirs with following structure:
-    /*
-    player = {
-      barrelRight,
-      barrelLeft,
-      tankLeft,
-      tankRight,
-      up,
-      down,
-      space,
-    }
-    */
+    animateBulletShot(bullet) {
+      console.log('drawing bullet', bullet.pos.x, bullet.pos.y);
+        bullet.velY += this.gameState.gravity;
+        bullet.pos.y += bullet.velY;
+        bullet.pos.x += bullet.velX;
+        this.draw(this.gameState);
+        this.drawBullet(bullet);
+    },
+
 
     // draw everything with the current gamestate
     draw(gameState) {
       this.drawTerrain(gameState);
-      this.drawBullets(gameState);
       this.drawPlayers(gameState);
       this.drawHud(gameState);
     },
 
     // Eventlisteners
     handleKeyDown(e) {
+      const playerBools = {
+            barrelRight: false,
+            barrelLeft: false,
+            tankLeft: false,
+            tankRight: false,
+            pwrUp: false,
+            pwrDown: false,
+            up: false,
+            down: false,
+            space: false,
+      };
       console.log('Some key is down!');
+      if (this.currentPlayer.id === this.$store.state.isAuthenticated) {
+        console.log('your turn also');
       switch (e.keyCode) {
         case this.keys.down:
-          console.log("Press: 'Down'");
+          playerBools.barrelLeft = true;
+          playerBools.barrelRight = false;
           break;
         case this.keys.up:
-          console.log("Press: 'Up'");
+          playerBools.barrelRight = true;
+          playerBools.barrelLeft = false;
           break;
         case this.keys.left:
-          console.log("Press: 'Left'");
+          playerBools.tankLeft = true;
+          playerBools.tankRight = false;
           break;
         case this.keys.right:
-          console.log("Press: 'Right'");
+          playerBools.tankRight = true;
+          playerBools.tankLeft = false;
           break;
         case this.keys.space:
-          console.log("Press: 'Space'");
+          playerBools.space = true;
           break;
         case this.keys.o:
-          console.log("Press: 'O'");
+          playerBools.pwrDown = true;
+          playerBools.pwrUp = false;
           break;
         case this.keys.p:
-          console.log("Press: 'P'");
-      /* const mT = this.currentPlayer.moveTank;
-      switch (e.keyCode) {
-        case this.keys.down:
-          mT.barrelLeft = true;
-          break;
-        case this.keys.up:
-          mT.barrelRight = true;
-          break;
-        case this.keys.left:
-          mT.tankLeft = true;
-          mT.tankRight = false;
-          break;
-        case this.keys.right:
-          mT.tankRight = true;
-          mT.tankLeft = false;
-          break;
-        case this.keys.space:
-          if (this.bullets.length === 0) {
-            this.bullets.push(this.currentPlayer.shoot());
-          }
-          break;
-        case this.keys.o:
-          this.currentPlayer.powerDir.down = true;
-          this.currentPlayer.powerDir.up = false;
-          break;
-        case this.keys.p:
-          this.currentPlayer.powerDir.down = false;
-          this.currentPlayer.powerDir.up = true; */
+          playerBools.pwrUp = true;
+          playerBools.pwrDown = false;
+      }
+      this.socket.emit('playerBools', { roomID: this.roomID, id: this.currentPlayer.id, playerBools });
       }
     },
 
     handleKeyUp(e) {
+      const playerBools = {
+            barrelRight: false,
+            barrelLeft: false,
+            tankLeft: false,
+            tankRight: false,
+            pwrUp: false,
+            pwrDown: false,
+            up: false,
+            down: false,
+            space: false,
+      };
+      if (this.currentPlayer.id === this.$store.state.isAuthenticated) {
+        console.log('your turn also');
       switch (e.keyCode) {
         case this.keys.down:
-          console.log("Release: 'Down'");
+          playerBools.barrelLeft = false;
           break;
         case this.keys.up:
-          console.log("Release: 'Up'");
+          playerBools.barrelRight = false;
           break;
         case this.keys.left:
-          console.log("Release: 'Left'");
+          playerBools.tankLeft = false;
           break;
         case this.keys.right:
-          console.log("Release: 'Right'");
+          playerBools.tankRight = false;
           break;
         case this.keys.space:
-          console.log("Release: 'Space'");
+          playerBools.space = false;
           break;
         case this.keys.o:
-          console.log("Release: 'O'");
+          playerBools.pwrDown = false;
           break;
         case this.keys.p:
-          console.log("Release: 'P'");
-      /* const mT = this.currentPlayer.moveTank;
-      switch (e.keyCode) {
-        case this.keys.down:
-          mT.barrelLeft = false;
-          break;
-        case this.keys.up:
-          mT.barrelRight = false;
-          break;
-        case this.keys.left:
-          mT.tankLeft = false;
-          break;
-        case this.keys.right:
-          mT.tankRight = false;
-          break;
-        case this.keys.o:
-          this.currentPlayer.powerDir.down = false;
-          break;
-        case this.keys.p:
-          this.currentPlayer.powerDir.up = false; */
+          playerBools.pwrUp = false;
+      }
+      this.socket.emit('playerBools', { roomID: this.roomID, id: this.currentPlayer.id, playerBools });
       }
     },
-
-
   /*  ---  ****  ---  ****  ---  ---   HELPER METHODS   ---  ---  ****  ---  ****  ---  */
 
     degreeToRad(degree) {
@@ -270,6 +290,8 @@ export default {
         this.drawPlayer(p);
       });
     },
+
+  /*  ---  ****  ---  ****  ---  ---   HELPER METHODS   ---  ---  ****  ---  ****  ---  */
 
     drawPlayer(p) {
       if (p.hp > 0) {
@@ -288,16 +310,10 @@ export default {
       }
     },
 
-    drawBullets(gameState) {
-      const { bullets } = gameState;
-        bullets.forEach((b) => {
-          this.drawBullet(b);
-        });
-    },
-
     drawBullet(bullet) {
+        // TODO changing colour doesn't work
         this.ctx.fillStyle = bullet.colour;
-        this.ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+        this.ctx.fillRect(bullet.pos.x, bullet.pos.y, bullet.width, bullet.height);
     },
 
     drawTerrain(gameState) {
@@ -369,7 +385,7 @@ export default {
         if (p === this.currentPlayer) this.ctx.fillStyle = 'red';
         else this.ctx.fillStyle = 'black';
 
-        this.ctx.fillText(`${(p.id === this.currentPlayer.id ? '> ' : '') + p.name} ${Math.round(p.score)} pts`,
+        this.ctx.fillText(`${(p.id === this.currentPlayer.id ? '> ' : '') + p.id} ${Math.round(p.score)} pts`,
           this.width - this.hudBarLen - this.infoPadding,
           this.infoPadding + this.infoPadding * i);
 
