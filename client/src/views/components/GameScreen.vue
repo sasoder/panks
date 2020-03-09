@@ -260,6 +260,10 @@ export default {
 
   /*  ---  ****  ---  ****  ---  ---   HELPER METHODS   ---  ---  ****  ---  ****  ---  */
 
+    degreeToRad(degree) {
+      return (degree * Math.PI / 180);
+    },
+
     drawPlayers(gamestate) {
       const { players } = gamestate;
       players.forEach((p) => {
@@ -419,10 +423,6 @@ export default {
         (this.hudBarLen - this.barFillThickness * 2)
         * (this.currentPlayer.shootPower / this.currentPlayer.maxShootPower),
         this.hudBarHeight - this.barFillThickness * 2);
-    },
-
-    degreeToRad(degree) {
-      return (degree * Math.PI / 180);
     },
   },
 };
