@@ -5,7 +5,6 @@
 const path = require('path');
 
 // Foundation
-const http = require('http');
 const https = require('https');
 const express = require('express');
 const app = express();
@@ -15,7 +14,7 @@ const fs = require('fs');
 
 // Creating a HTTPS server with self-signed certificate
 const port = 3000;
-const httpsServer = https.createServer({ 
+const httpsServer = https.createServer({
     key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
     cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem')),
     // TODO: Remove password from file?
@@ -162,10 +161,10 @@ io.on('connection', (socket) => {
             else console.debug(`Saved socketID: ${socket.handshake.session.socketID}`);
         });
     }
-    
+
     // HANDLE USER INPUTS IN-GAME
     socket.on('playerBools', (data) => {
-        const {roomID, id, playerBools} = data
+        const { roomID, id, playerBools } = data
         console.log('daddad')
         model.updatePlayerBools(roomID, id, playerBools);
     });

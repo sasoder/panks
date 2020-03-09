@@ -227,7 +227,6 @@ player = {
         }
 */
 exports.updatePlayerBools = (roomID, id, playerBools) => {
-  console.log('changing bools and emitting! :)')
   exports.findRoom(roomID).game.changeBools(id, playerBools);
 }
 
@@ -260,3 +259,6 @@ exports.gameEnd = (roomID, id) => {
 /**
  * called from game.model
  */
+exports.changeTurn = (roomID, currentPlayerIndex) => {
+  exports.io.in(roomID).emit('changeTurn', currentPlayerIndex);
+}

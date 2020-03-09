@@ -71,6 +71,7 @@ class Game {
     }
 
     update() {
+        console.log(this.players)
         this.players.forEach(player => player.update(this.gravity, this.gameScreen, this.width, this.height))
         this.bullets.forEach(bullet => bullet.update(this.gravity, this.height))
 
@@ -86,15 +87,14 @@ class Game {
             this.changeTurn()
         }
 
-        // TODO activate this when done with rest of online integration
-        // this.checkWin()
+        this.checkWin()
 
     }
 
     checkWin() {
         let alivePlayers = this.players.filter(p => p.isAlive)
         if (alivePlayers.length == 1) {
-            model.gameEnd(alivePlayers[0])
+            model.gameEnd(this.roomID, alivePlayers[0].id)
         }
         return false
     }
@@ -152,7 +152,7 @@ class Game {
             this.nextPlayer()
         } while (!this.currentPlayer.isAlive)
         this.currentPlayer.canMove = true
-        model.changeTurn(this.currentPlayerIndex)
+        model.changeTurn(this.roomID, this.currentPlayerIndex)
     }
 
     get currentPlayer() {
@@ -218,7 +218,7 @@ class Game {
     }
 
     findPlayerById(id) {
-        return this.players.find(player => player.id = id)
+        return this.players.find(player => player.id === id)
     }
 
 
@@ -241,7 +241,6 @@ class Game {
                 mT.barrelLeft = true
                 break
             case dirs.barrelRight:
-                console.log('barrelright')
                 mT.barrelRight = true
                 break
             case dirs.tankLeft:

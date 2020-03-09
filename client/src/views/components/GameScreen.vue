@@ -52,20 +52,7 @@ export default {
   created() {
     this.socket = this.$root.socket;
 
-    // TODO: Many more specific updates
-    // TODO: updatePlayer(id, "newdata")
-    // This should just recieve: position
-    // TODO: shootBullet("newdata")
-    // Not interested in id?
-    // This should just recieve: position, power & direction (client draws parabola)
-    // TODO: updateMap or updateState?
-    // Since Map will update on bullet collision (when player has finished their turn),
-    // maybe we can update the map along side the other gamestate data that we should emit
-    // between each turn?
-
-    // Change gameState when something is emitted
-    // TODO: Remove this...
-
+    // TODO should not be able to shoot when typing
     // Set up event listening
     window.addEventListener("keydown", this.handleKeyDown);
     window.addEventListener("keyup", this.handleKeyUp);
@@ -107,7 +94,6 @@ export default {
     // SETUP SOCKETS
     this.socket.on("updatePlayer", player => {
       // find the player to change values of
-      console.log("hahaha", player.id);
       const changePlayer = this.gameState.players.find(p => p.id === player.id);
       changePlayer.x = player.pos.x;
       changePlayer.y = player.pos.y;
@@ -115,14 +101,20 @@ export default {
       changePlayer.shootPower = player.shootPower;
       changePlayer.hp = player.hp;
       changePlayer.score = player.score;
+      changePlayer.fuel = player.fuel;
       // Draw screen with new gamestate
-      console.log("draw moment");
       this.draw(this.gameState);
     });
 
     this.socket.on("gameOver", id => {
-      // TODO tell who won
-      this.gameMsg = `${id} won the game`;
+      this.gameMsg = `${id} won the game!!!!`;
+    });
+
+    this.socket.on("changeTurn", currentPlayerIndex => {
+      this.gameState.currentPlayerIndex = currentPlayerIndex;
+      console.log(this.gameState.currentPlayerIndex);
+      console.log("now its player turn: ", this.currentPlayer);
+      this.draw(this.gameState);
     });
 
     // interval for animating bullets
@@ -137,9 +129,11 @@ export default {
     });
 
     this.socket.on("explosion", gameScreen => {
+      // don't animate bullet anymore
+      clearInterval(interval);
       this.gameState.gameScreen = gameScreen;
 
-      clearInterval(interval);
+      this.draw(this.gameState);
     });
   },
 
@@ -192,9 +186,7 @@ export default {
         down: false,
         space: false
       };
-      console.log("Some key is down!");
       if (this.currentPlayer.id === this.$store.state.isAuthenticated) {
-        console.log("your turn also");
         switch (e.keyCode) {
           case this.keys.down:
             playerBools.barrelLeft = true;
@@ -244,7 +236,6 @@ export default {
         space: false
       };
       if (this.currentPlayer.id === this.$store.state.isAuthenticated) {
-        console.log("your turn also");
         switch (e.keyCode) {
           case this.keys.down:
             playerBools.barrelLeft = false;
@@ -388,7 +379,8 @@ export default {
       players.forEach((p, i) => {
         this.ctx.textAlign = "right";
         this.ctx.font = "15px Arial";
-        if (p === this.currentPlayer) this.ctx.fillStyle = "red";
+        console.log(this.currentPlayer.id);
+        if (p.id === this.currentPlayer.id) this.ctx.fillStyle = "red";
         else this.ctx.fillStyle = "black";
 
         this.ctx.fillText(
@@ -418,57 +410,58 @@ export default {
           this.hudBarHeight - this.barFillThickness * 2
         );
       });
-
       // Fuel
-      this.ctx.fillStyle = "black";
-      this.ctx.fillRect(
-        this.infoPadding * 2,
-        this.infoPadding / 2,
-        this.hudBarLen,
-        this.hudBarHeight
-      );
+      if (this.currentPlayer.id === this.$store.state.isAuthenticated) {
+        this.ctx.fillStyle = "black";
+        this.ctx.fillRect(
+          this.infoPadding * 2,
+          this.infoPadding / 2,
+          this.hudBarLen,
+          this.hudBarHeight
+        );
 
-      this.ctx.textAlign = "left";
-      this.ctx.fillText("Fuel", this.infoPadding / 2, this.infoPadding);
+        this.ctx.textAlign = "left";
+        this.ctx.fillText("Fuel", this.infoPadding / 2, this.infoPadding);
 
-      this.ctx.fillStyle = "green";
-      this.ctx.fillRect(
-        this.infoPadding * 2 + this.barFillThickness,
-        this.infoPadding / 2 + this.barFillThickness,
-        (this.hudBarLen - this.barFillThickness * 2) *
-          (this.currentPlayer.fuel / this.currentPlayer.maxFuel),
-        this.hudBarHeight - this.barFillThickness * 2
-      );
+        this.ctx.fillStyle = "green";
+        this.ctx.fillRect(
+          this.infoPadding * 2 + this.barFillThickness,
+          this.infoPadding / 2 + this.barFillThickness,
+          (this.hudBarLen - this.barFillThickness * 2) *
+            (this.currentPlayer.fuel / this.currentPlayer.maxFuel),
+          this.hudBarHeight - this.barFillThickness * 2
+        );
 
-      // Shoot power
-      this.ctx.fillStyle = "black";
-      this.ctx.fillRect(
-        this.infoPadding * 2,
-        this.infoPadding / 2 + this.infoPadding,
-        this.hudBarLen,
-        this.hudBarHeight
-      );
+        // Shoot power
+        this.ctx.fillStyle = "black";
+        this.ctx.fillRect(
+          this.infoPadding * 2,
+          this.infoPadding / 2 + this.infoPadding,
+          this.hudBarLen,
+          this.hudBarHeight
+        );
 
-      this.ctx.textAlign = "left";
-      this.ctx.fillText(
-        "Pwr",
-        this.infoPadding / 2,
-        this.infoPadding + this.infoPadding
-      );
-      this.ctx.fillText(
-        this.currentPlayer.shootPower,
-        (this.infoPadding * 5) / 2 + this.hudBarLen,
-        this.infoPadding * 2
-      );
+        this.ctx.textAlign = "left";
+        this.ctx.fillText(
+          "Pwr",
+          this.infoPadding / 2,
+          this.infoPadding + this.infoPadding
+        );
+        this.ctx.fillText(
+          this.currentPlayer.shootPower,
+          (this.infoPadding * 5) / 2 + this.hudBarLen,
+          this.infoPadding * 2
+        );
 
-      this.ctx.fillStyle = "red";
-      this.ctx.fillRect(
-        this.infoPadding * 2 + this.barFillThickness,
-        this.infoPadding / 2 + this.barFillThickness + this.infoPadding,
-        (this.hudBarLen - this.barFillThickness * 2) *
-          (this.currentPlayer.shootPower / this.currentPlayer.maxShootPower),
-        this.hudBarHeight - this.barFillThickness * 2
-      );
+        this.ctx.fillStyle = "red";
+        this.ctx.fillRect(
+          this.infoPadding * 2 + this.barFillThickness,
+          this.infoPadding / 2 + this.barFillThickness + this.infoPadding,
+          (this.hudBarLen - this.barFillThickness * 2) *
+            (this.currentPlayer.shootPower / this.currentPlayer.maxShootPower),
+          this.hudBarHeight - this.barFillThickness * 2
+        );
+      }
     }
   }
 };

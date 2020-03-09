@@ -36,7 +36,7 @@ class Player extends Entity {
         this.shootPower = this.defaultshootPower
         this.id = id
         this.score = 0
-        this.maxFuel = 1000
+        this.maxFuel = 500
         this.fuel = this.maxFuel
         this.moveTank = {
             barrelRight: false,
@@ -55,7 +55,6 @@ class Player extends Entity {
 
     update(gravity, gameScreen, gameWidth, gameHeight) {
         if (!this.isGrounded) {
-            console.log('fall momemnt')
             model.updatePlayer(this.roomID, this.getData())
             this.applyGravity(gravity)
         } else {
@@ -64,7 +63,6 @@ class Player extends Entity {
             this.moveToTop(gameScreen)
             // see if moveToTop has done anything. If it has, emit
             if (tempY !== this.y) {
-                console.log('LAND momemnt')
                 model.updatePlayer(this.roomID, this.getData())
             }
         }
@@ -114,7 +112,8 @@ class Player extends Entity {
             shootAngle: this.shootAngle,
             shootPower: this.shootPower,
             hp: this.hp,
-            score: this.score
+            score: this.score,
+            fuel: this.fuel
         }
     }
 
@@ -136,6 +135,9 @@ class Player extends Entity {
     }
 
     inputMove(gameScreen, gameWidth) {
+        if (this.id == 'a') {
+            console.log('im a:', this.canMove, this.moveTank)
+        }
         if (this.canMove) {
             if (this.moveTank.barrelRight) {
                 this.shootAngle -= 1
@@ -143,14 +145,12 @@ class Player extends Entity {
             }
             if (this.moveTank.barrelLeft) {
                 this.shootAngle += 1
-                console.log('updating barrel! and emittng', this.getData())
                 model.updatePlayer(this.roomID, this.getData())
             }
 
             if (this.moveTank.tankRight && this.canMoveRight(gameWidth) && this.canClimbRight(gameScreen, gameWidth)) {
                 this.x++
                 this.fuel--
-                console.log('player moving to the right')
                 model.updatePlayer(this.roomID, this.getData())
             }
             if (this.moveTank.tankLeft && this.canMoveLeft() && this.canClimbLeft(gameScreen)) {
