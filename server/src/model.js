@@ -186,22 +186,46 @@ exports.startGame = (roomID, width, height, amplitude) => {
 // the updateGame that the server calls on update
 exports.sendInitGameState = (gameState) => {
     // ... and emit new gamestate to all players in the room
-    exports.io.in(gameState.roomID).emit('updateGame', gameState);
+    exports.io.in(gameState.roomID).emit('updatePlayer', gameState);
 }
 
-exports.emitPlayer = (playerUpdate) => {
-    // playerUpdate is of structure {id, barrelRot, pos: {x, y}}
-    // ... and emit new gamestate to all players in the room
-    exports.io.in(gameState.roomID).emit('updateGame', gameState);
+// called from game.model
+// idHp is of structure:
+/*
+idHp = {
+    pList: hashMap with id as key and hp as value
+    gameScreen
+}
+*/
+exports.bulletExplosion = (roomID, idHp) => {
+    exports.io.in(roomID).emit('explosion', idHp)
 }
 
+// called from game.model
+exports.emitShot = (roomID, bullet) => {
+    exports.io.in(roomID).emit('newShot', bullet)
+}
 
+// id: id of player to move
+// player: player dirs with following structure:
+/*
+player = {
+            barrelRight,
+            barrelLeft,
+            tankLeft,
+            tankRight,
+            up,
+            down,
+            space,
+        }
+*/
+exports.updatePlayerBools = (id, player) => {
+    exports.findRoom(roomID).game.movePlayer(id, player);
+}
 
-// for players 
-exports.updateGame = (roomID, gameState) => {
-
-    // update gameState with new info
-    exports.findRoom(roomID).game.gameState = gameState;
-    // ... and emit it to all players in the room
-    exports.io.in(roomID).emit('updateGame');
+/** called from game.model
+ * id = playerId of game
+ */
+exports.gameEnd = (roomID, id) => {
+    exports.findRoom(roomID).emit('gameOver', id)
 }

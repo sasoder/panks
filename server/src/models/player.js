@@ -6,6 +6,8 @@ const Entity = require('./entity');
 const Bullet = require('./bullet');
 const { degreeToRad, centerOfObject } = require('./helpFunctions');
 
+const model = require('../model.js')
+
 class Player extends Entity {
     // Player character
     constructor(gameWidth, id) {
@@ -16,7 +18,7 @@ class Player extends Entity {
         this.barrelLen = 15
         this.barrelThickness = 4
         this.steepNessAbility = 3
-        this.colourList = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#e6beff', '#fffac8', '#800000', '#aaffc3', '#ffd8b1', '#000075']
+        let colourList = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#e6beff', '#fffac8', '#800000', '#aaffc3', '#ffd8b1', '#000075']
 
         this.x = Math.floor((Math.random() * 8 / 10 * gameWidth) + gameWidth / 10)
         this.width = 20
@@ -24,7 +26,7 @@ class Player extends Entity {
         this.y = 100
         this.velX = 0
         this.velY = 0
-        this.colour = this.colourList[Math.floor(Math.random() * this.colourList.length)]
+        this.colour = this.colourList[Math.floor(Math.random() * colourList.length)]
         this.maxShots = 1
         this.shots = this.maxShots
 
@@ -114,8 +116,14 @@ class Player extends Entity {
 
     inputMove(gameScreen, gameWidth) {
         if (this.canMove) {
-            if (this.moveTank.barrelRight) this.shootAngle -= 1
-            if (this.moveTank.barrelLeft) this.shootAngle += 1
+            if (this.moveTank.barrelRight) {
+                this.shootAngle -= 1
+                model.movePlayer()
+            }
+            if (this.moveTank.barrelLeft) {
+                this.shootAngle += 1
+                model.movePlayer()
+            } 
 
             if (this.moveTank.tankRight && this.canMoveRight(gameWidth) && this.canClimbRight(gameScreen, gameWidth)) {
                 this.x++

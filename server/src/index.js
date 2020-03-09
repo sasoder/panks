@@ -83,6 +83,11 @@ io.on('connection', (socket) => {
     }
 });
 
+// HANDLE USER INPUTS IN-GAME
+io.on('playerMove', (id, playerBools) => {
+    model.updatePlayerBools(playerBools);
+});
+
 
 /*  ------  ***  ------   START SERVER   ------  ***  ------  */
 
