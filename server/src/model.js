@@ -201,12 +201,24 @@ exports.bulletExplosion = (roomID, idHp) => {
     exports.io.in(roomID).emit('explosion', idHp)
 }
 
-// called from game.model
+// called from game.model with following structure
+/**
+ * {
+            pos: {
+                x: this.x,
+                y: this.y,
+            },
+            colour: this.colour,
+            velX: this.velX,
+            velY: this.velY,
+        }
+ */
 exports.emitShot = (roomID, bullet) => {
     exports.io.in(roomID).emit('newShot', bullet)
 }
 
 // id: id of player to move
+// called by clients with eventlisteners
 // player: player dirs with following structure:
 /*
 player = {
@@ -219,8 +231,12 @@ player = {
             space,
         }
 */
-exports.updatePlayerBools = (id, player) => {
+exports.updatePlayerBools = (roomID, id, player) => {
     exports.findRoom(roomID).game.movePlayer(id, player);
+}
+
+exports.movePlayer = (roomID, player) => {
+    exports.findRoom(roomID).emit('playerMove', player)
 }
 
 /** called from game.model
