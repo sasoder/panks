@@ -32,7 +32,6 @@ class Bullet extends Entity {
                 x: this.x,
                 y: this.y,
             },
-            colour: this.colour,
             velX: this.velX,
             velY: this.velY,
         }

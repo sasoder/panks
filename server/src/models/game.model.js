@@ -265,7 +265,7 @@ class Game {
                 if (this.bullets.length == 0) {
                     let b = this.currentPlayer.shoot()
                     this.bullets.push(b)
-                    model.emitShot(this.roomID, b)
+                    model.emitShot(this.roomID, b.getData())
                 }
                 break
             case pwrDown:
