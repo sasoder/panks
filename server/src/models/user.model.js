@@ -2,8 +2,9 @@
  * @class User
  */
 class User {
-    constructor(userID) {
+    constructor(userID, ip) {
         this.userID = userID;
+        this.ip = ip;
         this.socket = null;
         this.currentRoom = null;
     }

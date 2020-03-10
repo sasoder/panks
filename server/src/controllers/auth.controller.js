@@ -12,6 +12,10 @@ const requireAuth = (req, res, next) => {
     if (maybeUser === undefined) {
         res.status(401).send('Unauthorized. Please make sure you are logged in before attempting this action again.');
         return;
+    // TODO: TEST COOKIE THEFT DETECTING
+    } else if (maybeUser.ip !== req.clientIp) {
+        res.status(401).send('Unauthorized. Don\'t try to steal someone else\'s session...');
+        return;
     }
     next();
 };
@@ -30,9 +34,22 @@ const requireInGame = (req, res, next) => {
 // for main.js (setting store)
 router.get('/isAuthenticated', (req, res) => {
     const maybeUser = model.findUser(req.session.userID);
+    let validUsername = maybeUser === undefined ? null : maybeUser.userID;
+    
+    // TODO: TEST COOKIE THEFT DETECTING
+    // Ensure that IP of login is the same
+    if (validUsername && maybeUser.ip !== req.clientIp) {
+        // If username was valid based on existing user but IP is wrong, set invalid again.
+        validUsername = null;
+    }
+
+    // TODO: Add check for timeout detection
+        // TODO: Check if time is greater than some value
+        // TODO: Unless player is inside room that has a non-null game in it
+
     res.status(200).json({
-        // if user does not exist, send null, otherwise their name
-        isAuthenticated: maybeUser === undefined ? null : maybeUser.userID,
+        // Return state
+        isAuthenticated: validUsername,
     });
 });
 
@@ -86,7 +103,13 @@ router.post('/login', (req, res) => {
                         else console.debug(`Saved userID: ${req.session.userID}`);
                     });
                     // Add the user to the model
-                    model.addUser(req.session.userID, req.session.socketID);
+                    // TODO: TEST COOKIE THEFT DETECTING
+                    const clientIp = req.clientIp;
+                    console.log("\n\n\n\nLOGIN IP: ",clientIp, "\n\n\n\n");
+                    const otherIp = req.header('x-forwarded-for') || req.connection.remoteAddress;
+                    console.log("\n\n\n\OTHER IP: ",otherIp, "\n\n\n\n");
+                    // TODO: TEST COOKIE THEFT DETECTING
+                    model.addUser(req.session.userID, clientIp, req.session.socketID);
                     // Status: OK
                     res.status(200).json({
                         userID: req.session.userID

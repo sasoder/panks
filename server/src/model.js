@@ -97,8 +97,10 @@ exports.leaveRoom = (roomID, userID) => {
   console.log("User left room ", roomID, " with ID: ", userID);
 };
 
-exports.addUser = (userID, socketID = undefined) => {
-  users[userID] = new User(userID);
+// TODO: TEST COOKIE THEFT DETECTING
+exports.addUser = (userID, ip, socketID = undefined) => {
+    // TODO: TEST COOKIE THEFT DETECTING
+  users[userID] = new User(userID, ip);
   if (socketID !== undefined) {
     users[userID].socket = assignUnregisteredSocket(socketID);
   }

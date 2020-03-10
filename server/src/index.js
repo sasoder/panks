@@ -12,6 +12,10 @@ const app = express();
 // Package for reading files (File System)
 const fs = require('fs');
 
+
+
+/*  ------  ***  ------   SETUP SERVER   ------  ***  ------  */
+
 // Creating a HTTPS server with self-signed certificate
 const port = 3000;
 const httpsServer = https.createServer({
@@ -47,8 +51,18 @@ const expressSession = require('express-session');
 
 const session = expressSession({
     secret: 'Super secret! Shh! Don\'t tell anyone...',
+    // TODO: Necessary to change?
     resave: true,
+    // TODO: Necessary to change?
     saveUninitialized: true,
+    // "This is typically used in conjuction with short, non-session-length maxAge values to provide a quick
+    // timeout of the session data with reduced potentional of it occurring during on going server interactions.""
+    rolling: true,
+    cookie: {
+        maxAge: 1800000, // 30 min
+        // TODO: We are not behind proxy right?
+        secure: true
+    }
 });
 app.use(session);
 
@@ -57,6 +71,14 @@ io.use(socketIOSession(session, {
     autoSave: true,
     saveUninitialized: true,
 }));
+
+
+
+/*  ------  ***  ------   SETUP GETTING IP FROM CLIENT   ------  ***  ------  */
+
+const reqIp = require('request-ip');
+// Pass in middleware for getting client IP
+app.use(reqIp.mw());
 
 
 
@@ -164,8 +186,7 @@ io.on('connection', (socket) => {
 
     // HANDLE USER INPUTS IN-GAME
     socket.on('playerBools', (data) => {
-        const { roomID, id, playerBools } = data
-        console.log('daddad')
+        const { roomID, id, playerBools } = data;
         model.updatePlayerBools(roomID, id, playerBools);
     });
 });
