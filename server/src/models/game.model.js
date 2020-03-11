@@ -21,6 +21,10 @@ class Game {
         this.gravity = 0.3
         this.bullets = []
 
+        this.turnLength = 30
+        // the decrement currentplayer timeLeft variable is 0 to start off
+        this.decInt = null
+
         this.width = width
         this.height = height
         this.skyColour = this.skyColours[Math.floor(Math.random() * this.skyColours.length)]
@@ -33,6 +37,7 @@ class Game {
             width: width,
             height: height,
             gravity: this.gravity,
+            turnLength: this.turnLength,
 
             skyColour: this.skyColour,
             groundColor: this.groundColor,
@@ -56,6 +61,8 @@ class Game {
         this.gameScreen = this.generateTerrain(amp)
         this.currentPlayerIndex = 0
         this.currentPlayer.canMove = true
+        this.currentPlayer.timeLeft = this.currentPlayer.turnLength
+        this.countDownCurrentPlayerTurn()
         this.interval = setInterval(this.update.bind(this), 1000 / 30)
 
         // update players
@@ -82,7 +89,6 @@ class Game {
         this.checkCollisions()
 
         if ((this.bullets.length === 0 && this.currentPlayer.shots === 0) || !this.currentPlayer.isAlive) {
-            this.currentPlayer.resetShots()
             this.changeTurn()
         }
 
@@ -104,7 +110,7 @@ class Game {
         let newPlayers = []
         for (let i = 0; i < players.length; i++) {
             // new player with id as their name
-            newPlayers[i] = new Player(this.roomID, this.width, players[i])
+            newPlayers[i] = new Player(this.roomID, this.width, players[i], this.turnLength)
         }
         return newPlayers
     }
@@ -146,15 +152,31 @@ class Game {
     }
 
     changeTurn() {
+        this.currentPlayer.resetShots()
         this.currentPlayer.stopMoving()
         do {
             this.nextPlayer()
         } while (!this.currentPlayer.isAlive)
         this.currentPlayer.canMove = true
-        console.log('bruh moment', this.currentPlayer.fuel)
         this.currentPlayer.addFuel();
-        console.log(this.currentPlayer.fuel)
+        this.currentPlayer.timeLeft = this.currentPlayer.turnLength
+        clearInterval(this.decInt)
+        this.countDownCurrentPlayerTurn()
         model.changeTurn(this.roomID, this.currentPlayerIndex)
+    }
+
+
+
+    countDownCurrentPlayerTurn() {
+        this.decInt = setInterval(() => {
+            console.log('decrementing...', this.currentPlayer.timeLeft)
+            if(--this.currentPlayer.timeLeft <= 0) {
+                clearInterval(this.decInt)
+                // don't change turn if the player has already shot
+                if(this.bullets.length === 0)
+                    this.changeTurn()
+            }
+        }, 1000);
     }
 
     get currentPlayer() {
@@ -234,7 +256,6 @@ class Game {
             space: false
      */
     changeBools(id, dirs) {
-        console.log('changing bools', id, dirs)
         let movingPlayer = this.findPlayerById(id)
         let mT = movingPlayer.moveTank
         let pD = movingPlayer.powerDir

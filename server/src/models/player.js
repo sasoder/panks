@@ -10,7 +10,7 @@ const model = require('../model.js')
 
 class Player extends Entity {
     // Player character
-    constructor(roomID, gameWidth, id) {
+    constructor(roomID, gameWidth, id, turnLength) {
         super();
         this.roomID = roomID
         this.defaultShootAngle = 45
@@ -30,6 +30,9 @@ class Player extends Entity {
         this.colour = colourList[Math.floor(Math.random() * colourList.length)]
         this.maxShots = 1
         this.shots = this.maxShots
+        // how long turn every player gets in seconds
+        this.turnLength = turnLength
+        this.timeLeft = 0
 
         this.hp = 100
         this.shootAngle = this.defaultShootAngle

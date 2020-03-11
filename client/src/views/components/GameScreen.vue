@@ -1,13 +1,13 @@
 <template>
   <div>
     <p>{{gameMsg}}</p>
+    <p>{{timeLeft}} time left on turn!</p>
     <div id="screen">
       <canvas ref="gameCanvas"></canvas>
     </div>
   </div>
 </template>
 
-<!-- We need to integrate keybutton input somehow... -->
 <script>
 export default {
   props: {
@@ -23,6 +23,7 @@ export default {
       interval: null,
       canvas: null,
       ctx: null,
+      timeLeft: null,
 
       // Variables independent of game that shouldn't be in gameState
       hudBarLen: 100,
@@ -73,7 +74,6 @@ export default {
     window.removeEventListener("keyup", this.handleKeyUp);
   },
   async mounted() {
-    // TODO add turn timer
     // GET INITIAL GAME STATE
     this.gameState = await this.getInitGameState(this.roomID);
 
@@ -88,9 +88,12 @@ export default {
     this.hudBarHeight = this.gameState.hudBarHeight;
     this.width = this.gameState.width;
     this.height = this.gameState.height;
+    this.timeLeft = this.gameState.turnLength;
     this.$refs.gameCanvas.setAttribute("width", this.width);
     this.$refs.gameCanvas.setAttribute("height", this.height);
     this.draw(this.gameState);
+
+    let turnInterval = setInterval(this.decrementTimer, 1000);
 
     // SETUP SOCKETS
     this.socket.on("updatePlayer", player => {
@@ -115,6 +118,9 @@ export default {
       this.gameState.currentPlayerIndex = currentPlayerIndex;
       console.log(this.gameState.currentPlayerIndex);
       console.log("now its player turn: ", this.currentPlayer);
+      clearInterval(turnInterval);
+      this.timeLeft = this.gameState.turnLength;
+      turnInterval = setInterval(this.decrementTimer, 1000);
       this.draw(this.gameState);
     });
 
@@ -136,13 +142,14 @@ export default {
     });
   },
 
-  /*  ---  */
-
-  /*  ---  */
-
   /*  ---  ****  ---  ****  ---  ---   HANDLING COMPONENT   ---  ---  ****  ---  ****  ---  */
 
   methods: {
+
+    decrementTimer() {
+      this.timeLeft--;
+    },
+
     // for getting initial gamestate
     getInitGameState(roomID) {
       return fetch(`/api/game/gameState/${roomID}`, {
