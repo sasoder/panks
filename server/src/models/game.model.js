@@ -71,7 +71,6 @@ class Game {
     }
 
     update() {
-        console.log(this.players)
         this.players.forEach(player => player.update(this.gravity, this.gameScreen, this.width, this.height))
         this.bullets.forEach(bullet => bullet.update(this.gravity, this.height))
 
@@ -152,6 +151,9 @@ class Game {
             this.nextPlayer()
         } while (!this.currentPlayer.isAlive)
         this.currentPlayer.canMove = true
+        console.log('bruh moment', this.currentPlayer.fuel)
+        this.currentPlayer.addFuel();
+        console.log(this.currentPlayer.fuel)
         model.changeTurn(this.roomID, this.currentPlayerIndex)
     }
 

@@ -134,10 +134,14 @@ class Player extends Entity {
         this.moveTank.tankLeft = false
     }
 
-    inputMove(gameScreen, gameWidth) {
-        if (this.id == 'a') {
-            console.log('im a:', this.canMove, this.moveTank)
+    addFuel() {
+        this.fuel += 10
+        if(this.fuel > this.maxFuel) {
+            this.fuel = this.maxFuel
         }
+    }
+
+    inputMove(gameScreen, gameWidth) {
         if (this.canMove) {
             if (this.moveTank.barrelRight) {
                 this.shootAngle -= 1

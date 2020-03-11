@@ -246,8 +246,6 @@ exports.updatePlayerBools = (roomID, id, playerBools) => {
         }
  */
 exports.updatePlayer = (roomID, player) => {
-  console.log('in model', roomID, player)
-  console.log('poopopoopopopopoppopoop')
   exports.io.in(roomID).emit('updatePlayer', player)
 }
 
