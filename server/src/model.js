@@ -9,6 +9,8 @@ const User = require('./models/user.model');
 const Room = require('./models/room.model');
 const Game = require('./models/game.model');
 
+const { sequelize } = require('./database');
+
 /**
  * rooms & users are effectively hash maps with the name of the entry serving as a unique key.
  */
@@ -134,15 +136,26 @@ exports.userHasRoom = (userID) => {
   return Object.values(rooms).find(room => room.creator === userID);
 }
 
-exports.updatePlayerStats = (id, timesPlayed, totalScore) => {
+exports.updatePlayerStats = (players) => {
 
     // Sequelize update user info
 
-    // let user = users[id]
-    // user.timesPlayed = timesPlayed;
-    // user.totalScore = totalScore;
+    players.forEach(p => {
+      sequelize.model('user').findOne({
+        where: {
+            username: p.id,
+        },
+      }).then((user) => {
+        user.set('times_played', user.times_played + 1);
+        user.set('total_score', user.total_score + p.score);
+        user.save();
+      }).catch((err) => {
+        console.error(err);
+      });
+    });
 }
 
+// For displaying stats in userlist in rooms
 exports.setLocalStats = (id, timesPlayed, totalScore) => {
     let user = users[id]
     user.setStats(timesPlayed, totalScore)

@@ -9,7 +9,7 @@
       :roomID="roomID"
     />
     <p v-else-if="!activeGame">Host is changing game settings...</p>
-    <GameScreen v-if="activeGame"
+    <GameScreen ref="game" v-if="activeGame"
       :roomID="roomID"
     />
     <Chat
@@ -61,6 +61,8 @@ export default {
 
     this.socket.on('destroyGame', () => {
           this.activeGame = false;
+          console.log('babam');
+          // this.$refs.game.destroyEventListeners();
     });
     this.initRoom();
   },

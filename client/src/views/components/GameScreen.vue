@@ -29,11 +29,9 @@ export default {
       timeLeftUntilDestroy: 30,
       destroyGameTimer: null,
 
-      // Variables independent of game that shouldn't be in gameState
-      hudBarLen: 100,
-      hudBarHeight: 20,
-      barFillThickness: 3,
-      infoPadding: 30,
+      hudBarLen: null,
+      hudBarHeight: null,
+      infoPadding: null,
 
       // Variables for easier accessing in functions
       width: null,
@@ -59,8 +57,8 @@ export default {
 
     // TODO should not be able to shoot when typing
     // Set up event listening
-    window.addEventListener("keydown", this.handleKeyDown);
-    window.addEventListener("keyup", this.handleKeyUp);
+    document.addEventListener("keydown", this.handleKeyDown);
+    document.addEventListener("keyup", this.handleKeyUp);
     this.keys = {
       up: 38,
       down: 40,
@@ -72,9 +70,10 @@ export default {
     };
   },
   destroyed() {
+    console.log('m alled');
     // Remove event listeners when component is destroyed
-    window.removeEventListener("keydown", this.handleKeyDown);
-    window.removeEventListener("keyup", this.handleKeyUp);
+    document.removeEventListener("keydown", this.handleKeyDown);
+    document.removeEventListener("keyup", this.handleKeyUp);
   },
   async mounted() {
     // GET INITIAL GAME STATE
@@ -142,6 +141,7 @@ export default {
     let interval = null;
 
     this.socket.on("newShot", bullet => {
+      console.log('new shot!', bullet);
       interval = setInterval(() => {
         this.animateBulletShot(bullet);
       }, 1000 / 30);
@@ -323,7 +323,6 @@ export default {
 
     drawBullet(bullet) {
       // If the bullet is in the terrain, don't draw
-
       if (this.isOutOfBounds(bullet)
         || this.gameState.gameScreen[Math.round(bullet.pos.x)][Math.round(bullet.pos.y)]) {
         return;
@@ -432,11 +431,10 @@ export default {
         this.ctx.fillRect(
           this.width -
             this.hudBarLen -
-            this.infoPadding / 2 +
-            this.barFillThickness,
-          this.infoPadding / 2 + this.infoPadding * i + this.barFillThickness,
-          (this.hudBarLen - this.barFillThickness * 2) * (p.hp / 100),
-          this.hudBarHeight - this.barFillThickness * 2
+            this.infoPadding / 2,
+          this.infoPadding / 2 + this.infoPadding * i,
+          (this.hudBarLen) * (p.hp / 100),
+          this.hudBarHeight
         );
       });
       // Fuel
@@ -454,11 +452,11 @@ export default {
 
         this.ctx.fillStyle = "green";
         this.ctx.fillRect(
-          this.infoPadding * 2 + this.barFillThickness,
-          this.infoPadding / 2 + this.barFillThickness,
-          (this.hudBarLen - this.barFillThickness * 2) *
+          this.infoPadding * 2,
+          this.infoPadding / 2,
+          (this.hudBarLen) *
             (this.currentPlayer.fuel / this.currentPlayer.maxFuel),
-          this.hudBarHeight - this.barFillThickness * 2
+          this.hudBarHeight
         );
 
         // Shoot power
@@ -484,11 +482,11 @@ export default {
 
         this.ctx.fillStyle = "red";
         this.ctx.fillRect(
-          this.infoPadding * 2 + this.barFillThickness,
-          this.infoPadding / 2 + this.barFillThickness + this.infoPadding,
-          (this.hudBarLen - this.barFillThickness * 2) *
+          this.infoPadding * 2,
+          this.infoPadding / 2 + this.infoPadding,
+          (this.hudBarLen) *
             (this.currentPlayer.shootPower / this.currentPlayer.maxShootPower),
-          this.hudBarHeight - this.barFillThickness * 2
+          this.hudBarHeight
         );
       }
     }

@@ -13,7 +13,6 @@ class Game {
         this.roomID = roomID
         this.hudBarLen = 100
         this.hudBarHeight = 20
-        this.barFillThickness = 3
         this.infoPadding = 30
         this.skyColours = ['#e8ffff', '#d9f1ff', '#bfe6ff', '#8cd3ff']
         this.groundColours = ["#ccc", '#bd9874', '#f9e4b7', '#66a103', '#654321', '#ffffffff']
@@ -26,12 +25,12 @@ class Game {
         this.decInt = null
         this.gameEndInt = null
         this.gameEndTimer = 30
+        this.interval = null
 
         this.width = width
         this.height = height
         this.skyColour = this.skyColours[Math.floor(Math.random() * this.skyColours.length)]
         this.groundColor = this.groundColours[Math.floor(Math.random() * this.groundColours.length)]
-        // initialize game with array of room users
 
         // gameState that will be sent at every emission
         this.initGameState = {
@@ -45,7 +44,6 @@ class Game {
             groundColor: this.groundColor,
             hudBarHeight: this.hudBarHeight,
             hudBarLen: this.hudBarLen,
-            barFillThickness: this.barFillThickness,
             infoPadding: this.infoPadding,
 
             bullets: this.bullets,
@@ -288,6 +286,7 @@ class Game {
             space: false
      */
     changeBools(id, dirs) {
+        console.log('players:', this.players)
         let movingPlayer = this.findPlayerById(id)
         let mT = movingPlayer.moveTank
         let pD = movingPlayer.powerDir
