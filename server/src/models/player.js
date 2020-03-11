@@ -135,7 +135,7 @@ class Player extends Entity {
     }
 
     addFuel() {
-        this.fuel += 10
+        this.fuel += Math.round(this.maxFuel / 10)
         if(this.fuel > this.maxFuel) {
             this.fuel = this.maxFuel
         }
