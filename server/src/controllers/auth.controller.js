@@ -61,6 +61,8 @@ router.post('/register', (req, res) => {
     }).then((data) => {
         // Set password field after once we have the object created
         data.setHashPassword(req.body.password);
+        data.set('total_score', 0);
+        data.set('times_played', 0);
         data.save();
     }).then( () => {
         // Awaiting save...

@@ -169,7 +169,6 @@ class Game {
 
     countDownCurrentPlayerTurn() {
         this.decInt = setInterval(() => {
-            console.log('decrementing...', this.currentPlayer.timeLeft)
             if(--this.currentPlayer.timeLeft <= 0) {
                 clearInterval(this.decInt)
                 // don't change turn if the player has already shot

@@ -12,7 +12,13 @@ const app = express();
 // Package for reading files (File System)
 const fs = require('fs');
 
+// For creating the user tables if they do not exist
+const { sequelize } = require('./database');
 
+/*  ------  ***  ------   SETUP DATABASE   ------  ***  ------  */
+
+// Creates the users table if it does not already exist
+sequelize.sync();
 
 /*  ------  ***  ------   SETUP SERVER   ------  ***  ------  */
 
