@@ -56,9 +56,6 @@ export default {
     this.socket = this.$root.socket;
 
     // TODO should not be able to shoot when typing
-    // Set up event listening
-    document.addEventListener("keydown", this.handleKeyDown);
-    document.addEventListener("keyup", this.handleKeyUp);
     this.keys = {
       up: 38,
       down: 40,
@@ -72,8 +69,8 @@ export default {
   destroyed() {
     console.log('m alled');
     // Remove event listeners when component is destroyed
-    document.removeEventListener("keydown", this.handleKeyDown);
-    document.removeEventListener("keyup", this.handleKeyUp);
+    window.removeEventListener("keydown", this.handleKeyDown);
+    window.removeEventListener("keyup", this.handleKeyUp);
   },
   async mounted() {
     // GET INITIAL GAME STATE
@@ -84,6 +81,10 @@ export default {
     console.log(this.$refs.gameCanvas);
     this.canvas = this.$refs.gameCanvas;
     this.ctx = this.canvas.getContext("2d");
+
+    // Set up event listening
+    window.addEventListener("keydown", this.handleKeyDown);
+    window.addEventListener("keyup", this.handleKeyUp);
 
     // Save variables for easier access
     this.hudBarLen = this.gameState.hudBarLen;

@@ -286,7 +286,6 @@ class Game {
             space: false
      */
     changeBools(id, dirs) {
-        console.log('players:', this.players)
         let movingPlayer = this.findPlayerById(id)
         let mT = movingPlayer.moveTank
         let pD = movingPlayer.powerDir
