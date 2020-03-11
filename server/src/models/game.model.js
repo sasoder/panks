@@ -24,7 +24,7 @@ class Game {
         // the decrement currentplayer timeLeft variable is 0 to start off
         this.decInt = null
         this.gameEndInt = null
-        this.gameEndTimer = 10
+        this.gameEndTimer = 5
         this.interval = null
 
         this.width = width

@@ -94,6 +94,7 @@ router.post('/:roomID/leave', (req, res) => {
     model.addMessage(user.currentRoom, `${user.userID} left the room :D`);
 
     // Let user leave room
+
     model.leaveRoom(req.params.roomID, req.session.userID);
     
     // Status: OK

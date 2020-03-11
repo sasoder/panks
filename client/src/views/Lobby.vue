@@ -47,7 +47,8 @@ export default {
         this.getActiveRooms();
     },
     destroyed() {
-    this.socket.removeAllListeners();
+        this.socket.off('newRoom');
+        this.socket.off('updatedRoomList');
     },
     methods: {
 

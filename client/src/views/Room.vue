@@ -62,7 +62,7 @@ export default {
     });
 
     this.socket.on('destroyGame', () => {
-          this.activeGame = false;
+      this.activeGame = false;
     });
     this.initRoom();
     // this is in mounted because it tries to access
@@ -78,7 +78,11 @@ export default {
 
   destroyed() {
     console.log('why are you here');
-    this.socket.removeAllListeners();
+    this.socket.off('updatedUserList');
+    this.socket.off('startGame');
+    this.socket.off('newCreator');
+    this.socket.off('deletedRoom');
+    this.socket.off('destroyGame');
   },
   methods: {
 

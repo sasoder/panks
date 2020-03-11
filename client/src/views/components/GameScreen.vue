@@ -57,7 +57,12 @@ export default {
     },
 
   beforeDestroy() {
-    this.socket.removeAllListeners();
+    this.socket.off('updatePlayer');
+    this.socket.off('gameOver');
+    this.socket.off('changeTurn');
+    this.socket.off('newShot');
+    this.socket.off('explosion');
+    clearInterval(this.interval);
     // Remove event listeners when component is destroyed
     window.removeEventListener("keydown", this.handleKeyDown);
     window.removeEventListener("keyup", this.handleKeyUp);
