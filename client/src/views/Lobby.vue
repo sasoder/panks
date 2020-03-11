@@ -46,6 +46,9 @@ export default {
         this.getUserInfo();
         this.getActiveRooms();
     },
+    destroyed() {
+    this.socket.removeAllListeners();
+    },
     methods: {
 
         getUserInfo() {

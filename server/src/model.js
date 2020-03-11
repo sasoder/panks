@@ -210,6 +210,8 @@ exports.findRoom = (id) => rooms[id];
 
 
 exports.startGame = (roomID, width, height, amplitude) => {
+  console.log('startgame model')
+
   let room = rooms[roomID];
 
   room.addGame(new Game(roomID, room.users, width, height, amplitude));
@@ -242,8 +244,6 @@ exports.bulletExplosion = (roomID, gameScreen) => {
             velY: this.velY,
         }
  */
-
- // TODO is called once
 exports.emitShot = (roomID, bullet) => {
   exports.io.in(roomID).emit('newShot', bullet)
 }

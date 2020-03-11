@@ -21,12 +21,13 @@ export default {
       gameMsg: "Good luck",
       gameState: null,
       socket: null,
+      // bullet interval
       interval: null,
       canvas: null,
       ctx: null,
       timeLeft: null,
       gameHasEnded: false,
-      timeLeftUntilDestroy: 30,
+      timeLeftUntilDestroy: null,
       destroyGameTimer: null,
 
       hudBarLen: null,
@@ -53,6 +54,16 @@ export default {
   /*  ---  ****  ---  ****  ---  ---   ENVIRONMENT OF COMPONENT   ---  ---  ****  ---  ****  ---  */
 
   created() {
+    },
+
+  beforeDestroy() {
+    this.socket.removeAllListeners();
+    // Remove event listeners when component is destroyed
+    window.removeEventListener("keydown", this.handleKeyDown);
+    window.removeEventListener("keyup", this.handleKeyUp);
+  },
+
+  async mounted() {
     this.socket = this.$root.socket;
 
     // TODO should not be able to shoot when typing
@@ -65,16 +76,6 @@ export default {
       o: 79,
       p: 80
     };
-  },
-
-  beforeDestroy() {
-    console.log('destroyed alled');
-    // Remove event listeners when component is destroyed
-    window.removeEventListener("keydown", this.handleKeyDown);
-    window.removeEventListener("keyup", this.handleKeyUp);
-  },
-
-  async mounted() {
     // GET INITIAL GAME STATE
     this.gameState = await this.getInitGameState(this.roomID);
 
@@ -94,6 +95,7 @@ export default {
     this.width = this.gameState.width;
     this.height = this.gameState.height;
     this.timeLeft = this.gameState.turnLength;
+    this.timeLeftUntilDestroy = this.gameState.gameEndTimer;
     this.$refs.gameCanvas.setAttribute("width", this.width);
     this.$refs.gameCanvas.setAttribute("height", this.height);
     this.draw(this.gameState);
@@ -138,21 +140,16 @@ export default {
       this.draw(this.gameState);
     });
 
-    // interval for animating bullets
-    let interval = null;
-
-
     this.socket.on("newShot", bullet => {
-    // TODO this prints TWICE per shot after someone leaves and joins room
     console.log('new shot!', bullet);
-      interval = setInterval(() => {
+      this.interval = setInterval(() => {
         this.animateBulletShot(bullet);
       }, 1000 / 30);
     });
 
     this.socket.on("explosion", gameScreen => {
       // don't animate bullet anymore
-      clearInterval(interval);
+      clearInterval(this.interval);
       this.gameState.gameScreen = gameScreen;
 
       this.draw(this.gameState);
@@ -326,9 +323,11 @@ export default {
 
     drawBullet(bullet) {
       // If the bullet is in the terrain, don't draw
-      if (this.isOutOfBounds(bullet)
-        || this.gameState.gameScreen[Math.round(bullet.pos.x)][Math.round(bullet.pos.y)]) {
-        return;
+      if (this.isOutOfBounds(bullet)) {
+        if (this.gameState.gameScreen[Math.round(bullet.pos.x)][Math.round(bullet.pos.y)]) {
+            clearInterval(this.interval);
+          }
+          return;
       }
       this.ctx.fillStyle = bullet.colour;
       this.ctx.fillRect(

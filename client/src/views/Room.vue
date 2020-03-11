@@ -9,7 +9,7 @@
       :roomID="roomID"
     />
     <p v-else-if="!activeGame">Host is changing game settings...</p>
-    <GameScreen ref="game" v-if="activeGame"
+    <GameScreen v-if="activeGame"
       :roomID="roomID"
     />
     <Chat
@@ -45,6 +45,8 @@ export default {
     };
   },
   created() {
+    },
+  mounted() {
     this.socket = this.$root.socket;
     this.socket.on('updatedUserList', (users) => {
       this.users = users;
@@ -63,8 +65,6 @@ export default {
           this.activeGame = false;
     });
     this.initRoom();
-  },
-  mounted() {
     // this is in mounted because it tries to access
     // the chat ref which may not be finished @ created
     this.socket.on('msg', (msg) => {
@@ -74,6 +74,11 @@ export default {
       console.log(this.$refs);
       this.$refs.chat.scrollChat();
     });
+  },
+
+  destroyed() {
+    console.log('why are you here');
+    this.socket.removeAllListeners();
   },
   methods: {
 
