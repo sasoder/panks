@@ -3,7 +3,7 @@
     <p>Users:</p>
     <p>
       <span v-for="user in users" v-bind:key="user.userID">
-        {{ user }}
+        {{ user }}, Total score: {{user.totalScore}}, Times played: {{user.timesPlayed}}
       </span>
     </p>
   </div>

@@ -162,6 +162,7 @@ class Game {
         this.currentPlayer.timeLeft = this.currentPlayer.turnLength
         clearInterval(this.decInt)
         this.countDownCurrentPlayerTurn()
+        model.updatePlayer(this.roomID, this.currentPlayer.getData())
         model.changeTurn(this.roomID, this.currentPlayerIndex)
     }
 

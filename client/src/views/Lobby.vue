@@ -1,7 +1,13 @@
 <template>
   <div>
     <button @click="logout">Logout</button>
-    <p>Welcome to lobby!</p>
+    <p>Welcome to the lobby, {{this.$store.state.isAuthenticated}}!</p>
+    <p>These are your stats:</p>
+    <br>
+    <p>Total score: {{totalScore}}</p>
+    <br>
+    <p>Times played: {{timesPlayed}}</p>
+
     <form v-on:submit.prevent="addRoom">
         <input v-model="newRoomName" type="text" placeholder="Name of new room">
         <!-- Only display "add button" if user is not currently hosting a room -->
@@ -25,6 +31,8 @@ export default {
     data: () => ({
         roomList: [],
         newRoomName: '',
+        totalScore: null,
+        timesPlayed: null,
     }),
     created() {
         this.socket = this.$root.socket;
@@ -35,9 +43,26 @@ export default {
             console.log(`Rooms array on updating: ${JSON.stringify(rooms)}`);
             this.roomList = rooms;
         });
+        this.getUserInfo();
         this.getActiveRooms();
     },
     methods: {
+
+        getUserInfo() {
+            fetch('api/user/userInfo', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(res => res.json())
+            .then((data) => {
+                this.totalScore = data.totalScore;
+                this.timesPlayed = data.timesPlayed;
+            })
+            .catch(console.error);
+            },
+
         userHasRoom() {
             return this.roomList.some(room => room.creator === this.$store.state.isAuthenticated);
         },

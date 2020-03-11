@@ -164,7 +164,6 @@ export default {
     },
 
     animateBulletShot(bullet) {
-      console.log("drawing bullet", bullet.pos.x, bullet.pos.y);
       bullet.velY += this.gameState.gravity;
       bullet.pos.y += bullet.velY;
       bullet.pos.x += bullet.velX;
@@ -309,6 +308,12 @@ export default {
     },
 
     drawBullet(bullet) {
+      // If the bullet is in the terrain, don't draw
+
+      if (this.isOutOfBounds(bullet)
+        || this.gameState.gameScreen[Math.round(bullet.pos.x)][Math.round(bullet.pos.y)]) {
+        return;
+      }
       this.ctx.fillStyle = bullet.colour;
       this.ctx.fillRect(
         bullet.pos.x,
@@ -316,6 +321,10 @@ export default {
         bullet.width,
         bullet.height
       );
+    },
+
+    isOutOfBounds(entity) {
+      return entity.pos.x >= this.width || entity.pos.x < 0 || entity.pos.y < 0;
     },
 
     drawTerrain(gameState) {

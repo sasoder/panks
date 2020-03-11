@@ -45,11 +45,6 @@ export default {
   },
   created() {
     this.socket = this.$root.socket;
-    this.socket.on('msg', (msg) => {
-      this.messages = [...this.messages, msg];
-      // Scroll down in chat component on new messages
-      this.$refs.chat.scrollChat();
-    });
     this.socket.on('updatedUserList', (users) => {
       this.users = users;
     });
@@ -65,6 +60,17 @@ export default {
     });
     this.initRoom();
   },
+  mounted() {
+    // this is in mounted because it tries to access
+    // the chat ref which may not be finished @ created
+    this.socket.on('msg', (msg) => {
+      this.messages = [...this.messages, msg];
+      // Scroll down in chat component on new messages
+      // TODO this is undefined when entering room 2nd time and after
+      console.log(this.$refs);
+      this.$refs.chat.scrollChat();
+    });
+  },
   methods: {
     initRoom() {
       fetch(`/api/user/${this.roomID}/init`)
@@ -78,6 +84,7 @@ export default {
         this.creator = data.creator;
         this.messages = data.messages;
         this.users = data.users;
+        console.log('rbuhuhuhuuh', this.users);
         this.activeGame = data.activeGame;
       })
       .catch((err) => {

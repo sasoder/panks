@@ -21,8 +21,8 @@ class Room {
         this.users.push(user);
     }
 
-    removeUser(userID) {
-        this.users = this.users.filter((user) => user !== userID);
+    removeUser(userToRemove) {
+        this.users = this.users.filter((user) => user != userToRemove);
     }
 
     // TODO: Will this add new complexities on logging out and leaving rooms? probably :)

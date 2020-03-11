@@ -68,14 +68,16 @@ exports.addMessage = (roomID, message) => {
 
 exports.joinRoom = (roomID, userID) => {
   let room = rooms[roomID];
+  let user = users[userID];
   // Set the current room of the user
-  users[userID].currentRoom = roomID;
+  console.log(user)
+  user.currentRoom = roomID;
   // Join the right socket.io room
-  users[userID].socket.leave('lobby');
-  users[userID].socket.join(roomID);
+  user.socket.leave('lobby');
+  user.socket.join(roomID);
   // Add the user to the corresponding room
   rooms[roomID].addUser(userID);
-
+  
   // Updated Rooms with users
   exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms));
   exports.io.in(roomID).emit('updatedUserList', room.users);
@@ -89,7 +91,7 @@ exports.leaveRoom = (roomID, userID) => {
   users[userID].socket.leave(roomID);
   users[userID].socket.join('lobby');
   // Remove the user to the corresponding room
-  rooms[roomID].removeUser(userID);
+  rooms[roomID].removeUser(users[userID]);
 
   // Updated Rooms with users
   exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms));
@@ -128,12 +130,17 @@ exports.userHasRoom = (userID) => {
   return Object.values(rooms).find(room => room.creator === userID);
 }
 
+exports.setStats = (id, timesPlayed, totalScore) => {
+    let user = users[id]
+    user.timesPlayed = timesPlayed;
+    user.totalScore = totalScore;
+}
+
 // Assumes from outer call that user has a room
 exports.changeCreator = (userID) => {
   let userRoom = exports.userHasRoom(userID);
   // Change to next player
   let newCreator = userRoom.users[0];
-  // TODO: Does this change the actual dictionary 'rooms'?
   userRoom.creator = newCreator.userID;
   // Need to emit info about new creator, since that person should now see settings
   // TODO: Test if this works
@@ -229,7 +236,9 @@ player = {
         }
 */
 exports.updatePlayerBools = (roomID, id, playerBools) => {
-  exports.findRoom(roomID).game.changeBools(id, playerBools);
+    if(this.findRoom(roomID) !== undefined) {
+        exports.findRoom(roomID).game.changeBools(id, playerBools);
+    }
 }
 
 // called from player.js

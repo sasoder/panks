@@ -3,6 +3,9 @@ const model = require('../model.js');
 
 const router = express.Router();
 
+// For getting userinfo from database
+const { sequelize } = require('../database');
+
 
 router.get('/roomList', (req, res) => {
     const rooms = model.getRooms();
@@ -30,6 +33,25 @@ router.post('/removeRoom', (req, res) => {
     res.sendStatus(200);
 });
 
+router.get('/userInfo', (req, res) => {
+    sequelize.model('user').findOne({
+        where: {
+            username: req.session.userID,
+        },
+    }).then((user) => {
+        // User was not found on server
+        if (user === undefined) {
+            throw new Error('User does not exist. What!?');
+        } else {
+            // set the statistics for the user model
+            model.setStats(user.username, user.times_played, user.total_score)
+            res.status(200).json({
+                timesPlayed: user.times_played,
+                totalScore: user.total_score
+            })
+        }
+    })
+});
 
 router.get('/:roomID/init', (req, res) => {
     const room = model.findRoom(req.params.roomID);
@@ -42,10 +64,13 @@ router.get('/:roomID/init', (req, res) => {
     const user = model.findUser(req.session.userID);
 
     // Add the user to the room's user list 
+    console.log('got here1')
     model.joinRoom(room.id, user.userID);
-  
+    console.log('got here2')
+    
     // Send join message
     model.addMessage(user.currentRoom, `${user.userID} joined the room!`);
+    console.log('got here3')
   
     // Send response with messages
     res.status(200).json({
