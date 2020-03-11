@@ -61,8 +61,6 @@ export default {
 
     this.socket.on('destroyGame', () => {
           this.activeGame = false;
-          console.log('babam');
-          // this.$refs.game.destroyEventListeners();
     });
     this.initRoom();
   },

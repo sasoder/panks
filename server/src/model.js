@@ -242,6 +242,8 @@ exports.bulletExplosion = (roomID, gameScreen) => {
             velY: this.velY,
         }
  */
+
+ // TODO is called once
 exports.emitShot = (roomID, bullet) => {
   exports.io.in(roomID).emit('newShot', bullet)
 }

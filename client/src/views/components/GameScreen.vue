@@ -66,19 +66,19 @@ export default {
       p: 80
     };
   },
-  destroyed() {
-    console.log('m alled');
+
+  beforeDestroy() {
+    console.log('destroyed alled');
     // Remove event listeners when component is destroyed
     window.removeEventListener("keydown", this.handleKeyDown);
     window.removeEventListener("keyup", this.handleKeyUp);
   },
+
   async mounted() {
     // GET INITIAL GAME STATE
     this.gameState = await this.getInitGameState(this.roomID);
 
     // SET UP CANVAS
-    console.log(this.gameState);
-    console.log(this.$refs.gameCanvas);
     this.canvas = this.$refs.gameCanvas;
     this.ctx = this.canvas.getContext("2d");
 
@@ -141,8 +141,10 @@ export default {
     // interval for animating bullets
     let interval = null;
 
+
     this.socket.on("newShot", bullet => {
-      console.log('new shot!', bullet);
+    // TODO this prints TWICE per shot after someone leaves and joins room
+    console.log('new shot!', bullet);
       interval = setInterval(() => {
         this.animateBulletShot(bullet);
       }, 1000 / 30);
@@ -408,7 +410,7 @@ export default {
       players.forEach((p, i) => {
         this.ctx.textAlign = "right";
         this.ctx.font = "15px Arial";
-        console.log(this.currentPlayer.id);
+        console.log('drawing hud, current player:', this.currentPlayer.id);
         if (p.id === this.currentPlayer.id) this.ctx.fillStyle = "red";
         else this.ctx.fillStyle = "black";
 
