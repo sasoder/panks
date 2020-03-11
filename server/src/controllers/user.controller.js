@@ -44,7 +44,7 @@ router.get('/userInfo', (req, res) => {
             throw new Error('User does not exist. What!?');
         } else {
             // set the statistics for the user model
-            model.setStats(user.username, user.times_played, user.total_score)
+            model.setLocalStats(user.username, user.times_played, user.total_score)
             res.status(200).json({
                 timesPlayed: user.times_played,
                 totalScore: user.total_score

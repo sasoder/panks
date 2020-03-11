@@ -1,7 +1,8 @@
 <template>
   <div>
     <p>{{gameMsg}}</p>
-    <p>{{timeLeft}} time left on turn!</p>
+    <p v-if="!gameHasEnded">{{timeLeft}} seconds left on the turn!</p>
+    <p v-if="gameHasEnded">Destroying game screen in {{timeLeftUntilDestroy}} seconds...</p>
     <div id="screen">
       <canvas ref="gameCanvas"></canvas>
     </div>
@@ -13,7 +14,7 @@ export default {
   props: {
     roomID: {
       required: true
-    }
+    },
   },
   data() {
     return {
@@ -24,6 +25,9 @@ export default {
       canvas: null,
       ctx: null,
       timeLeft: null,
+      gameHasEnded: false,
+      timeLeftUntilDestroy: 30,
+      destroyGameTimer: null,
 
       // Variables independent of game that shouldn't be in gameState
       hudBarLen: 100,
@@ -66,7 +70,6 @@ export default {
       o: 79,
       p: 80
     };
-    console.log("game created! epic!");
   },
   destroyed() {
     // Remove event listeners when component is destroyed
@@ -78,6 +81,8 @@ export default {
     this.gameState = await this.getInitGameState(this.roomID);
 
     // SET UP CANVAS
+    console.log(this.gameState);
+    console.log(this.$refs.gameCanvas);
     this.canvas = this.$refs.gameCanvas;
     this.ctx = this.canvas.getContext("2d");
 
@@ -112,6 +117,15 @@ export default {
 
     this.socket.on("gameOver", id => {
       this.gameMsg = `${id} won the game!!!!`;
+      if (!this.gameHasEnded) {
+        this.destroyGameTimer = setInterval(() => {
+          this.timeLeftUntilDestroy--;
+          if (this.destroyGameTimer == null) {
+            clearInterval(this.destroyGameTimer);
+          }
+        }, 1000);
+      }
+      this.gameHasEnded = true;
     });
 
     this.socket.on("changeTurn", currentPlayerIndex => {

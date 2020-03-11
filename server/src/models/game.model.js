@@ -24,6 +24,8 @@ class Game {
         this.turnLength = 30
         // the decrement currentplayer timeLeft variable is 0 to start off
         this.decInt = null
+        this.gameEndInt = null
+        this.gameEndTimer = 30
 
         this.width = width
         this.height = height
@@ -73,8 +75,26 @@ class Game {
     }
 
     destroy() {
+        console.log('destroy time')
+        // Update database with new player stats of all players who are still in-game
+        // TODO update player stats when they die instead?
+        model.updatePlayerStats(this.players)
         // kill the frickin game!
+        clearInterval(this.decInt)
         clearInterval(this.interval)
+        clearInterval(this.gameEndInt)
+        model.destroyGame(this.roomID)
+    }
+
+    // Called from model.js whenever a player leaves the room
+    leaveGame(userID) {
+        this.players = this.players.filter(p => p.id !== userID)
+        // Change turn if the player whose turn it is, leaves
+        if(this.players.length == 0) this.destroy()
+        else if(this.currentPlayer.id === userID) {
+            clearInterval(this.decInt)
+            this.changeTurn()
+        }
     }
 
     update() {
@@ -92,7 +112,17 @@ class Game {
             this.changeTurn()
         }
 
-        this.checkWin()
+        if(this.checkWin()) {
+            if(this.gameEndInt == null) {
+            this.gameEndInt = setInterval(() => {
+                this.gameEndTimer--
+                if(this.gameEndTimer <= 0) {
+                    this.destroy()
+                }
+                console.log('destroying the game...', this.gameEndTimer)
+            }, 1000);
+            }
+        }
 
     }
 
@@ -100,6 +130,8 @@ class Game {
         let alivePlayers = this.players.filter(p => p.isAlive)
         if (alivePlayers.length == 1) {
             model.gameEnd(this.roomID, alivePlayers[0].id)
+            clearInterval(this.decInt)
+            return true
         }
         return false
     }

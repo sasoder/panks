@@ -5,10 +5,11 @@
     <UserList
       :users="users"
     />
-    <GameSettings v-if="isCreator && !this.activeGame"
+    <GameSettings v-if="isCreator && !activeGame"
       :roomID="roomID"
     />
-    <GameScreen v-if="this.activeGame"
+    <p v-else-if="!activeGame">Host is changing game settings...</p>
+    <GameScreen v-if="activeGame"
       :roomID="roomID"
     />
     <Chat
@@ -50,13 +51,16 @@ export default {
     });
     this.socket.on('startGame', () => {
       this.activeGame = true;
-      // TODO: Should something else happen?
     });
     this.socket.on('newCreator', (creator) => {
       this.creator = creator;
     });
     this.socket.on('deletedRoom', () => {
       this.$router.push('/lobby');
+    });
+
+    this.socket.on('destroyGame', () => {
+          this.activeGame = false;
     });
     this.initRoom();
   },
@@ -72,6 +76,7 @@ export default {
     });
   },
   methods: {
+
     initRoom() {
       fetch(`/api/user/${this.roomID}/init`)
       .then((resp) => {
@@ -84,7 +89,6 @@ export default {
         this.creator = data.creator;
         this.messages = data.messages;
         this.users = data.users;
-        console.log('rbuhuhuhuuh', this.users);
         this.activeGame = data.activeGame;
       })
       .catch((err) => {

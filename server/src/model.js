@@ -85,13 +85,17 @@ exports.joinRoom = (roomID, userID) => {
 };
 
 exports.leaveRoom = (roomID, userID) => {
+  let user = users[userID]
+  let room = exports.findRoom(roomID)
+  // User leaves the game upon leaving the room
+  if(room.game != null) room.game.leaveGame(userID)
   // Set the current room of the user to null
-  users[userID].currentRoom = null;
+  user.currentRoom = null;
   // Join the right socket.io room
-  users[userID].socket.leave(roomID);
-  users[userID].socket.join('lobby');
+  user.socket.leave(roomID);
+  user.socket.join('lobby');
   // Remove the user to the corresponding room
-  rooms[roomID].removeUser(users[userID]);
+  room.removeUser(userID);
 
   // Updated Rooms with users
   exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms));
@@ -123,17 +127,25 @@ exports.removeUser = (userID) => {
     .filter((user) => user.id !== userID)
     .reduce((res, user) => ({ ...res, [user.id]: user }), {});
 
-  // TODO: Emit somehting?
+  // TODO: Emit something?
 };
 
 exports.userHasRoom = (userID) => {
   return Object.values(rooms).find(room => room.creator === userID);
 }
 
-exports.setStats = (id, timesPlayed, totalScore) => {
+exports.updatePlayerStats = (id, timesPlayed, totalScore) => {
+
+    // Sequelize update user info
+
+    // let user = users[id]
+    // user.timesPlayed = timesPlayed;
+    // user.totalScore = totalScore;
+}
+
+exports.setLocalStats = (id, timesPlayed, totalScore) => {
     let user = users[id]
-    user.timesPlayed = timesPlayed;
-    user.totalScore = totalScore;
+    user.setStats(timesPlayed, totalScore)
 }
 
 // Assumes from outer call that user has a room
@@ -263,6 +275,14 @@ exports.updatePlayer = (roomID, player) => {
  */
 exports.gameEnd = (roomID, id) => {
   exports.io.in(roomID).emit('gameOver', id)
+}
+
+/**
+ * Called from game.model after 30 seconds have passed after game ends
+ */
+exports.destroyGame = (roomID) => {
+    exports.findRoom(roomID).game = null
+    exports.io.in(roomID).emit('destroyGame')
 }
 
 /**
