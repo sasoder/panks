@@ -93,6 +93,8 @@ export default {
       })
       .catch((err) => {
         console.error(err);
+        // Reroute back to lobby
+        this.$router.push('/lobby');
       });
     },
     leaveRoom() {
