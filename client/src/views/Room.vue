@@ -8,12 +8,11 @@
     <GameSettings v-if="isCreator && !activeGame"
       :roomID="roomID"
     />
-    <p v-else-if="!activeGame">Host is changing game settings...</p>
+    <p v-else-if="!activeGame">Waiting for host to set game settings...</p>
     <GameScreen v-if="activeGame"
       :roomID="roomID"
     />
     <Chat
-      ref="chat"
       :roomID="roomID"
       :messages="messages"
     />
@@ -44,8 +43,12 @@ export default {
       socket: null,
     };
   },
-  mounted() {
+  created() {
+    // Set up context
     this.socket = this.$root.socket;
+    this.initRoom();
+
+    // Set up sockets
     this.socket.on('updatedUserList', (users) => {
       this.users = users;
     });
@@ -58,15 +61,8 @@ export default {
     this.socket.on('destroyGame', () => {
       this.activeGame = false;
     });
-    this.initRoom();
-    // this is in mounted because it tries to access
-    // the chat ref which may not be finished @ created
     this.socket.on('msg', (msg) => {
       this.messages = [...this.messages, msg];
-      // Scroll down in chat component on new messages
-      // TODO: this is undefined when entering room 2nd time and after
-      console.log(this.$refs);
-      this.$refs.chat.scrollChat();
     });
   },
   destroyed() {
@@ -75,6 +71,7 @@ export default {
     this.socket.off('startGame');
     this.socket.off('deletedRoom');
     this.socket.off('destroyGame');
+    this.socket.off('msg');
   },
   methods: {
     initRoom() {

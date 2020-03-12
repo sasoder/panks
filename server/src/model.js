@@ -172,8 +172,6 @@ exports.removeUser = (userID) => {
   users = Object.values(users)
   .filter((user) => user.userID !== userID)
   .reduce((res, user) => ({ ...res, [user.userID]: user }), {});
-
-  // TODO: Emit something?
 };
 
 exports.userHasRoom = (userID) => {

@@ -21,6 +21,17 @@ export default {
       required: true,
     },
   },
+  watch: {
+    // Scroll down in chat component on new messages
+    messages() {
+      const container = this.$el.querySelector('#chat-text-container');
+      console.log("scrollTop: ", container.scrollTop);
+      console.log("scrollHeight: ", container.scrollHeight);
+      console.log("clientHeight: ", container.clientHeight);
+      container.scrollTop = container.scrollHeight - container.clientHeight;
+      console.log("NEW scrollTop: ", container.scrollTop);
+    }
+  },
   data: () => ({
     newMessage: '',
   }),
@@ -48,10 +59,6 @@ export default {
         .catch((err) => {
           console.error(err);
         });
-    },
-    scrollChat() {
-      const container = this.$el.querySelector('#chat-text-container');
-      container.scrollTop = container.scrollHeight;
     },
   },
 };
