@@ -44,8 +44,6 @@ export default {
       socket: null,
     };
   },
-  created() {
-    },
   mounted() {
     this.socket = this.$root.socket;
     this.socket.on('updatedUserList', (users) => {
@@ -54,13 +52,9 @@ export default {
     this.socket.on('startGame', () => {
       this.activeGame = true;
     });
-    this.socket.on('newCreator', (creator) => {
-      this.creator = creator;
-    });
     this.socket.on('deletedRoom', () => {
       this.$router.push('/lobby');
     });
-
     this.socket.on('destroyGame', () => {
       this.activeGame = false;
     });
@@ -70,22 +64,19 @@ export default {
     this.socket.on('msg', (msg) => {
       this.messages = [...this.messages, msg];
       // Scroll down in chat component on new messages
-      // TODO this is undefined when entering room 2nd time and after
+      // TODO: this is undefined when entering room 2nd time and after
       console.log(this.$refs);
       this.$refs.chat.scrollChat();
     });
   },
-
   destroyed() {
     console.log('why are you here');
     this.socket.off('updatedUserList');
     this.socket.off('startGame');
-    this.socket.off('newCreator');
     this.socket.off('deletedRoom');
     this.socket.off('destroyGame');
   },
   methods: {
-
     initRoom() {
       fetch(`/api/user/${this.roomID}/init`)
       .then((resp) => {

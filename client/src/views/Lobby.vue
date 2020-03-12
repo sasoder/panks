@@ -127,10 +127,6 @@ export default {
               if (!resp.ok) {
                   throw new Error('Error while logging out...');
               }
-              // Clear "store variable"
-              this.$store.commit('setIsAuthenticated', null);
-              // Go back to homescreen
-              this.$router.push('/login');
           }).catch((err) => {
               console.error(err);
           });

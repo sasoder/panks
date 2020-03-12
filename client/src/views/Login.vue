@@ -3,10 +3,10 @@
     <h1>Log in:</h1>
     <form v-on:submit.prevent="login()">
       <p>Username</p>
-      <input type="text" v-model="name" required />
+      <input type="text" autocomplete="username" v-model="name" required />
       <br>
       <p>Password</p>
-      <input type="password" v-model="password" required />
+      <input type="password" autocomplete="current-password" v-model="password" required />
       <br>
       <input type="submit" value="Login" />
     </form>

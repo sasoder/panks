@@ -55,22 +55,27 @@ router.get('/userInfo', (req, res) => {
 
 router.get('/:roomID/init', (req, res) => {
     const room = model.findRoom(req.params.roomID);
+
+    // If you are trying to reach a non-existing room
     if (room === undefined) {
       res.sendStatus(404);
       return;
     }
 
-    // Fetch current user
-    const user = model.findUser(req.session.userID);
+    // Only make user join room if they are not already in it
+    if (!room.users.includes(req.session.userID)) {
+      // Fetch current user
+      const user = model.findUser(req.session.userID);
 
-    // Add the user to the room's user list 
-    console.log('got here1')
-    model.joinRoom(room.id, user.userID);
-    console.log('got here2')
-    
-    // Send join message
-    model.addMessage(user.currentRoom, `${user.userID} joined the room!`);
-    console.log('got here3')
+      // Add the user to the room's user list 
+      console.log('got here1')
+      model.joinRoom(room.id, user.userID);
+      console.log('got here2')
+      
+      // Send join message
+      model.addMessage(user.currentRoom, `${user.userID} joined the room!`);
+      console.log('got here3')
+    }
   
     // Send response with messages
     res.status(200).json({
@@ -94,7 +99,6 @@ router.post('/:roomID/leave', (req, res) => {
     model.addMessage(user.currentRoom, `${user.userID} left the room :D`);
 
     // Let user leave room
-
     model.leaveRoom(req.params.roomID, req.session.userID);
     
     // Status: OK
@@ -122,33 +126,10 @@ router.post('/:roomID/message', (req, res) => {
 
 
 router.post('/logout', (req, res) => {
-    const user = model.findUser(req.session.userID);
-    const roomOfUser = model.findRoom(req.session.userID);
-    console.debug("\n\nRoomofuser: ", roomOfUser, "\n\n");
-
-    // If user is host of a room, change the host
-    if (roomOfUser !== undefined) {
-        // If host is not alone in room while logging out
-        if (roomOfUser.users.length > 1) {
-            // Notify that user disconnected
-            model.addMessage(user.currentRoom, `${user.userID} disconnected. Changing host to next in command!`);
-            // Let user leave room
-            model.leaveRoom(roomOfUser.id, req.session.userID);
-        } else {
-            // Only host left in room
-            console.debug('Only host left in room!  ', roomOfUser.id)
-            model.removeRoom(roomOfUser.id);
-        }
-    }
-
-    // Finally log out the user once everything is cleared
-    model.removeUser(req.session.userID);
-    
-    // TODO: Keep sending 200-messages.
-    // TODO: -- This messed up the routing thing on logout
-    // TODO: -- It didn't interpret resp as "resp.ok"
+    model.logoutUser(req.session.userID);
+        
+    // Status: OK
     res.sendStatus(200);
-    // TODO ?: add logout msgs in lobby on logout?
 });
 
 

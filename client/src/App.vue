@@ -7,6 +7,25 @@
   </div>
 </template>
 
+<script>
+export default {
+  created() {
+      this.socket = this.$root.socket;
+      this.socket.on('logout', () => {
+        this.logout();
+      });
+  },
+  methods: {
+    logout() {
+      // Clear "store variable"
+      this.$store.commit('setIsAuthenticated', null);
+      // Go back to homescreen
+      this.$router.push('/login');
+    },
+  },
+};
+</script>
+
 <style>
 html,
 body {

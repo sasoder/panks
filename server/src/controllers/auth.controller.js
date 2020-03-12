@@ -7,7 +7,6 @@ const { sequelize } = require('../database');
 
 const requireAuth = (req, res, next) => {
     const maybeUser = model.findUser(req.session.userID);
-    console.log('RequireAuth - Name of logged in user: ' + maybeUser.userID);
     // "auth" check
     if (maybeUser === undefined) {
         res.status(401).send('Unauthorized. Please make sure you are logged in before attempting this action again.');
@@ -17,6 +16,10 @@ const requireAuth = (req, res, next) => {
         res.status(401).send('Unauthorized. Don\'t try to steal someone else\'s session...');
         return;
     }
+
+    // Update the timeout clock of the user
+    model.updateTimeoutOnUser(req.session.userID);
+
     next();
 };
 
@@ -42,10 +45,6 @@ router.get('/isAuthenticated', (req, res) => {
         // If username was valid based on existing user but IP is wrong, set invalid again.
         validUsername = null;
     }
-
-    // TODO: Add check for timeout detection
-        // TODO: Check if time is greater than some value
-        // TODO: Unless player is inside room that has a non-null game in it
 
     res.status(200).json({
         // Return state
@@ -107,9 +106,7 @@ router.post('/login', (req, res) => {
                     // Add the user to the model
                     // TODO: TEST COOKIE THEFT DETECTING
                     const clientIp = req.clientIp;
-                    console.log("\n\n\n\nLOGIN IP: ",clientIp, "\n\n\n\n");
-                    const otherIp = req.header('x-forwarded-for') || req.connection.remoteAddress;
-                    console.log("\n\n\n\OTHER IP: ",otherIp, "\n\n\n\n");
+                    // const otherIp = req.header('x-forwarded-for') || req.connection.remoteAddress;
                     // TODO: TEST COOKIE THEFT DETECTING
                     model.addUser(req.session.userID, clientIp, req.session.socketID);
                     // Status: OK

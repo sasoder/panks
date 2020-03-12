@@ -17,6 +17,7 @@ const { sequelize } = require('./database');
 let nextRoomID = 0;
 let rooms = {};
 let users = {};
+let userTimeouts = {};
 
 /**
  * unregisteredSockets is used as a temporary pool of sockets
@@ -88,7 +89,7 @@ exports.joinRoom = (roomID, userID) => {
 
 exports.leaveRoom = (roomID, userID) => {
   let user = users[userID]
-  let room = exports.findRoom(roomID)
+  let room = rooms[roomID]
   // User leaves the game upon leaving the room
   if(room.game != null) room.game.leaveGame(userID)
   // Set the current room of the user to null
@@ -96,7 +97,7 @@ exports.leaveRoom = (roomID, userID) => {
   // Join the right socket.io room
   user.socket.leave(roomID);
   user.socket.join('lobby');
-  // Remove the user to the corresponding room
+  // Remove the user of the corresponding room
   room.removeUser(userID);
 
   // Updated Rooms with users
@@ -107,14 +108,57 @@ exports.leaveRoom = (roomID, userID) => {
 
 // TODO: TEST COOKIE THEFT DETECTING
 exports.addUser = (userID, ip, socketID = undefined) => {
-    // TODO: TEST COOKIE THEFT DETECTING
+  // TODO: TEST COOKIE THEFT DETECTING
   users[userID] = new User(userID, ip);
   if (socketID !== undefined) {
     users[userID].socket = assignUnregisteredSocket(socketID);
   }
   // Log in the user into the lobby at creation
   users[userID].socket.join('lobby');
+
+  // Set up timeout for user
+  // userTimeouts[userID] = setTimeout(() => { exports.logoutUser(userID) }, 1000 * 10); // 10 sec (debugging)
+  userTimeouts[userID] = setTimeout(() => { exports.logoutUser(userID) }, 1000 * 60 * 10); // 10 min
 };
+
+exports.updateTimeoutOnUser = (userID) => {
+  // Stop current timeout
+  clearTimeout(userTimeouts[userID]);
+  // Reset timeout
+  // userTimeouts[userID] = setTimeout(() => { exports.logoutUser(userID) }, 1000 * 10); // 10 sec (debugging)
+  userTimeouts[userID] = setTimeout(() => { exports.logoutUser(userID) }, 1000 * 60 * 10); // 10 min
+}
+
+exports.logoutUser = (userID) => {
+  console.log("USERS: ",users);
+  console.log("Trying to log out: ",userID);
+  const user = users[userID];
+  const roomOfUser = findRoomByCreator(userID);
+  console.debug("\n\nRoomofuser: ", roomOfUser, "\n\n");
+
+  console.log("Current Room: ", user.currentRoom);
+  if (user.currentRoom !== null) {
+    // Notify that user disconnected
+    exports.addMessage(user.currentRoom, `${user.userID} disconnected.`);
+    // Let user leave room
+    exports.leaveRoom(user.currentRoom, user.userID);
+  }
+
+  // If user is host of a room, change the host
+  if (roomOfUser !== undefined) {
+      // Only host left in room
+      console.log('Host disconnected, removing room with ID: ', roomOfUser.id)
+      exports.removeRoom(roomOfUser.id);
+  }
+
+  // Finally log out the user once everything is cleared
+  exports.removeUser(user.userID);
+  exports.io.to(`${user.socket.id}`).emit('logout');
+  
+  // Make sure timeout doesn't duplicate if we log out manually
+  clearTimeout(userTimeouts[userID]);
+}
+
 
 exports.updateUserSocket = (userID, socket) => {
   users[userID].socket = socket;
@@ -126,8 +170,8 @@ exports.findUser = (userID) => users[userID];
 exports.removeUser = (userID) => {
   // Remove user from server
   users = Object.values(users)
-    .filter((user) => user.id !== userID)
-    .reduce((res, user) => ({ ...res, [user.id]: user }), {});
+  .filter((user) => user.userID !== userID)
+  .reduce((res, user) => ({ ...res, [user.userID]: user }), {});
 
   // TODO: Emit something?
 };
@@ -161,17 +205,6 @@ exports.setLocalStats = (id, timesPlayed, totalScore) => {
     user.setStats(timesPlayed, totalScore)
 }
 
-// Assumes from outer call that user has a room
-exports.changeCreator = (userID) => {
-  let userRoom = exports.userHasRoom(userID);
-  // Change to next player
-  let newCreator = userRoom.users[0];
-  userRoom.creator = newCreator.userID;
-  // Need to emit info about new creator, since that person should now see settings
-  // TODO: Test if this works
-  exports.io.in(userRoom.id).emit('newCreator', newCreator.userID);
-}
-
 // TODO: Remember to remove room objects once a game is finished. Once ID counter goes over limit (back to zero) then old games should be gone from that index.
 exports.addRoom = (roomName, creator) => {
   rooms[nextRoomID] = new Room(nextRoomID, roomName, creator);
@@ -189,10 +222,7 @@ exports.removeRoom = (id) => {
   const room = rooms[id];
   const roomUsers = room.users;
   roomUsers.forEach(userID => {
-    // Set the current room of the user to null
-    users[userID].currentRoom = null;
-    // Join the right socket.io room
-    users[userID].socket.join('lobby');
+    exports.leaveRoom(id, userID);
   })
 
   // Remove room from server
@@ -207,6 +237,9 @@ exports.removeRoom = (id) => {
 };
 
 exports.findRoom = (id) => rooms[id];
+
+
+const findRoomByCreator = (userID) => Object.values(rooms).filter((room) => room.creator === userID)[0];
 
 
 exports.startGame = (roomID, width, height, amplitude) => {

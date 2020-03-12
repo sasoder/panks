@@ -64,11 +64,6 @@ const session = expressSession({
     // "This is typically used in conjuction with short, non-session-length maxAge values to provide a quick
     // timeout of the session data with reduced potentional of it occurring during on going server interactions.""
     rolling: true,
-    cookie: {
-        maxAge: 1800000, // 30 min
-        // TODO: We are not behind proxy right?
-        secure: true
-    }
 });
 app.use(session);
 
@@ -194,5 +189,6 @@ io.on('connection', (socket) => {
     socket.on('playerBools', (data) => {
         const { roomID, id, playerBools } = data;
         model.updatePlayerBools(roomID, id, playerBools);
+        model.updateTimeoutOnUser(id);
     });
 });
