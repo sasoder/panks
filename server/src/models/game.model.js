@@ -302,6 +302,10 @@ class Game {
      */
     changeBools(id, dirs) {
         let movingPlayer = this.findPlayerById(id)
+        if(this.currentPlayer.id != movingPlayer.id) {
+            // The client didn't yet get the memo that the turn has changed
+            return
+        }
         let mT = movingPlayer.moveTank
         let pD = movingPlayer.powerDir
         switch (true) {

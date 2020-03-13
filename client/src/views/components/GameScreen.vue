@@ -239,7 +239,7 @@ export default {
         this.socket.emit("playerBools", {
           roomID: this.roomID,
           id: this.currentPlayer.id,
-          playerBools
+          playerBools,
         });
       }
     },
