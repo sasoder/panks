@@ -9,11 +9,15 @@
 
 <script>
 export default {
-  created() {
+  mounted() {
       this.socket = this.$root.socket;
       this.socket.on('logout', () => {
         this.logout();
       });
+  },
+  beforeDestroy() {
+    // Removing sockets (just to be sure!)
+    this.socket.off('logout');
   },
   methods: {
     logout() {

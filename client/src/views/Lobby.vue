@@ -4,7 +4,7 @@
     <p>Welcome to the lobby, {{this.$store.state.isAuthenticated}}!</p>
     <p>These are your stats:</p>
     <br>
-    <p>Total score: {{totalScore}}</p>
+    <p>Total score: {{ parseInt(totalScore) }}</p>
     <br>
     <p>Times played: {{timesPlayed}}</p>
 
@@ -34,9 +34,10 @@ export default {
         totalScore: null,
         timesPlayed: null,
     }),
-    created() {
+    mounted() {
         this.socket = this.$root.socket;
         this.socket.on('newRoom', (newRoom) => {
+            console.log('added new room socket moment');
             this.roomList = [...this.roomList, newRoom];
         });
         this.socket.on('updatedRoomList', (rooms) => {
@@ -46,12 +47,12 @@ export default {
         this.getUserInfo();
         this.getActiveRooms();
     },
-    destroyed() {
+    beforeDestroy() {
+        // Removing sockets
         this.socket.off('newRoom');
         this.socket.off('updatedRoomList');
     },
     methods: {
-
         getUserInfo() {
             fetch('api/user/userInfo', {
                 method: 'GET',

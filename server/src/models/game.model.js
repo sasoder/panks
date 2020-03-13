@@ -89,11 +89,24 @@ class Game {
     leaveGame(userID) {
         this.players = this.players.filter(p => p.id !== userID)
         // Change turn if the player whose turn it is, leaves
-        if(this.players.length == 0) this.destroy()
-        else if(this.currentPlayer.id === userID) {
-            clearInterval(this.decInt)
-            this.changeTurn()
+        // if(this.players.length == 0) this.destroy()
+        console.log('players:', this.players)
+        switch (this.players.length) {
+            case 1:
+                this.checkWin()
+                break
+            case 0:
+                this.destroy()
+                break
+            default:
+                clearInterval(this.decInt)
+                this.changeTurn()
+                break
         }
+        // else if(this.currentPlayer.id === userID) {
+        //     clearInterval(this.decInt)
+        //     this.changeTurn()
+        // }
     }
 
     update() {
@@ -127,6 +140,7 @@ class Game {
 
     checkWin() {
         let alivePlayers = this.players.filter(p => p.isAlive)
+        console.log('alive players:', alivePlayers)
         if (alivePlayers.length == 1) {
             model.gameEnd(this.roomID, alivePlayers[0].id)
             clearInterval(this.decInt)

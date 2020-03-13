@@ -43,7 +43,7 @@ export default {
       socket: null,
     };
   },
-  created() {
+  mounted() {
     // Set up context
     this.socket = this.$root.socket;
     this.initRoom();
@@ -65,8 +65,8 @@ export default {
       this.messages = [...this.messages, msg];
     });
   },
-  destroyed() {
-    console.log('why are you here');
+  beforeDestroy() {
+    // Removing sockets
     this.socket.off('updatedUserList');
     this.socket.off('startGame');
     this.socket.off('deletedRoom');

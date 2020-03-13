@@ -53,9 +53,6 @@ export default {
 
   /*  ---  ****  ---  ****  ---  ---   ENVIRONMENT OF COMPONENT   ---  ---  ****  ---  ****  ---  */
 
-  created() {
-    },
-
   beforeDestroy() {
     this.socket.off('updatePlayer');
     this.socket.off('gameOver');
