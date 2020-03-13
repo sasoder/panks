@@ -35,7 +35,10 @@ export default {
         timesPlayed: null,
     }),
     mounted() {
+        console.log('setting up lobby');
         this.socket = this.$root.socket;
+        // eslint-disable-next-line no-underscore-dangle
+        console.log('socket BEFORE setting up:', this.socket._callbacks);
         this.socket.on('newRoom', (newRoom) => {
             console.log('added new room socket moment');
             this.roomList = [...this.roomList, newRoom];
@@ -44,13 +47,18 @@ export default {
             console.log(`Rooms array on updating: ${JSON.stringify(rooms)}`);
             this.roomList = rooms;
         });
+        // eslint-disable-next-line no-underscore-dangle
+        console.log('socket AFTER setting up:', this.socket._callbacks);
         this.getUserInfo();
         this.getActiveRooms();
     },
     beforeDestroy() {
+        console.log('beforedestroying lobby...');
         // Removing sockets
         this.socket.off('newRoom');
         this.socket.off('updatedRoomList');
+        // eslint-disable-next-line no-underscore-dangle
+        console.log(this.socket._callbacks);
     },
     methods: {
         getUserInfo() {
@@ -92,8 +100,7 @@ export default {
             }
             // Check input
             if (this.newRoomName === '') {
-                console.error('Insufficient input data!');
-                return;
+                this.newRoomName = `Room ${this.roomList.length}`;
             }
             fetch('api/user/addRoom', {
                 method: 'POST',

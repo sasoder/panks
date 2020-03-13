@@ -25,7 +25,6 @@ class Room {
         this.users = this.users.filter((user) => user != userToRemove);
     }
 
-    // TODO: Will this add new complexities on logging out and leaving rooms? probably :)
     addGame(game) {
         this.game = game;
     }

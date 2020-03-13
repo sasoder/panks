@@ -9,11 +9,15 @@
 
 <script>
 export default {
-  mounted() {
+  beforeCreate() {
       this.socket = this.$root.socket;
+      console.log("app.vue", this.socket);
+
       this.socket.on('logout', () => {
         this.logout();
       });
+  },
+  mounted() {
   },
   beforeDestroy() {
     // Removing sockets (just to be sure!)

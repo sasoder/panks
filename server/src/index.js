@@ -171,6 +171,8 @@ model.init({ io });
 
 // Handle connected socket.io sockets
 io.on('connection', (socket) => {
+      // Log in the user into the lobby at creation
+    socket.join('lobby');
     // This function serves to bind socket.io connections to user models
     if (socket.handshake.session.userID
         && model.findUser(socket.handshake.session.userID) !== undefined

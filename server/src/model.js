@@ -203,7 +203,7 @@ exports.setLocalStats = (id, timesPlayed, totalScore) => {
     user.setStats(timesPlayed, totalScore)
 }
 
-// TODO: Remember to remove room objects once a game is finished. Once ID counter goes over limit (back to zero) then old games should be gone from that index.
+
 exports.addRoom = (roomName, creator) => {
   rooms[nextRoomID] = new Room(nextRoomID, roomName, creator);
   // Make it so that only people in lobby get emitted of this info
