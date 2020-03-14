@@ -76,9 +76,9 @@ class Game {
 
     destroy() {
         console.log('destroy time')
-        // Update database with new player stats of all players who are still in-game
-        // TODO update player stats when they die instead?
-        model.updatePlayerStats(this.players)
+        // Update database new player stats of the winner
+        console.log('winner:', this.currentPlayer)
+        model.updatePlayerStats(this.currentPlayer)
         // kill the frickin game!
         clearInterval(this.decInt)
         clearInterval(this.interval)

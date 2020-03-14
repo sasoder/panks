@@ -71,7 +71,9 @@ class Player extends Entity {
         }
         this.inputMove(gameScreen, gameWidth)
         this.changePower()
-        if (this.hp <= 0) {
+        if (this.hp <= 0 && this.isAlive) {
+            // Update database new player stats when player dies
+            model.updatePlayerStats(this)
             this.isAlive = false
         }
         if (this.y >= gameHeight) {

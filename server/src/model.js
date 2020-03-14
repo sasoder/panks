@@ -203,22 +203,19 @@ exports.userHasRoom = (userID) => {
   return Object.values(rooms).find(room => room.host === userID);
 }
 
-exports.updatePlayerStats = (players) => {
+exports.updatePlayerStats = (player) => {
 
   // Sequelize update user info
-
-  players.forEach(p => {
-    sequelize.model('user').findOne({
-      where: {
-        username: p.id,
-      },
-    }).then((user) => {
-      user.set('times_played', user.times_played + 1);
-      user.set('total_score', user.total_score + p.score);
-      user.save();
-    }).catch((err) => {
-      console.error(err);
-    });
+  sequelize.model('user').findOne({
+    where: {
+      username: player.id,
+    },
+  }).then((user) => {
+    user.set('times_played', user.times_played + 1);
+    user.set('total_score', user.total_score + player.score);
+    user.save();
+  }).catch((err) => {
+    console.error(err);
   });
 }
 

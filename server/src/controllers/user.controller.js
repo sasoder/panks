@@ -8,7 +8,6 @@ const { sequelize } = require('../database');
 
 
 router.get('/roomList', (req, res) => {
-    //console.log('h')
     const rooms = model.getRooms();
     console.log(rooms)
     res.status(200).json({ rooms });

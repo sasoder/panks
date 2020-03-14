@@ -18,7 +18,8 @@ export default {
   },
   data() {
     return {
-      gameMsg: "Good luck",
+      gameMsg:
+        "Use all four arrow keys to control your tank. Space to shoot. 'O' and 'P' to lower/higher your shoot power. Your fuel refills 10% every turn. \nGood luck!",
       gameState: null,
       socket: null,
       // bullet interval
@@ -325,14 +326,14 @@ export default {
     drawBullet(bullet) {
       // If the bullet is in the terrain, don't draw
       if (this.isOutOfBounds(bullet)) {
-        if (
-          this.gameState.gameScreen[Math.round(bullet.pos.x)][
-            Math.round(bullet.pos.y)
-          ]
-        ) {
-          clearInterval(this.interval);
-        }
         return;
+      }
+      if (
+        this.gameState.gameScreen[Math.round(bullet.pos.x)][
+          Math.round(bullet.pos.y)
+        ]
+      ) {
+        clearInterval(this.interval);
       }
       this.ctx.fillStyle = bullet.colour;
       this.ctx.fillRect(
