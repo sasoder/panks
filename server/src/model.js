@@ -2,8 +2,6 @@
 
 'use strict';
 
-// a lobby has rooms
-const Lobby = require('./models/lobby.model');
 const User = require('./models/user.model');
 
 const Room = require('./models/room.model');
@@ -80,9 +78,9 @@ exports.joinRoom = (roomID, userID) => {
   user.socket.join(roomID);
   // Add the user to the corresponding room
   rooms[roomID].addUser(userID);
-  
+
   // Updated Rooms with users
-  exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms));
+  exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms).map(room => room.getData()));
   exports.io.in(roomID).emit('updatedUserList', room.users);
   console.log("Added user to room ", roomID, " with ID: ", userID);
 };
@@ -91,7 +89,8 @@ exports.leaveRoom = (roomID, userID) => {
   let user = users[userID]
   let room = rooms[roomID]
   // User leaves the game upon leaving the room
-  if(room.game != null) room.game.leaveGame(userID)
+  if (room.game != null) room.game.leaveGame(userID)
+
   // Set the current room of the user to null
   user.currentRoom = null;
   // Join the right socket.io room
@@ -101,8 +100,8 @@ exports.leaveRoom = (roomID, userID) => {
   room.removeUser(userID);
 
   // Updated Rooms with users
-  exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms));
-  exports.io.in(roomID).emit('updatedUserList', rooms[roomID].users);
+  exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms).map(room => room.getData()));
+  exports.io.in(roomID).emit('updatedUserList', room.users);
   console.log("User left room ", roomID, " with ID: ", userID);
 };
 
@@ -130,8 +129,8 @@ exports.updateTimeoutOnUser = (userID) => {
 }
 
 exports.logoutUser = (userID) => {
-  console.log("USERS: ",users);
-  console.log("Trying to log out: ",userID);
+  console.log("USERS: ", users);
+  console.log("Trying to log out: ", userID);
   const user = users[userID];
   const roomOfUser = findRoomByCreator(userID);
   console.debug("\n\nRoomofuser: ", roomOfUser, "\n\n");
@@ -146,15 +145,15 @@ exports.logoutUser = (userID) => {
 
   // If user is host of a room, change the host
   if (roomOfUser !== undefined) {
-      // Only host left in room
-      console.log('Host disconnected, removing room with ID: ', roomOfUser.id)
-      exports.removeRoom(roomOfUser.id);
+    // Only host left in room
+    console.log('Host disconnected, removing room with ID: ', roomOfUser.id)
+    exports.removeRoom(roomOfUser.id);
   }
 
   // Finally log out the user once everything is cleared
   exports.removeUser(user.userID);
   exports.io.to(`${user.socket.id}`).emit('logout');
-  
+
   // Make sure timeout doesn't duplicate if we log out manually
   clearTimeout(userTimeouts[userID]);
 }
@@ -170,8 +169,8 @@ exports.findUser = (userID) => users[userID];
 exports.removeUser = (userID) => {
   // Remove user from server
   users = Object.values(users)
-  .filter((user) => user.userID !== userID)
-  .reduce((res, user) => ({ ...res, [user.userID]: user }), {});
+    .filter((user) => user.userID !== userID)
+    .reduce((res, user) => ({ ...res, [user.userID]: user }), {});
 };
 
 exports.userHasRoom = (userID) => {
@@ -180,39 +179,41 @@ exports.userHasRoom = (userID) => {
 
 exports.updatePlayerStats = (players) => {
 
-    // Sequelize update user info
+  // Sequelize update user info
 
-    players.forEach(p => {
-      sequelize.model('user').findOne({
-        where: {
-            username: p.id,
-        },
-      }).then((user) => {
-        user.set('times_played', user.times_played + 1);
-        user.set('total_score', user.total_score + p.score);
-        user.save();
-      }).catch((err) => {
-        console.error(err);
-      });
+  players.forEach(p => {
+    sequelize.model('user').findOne({
+      where: {
+        username: p.id,
+      },
+    }).then((user) => {
+      user.set('times_played', user.times_played + 1);
+      user.set('total_score', user.total_score + p.score);
+      user.save();
+    }).catch((err) => {
+      console.error(err);
     });
+  });
 }
 
 // For displaying stats in userlist in rooms
 exports.setLocalStats = (id, timesPlayed, totalScore) => {
-    let user = users[id]
-    user.setStats(timesPlayed, totalScore)
+  let user = users[id]
+  user.setStats(timesPlayed, totalScore)
 }
 
 
 exports.addRoom = (roomName, creator) => {
   rooms[nextRoomID] = new Room(nextRoomID, roomName, creator);
   // Make it so that only people in lobby get emitted of this info
-  exports.io.in('lobby').emit('newRoom', rooms[nextRoomID]);
+  exports.io.in('lobby').emit('newRoom', rooms[nextRoomID].getData());
   nextRoomID += 1;
 };
 
 
-exports.getRooms = () => Object.values(rooms);
+exports.getRooms = () => {
+  return Object.values(rooms).map(room => room.getData());
+}
 
 
 exports.removeRoom = (id) => {
@@ -231,7 +232,7 @@ exports.removeRoom = (id) => {
   // Make it so that only people in lobby get emitted of this info
   // Doing Object.values since we want an array of rooms, not the dictionary
   exports.io.in(id).emit('deletedRoom');
-  exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms));
+  exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms).map(room => room.getData()));
 };
 
 exports.findRoom = (id) => rooms[id];
@@ -241,11 +242,12 @@ const findRoomByCreator = (userID) => Object.values(rooms).filter((room) => room
 
 
 exports.startGame = (roomID, width, height, amplitude) => {
-  console.log('startgame model')
 
   let room = rooms[roomID];
 
   room.addGame(new Game(roomID, room.users, width, height, amplitude));
+  // Passing roomID to update the status of the game for those in the lobby
+  exports.io.in('lobby').emit('activeGame', roomID);
   exports.io.in(roomID).emit('startGame');
 }
 
@@ -294,9 +296,9 @@ player = {
         }
 */
 exports.updatePlayerBools = (roomID, id, playerBools) => {
-    if(this.findRoom(roomID) !== undefined) {
-        exports.findRoom(roomID).game.changeBools(id, playerBools);
-    }
+  if (this.findRoom(roomID) !== undefined) {
+    exports.findRoom(roomID).game.changeBools(id, playerBools);
+  }
 }
 
 // called from player.js
@@ -321,14 +323,16 @@ exports.updatePlayer = (roomID, player) => {
  */
 exports.gameEnd = (roomID, id) => {
   exports.io.in(roomID).emit('gameOver', id)
+  rooms[roomID].activeGame = false
+  exports.io.in('lobby').emit('inactiveGame', roomID)
 }
 
 /**
  * Called from game.model after 30 seconds have passed after game ends
  */
 exports.destroyGame = (roomID) => {
-    exports.findRoom(roomID).game = null
-    exports.io.in(roomID).emit('destroyGame')
+  exports.findRoom(roomID).game = null
+  exports.io.in(roomID).emit('destroyGame')
 }
 
 /**

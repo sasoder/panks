@@ -1,16 +1,17 @@
 <template>
   <div id="roomcard-container">
-    <p>
+    <div>
       ID: {{ room.id }}
-      <br>Created by: {{ room.creator }}
-      <br>Name: {{ room.name }}
-      <br>Players: {{ room.users.length }}
-    </p>
+      <br />
+      Hosted by: {{ room.host }}
+      <br />
+      Name: {{ room.name }}
+      <br />
+      Players: {{ room.users }}
+      <div v-if="room.activeGame">GAME IN PROGRESS!</div>
+    </div>
     <button @click="joinRoom(room.id)">Join room</button>
-    <button
-      v-if="room.creator === this.currentUser"
-      @click="removeRoom(room.id)"
-    >Remove room</button>
+    <button v-if="room.host === this.currentUser" @click="removeRoom(room.id)">Remove room</button>
   </div>
 </template>
 
@@ -19,11 +20,11 @@ export default {
   props: {
     room: {
       type: Object,
-      required: true,
-    },
+      required: true
+    }
   },
   data: () => ({
-    currentUser: null,
+    currentUser: null
   }),
   created() {
     this.currentUser = this.$store.state.isAuthenticated;
@@ -31,41 +32,40 @@ export default {
   methods: {
     // Emitting event from child component
     joinRoom(roomID) {
-        console.log(`Trying to join Room with ID: ${roomID}`);
-        this.$router.push(`/room/${roomID}`);
+      console.log(`Trying to join Room with ID: ${roomID}`);
+      this.$router.push(`/room/${roomID}`);
     },
     // Emitting event from child component
     removeRoom(roomID) {
-        fetch('api/user/removeRoom', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                roomID,
-            }),
+      fetch("api/user/removeRoom", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          roomID
         })
-        .then((resp) => {
-            // If something on server side went wrong...
-            if (!resp.ok) {
-                throw new Error('Error with adding new room...');
-            }
-        }).catch((err) => {
-            console.error(err);
+      })
+        .then(resp => {
+          // If something on server side went wrong...
+          if (!resp.ok) {
+            throw new Error("Error with adding new room...");
+          }
+        })
+        .catch(err => {
+          console.error(err);
         });
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style scoped>
-
 #roomcard-container {
-  background:lightgrey;
-  margin:20px;
-  padding:10px;
-  border-radius:5px;
-  border:1px solid black;
+  background: lightgrey;
+  margin: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid black;
 }
-
 </style>

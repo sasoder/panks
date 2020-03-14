@@ -4,7 +4,7 @@
     <p v-if="!gameHasEnded">{{timeLeft}} seconds left on the turn!</p>
     <p v-if="gameHasEnded">Destroying game screen in {{timeLeftUntilDestroy}} seconds...</p>
     <div id="screen">
-      <canvas ref="gameCanvas"></canvas>
+      <canvas ref="gameCanvas" id="gameScreen"></canvas>
     </div>
   </div>
 </template>
@@ -14,7 +14,7 @@ export default {
   props: {
     roomID: {
       required: true
-    },
+    }
   },
   data() {
     return {
@@ -54,11 +54,11 @@ export default {
   /*  ---  ****  ---  ****  ---  ---   ENVIRONMENT OF COMPONENT   ---  ---  ****  ---  ****  ---  */
 
   beforeDestroy() {
-    this.socket.off('updatePlayer');
-    this.socket.off('gameOver');
-    this.socket.off('changeTurn');
-    this.socket.off('newShot');
-    this.socket.off('explosion');
+    this.socket.off("updatePlayer");
+    this.socket.off("gameOver");
+    this.socket.off("changeTurn");
+    this.socket.off("newShot");
+    this.socket.off("explosion");
     clearInterval(this.interval);
     // Remove event listeners when component is destroyed
     window.removeEventListener("keydown", this.handleKeyDown);
@@ -143,7 +143,7 @@ export default {
     });
 
     this.socket.on("newShot", bullet => {
-    console.log('new shot!', bullet);
+      console.log("new shot!", bullet);
       this.interval = setInterval(() => {
         this.animateBulletShot(bullet);
       }, 1000 / 30);
@@ -161,7 +161,6 @@ export default {
   /*  ---  ****  ---  ****  ---  ---   HANDLING COMPONENT   ---  ---  ****  ---  ****  ---  */
 
   methods: {
-
     decrementTimer() {
       this.timeLeft--;
     },
@@ -239,7 +238,7 @@ export default {
         this.socket.emit("playerBools", {
           roomID: this.roomID,
           id: this.currentPlayer.id,
-          playerBools,
+          playerBools
         });
       }
     },
@@ -326,10 +325,14 @@ export default {
     drawBullet(bullet) {
       // If the bullet is in the terrain, don't draw
       if (this.isOutOfBounds(bullet)) {
-        if (this.gameState.gameScreen[Math.round(bullet.pos.x)][Math.round(bullet.pos.y)]) {
-            clearInterval(this.interval);
-          }
-          return;
+        if (
+          this.gameState.gameScreen[Math.round(bullet.pos.x)][
+            Math.round(bullet.pos.y)
+          ]
+        ) {
+          clearInterval(this.interval);
+        }
+        return;
       }
       this.ctx.fillStyle = bullet.colour;
       this.ctx.fillRect(
@@ -411,7 +414,7 @@ export default {
       players.forEach((p, i) => {
         this.ctx.textAlign = "right";
         this.ctx.font = "15px Arial";
-        console.log('drawing hud, current player:', this.currentPlayer.id);
+        console.log("drawing hud, current player:", this.currentPlayer.id);
         if (p.id === this.currentPlayer.id) this.ctx.fillStyle = "red";
         else this.ctx.fillStyle = "black";
 
@@ -433,11 +436,9 @@ export default {
 
         this.ctx.fillStyle = p.colour;
         this.ctx.fillRect(
-          this.width -
-            this.hudBarLen -
-            this.infoPadding / 2,
+          this.width - this.hudBarLen - this.infoPadding / 2,
           this.infoPadding / 2 + this.infoPadding * i,
-          (this.hudBarLen) * (p.hp / 100),
+          this.hudBarLen * (p.hp / 100),
           this.hudBarHeight
         );
       });
@@ -458,7 +459,7 @@ export default {
         this.ctx.fillRect(
           this.infoPadding * 2,
           this.infoPadding / 2,
-          (this.hudBarLen) *
+          this.hudBarLen *
             (this.currentPlayer.fuel / this.currentPlayer.maxFuel),
           this.hudBarHeight
         );
@@ -488,7 +489,7 @@ export default {
         this.ctx.fillRect(
           this.infoPadding * 2,
           this.infoPadding / 2 + this.infoPadding,
-          (this.hudBarLen) *
+          this.hudBarLen *
             (this.currentPlayer.shootPower / this.currentPlayer.maxShootPower),
           this.hudBarHeight
         );
@@ -499,4 +500,9 @@ export default {
 </script>
 
 <style scoped>
+html,
+#gameScreen {
+  border: 2px;
+  border-color: black;
+}
 </style>

@@ -8,7 +8,9 @@ const { sequelize } = require('../database');
 
 
 router.get('/roomList', (req, res) => {
+    //console.log('h')
     const rooms = model.getRooms();
+    console.log(rooms)
     res.status(200).json({ rooms });
 });
 
@@ -58,28 +60,28 @@ router.get('/:roomID/init', (req, res) => {
 
     // If you are trying to reach a non-existing room
     if (room === undefined) {
-      res.sendStatus(404);
-      return;
+        res.sendStatus(404);
+        return;
     }
 
     console.log('inited room');
-    
+
     const user = model.findUser(req.session.userID);
     // Join room on refresh
     model.joinRoom(room.id, user.userID);
     // Only make user join room if they are not already in it
     if (!room.users.includes(req.session.userID)) {
-      // Fetch current user
+        // Fetch current user
 
-      // Add the user to the room's user list 
-      console.log('got here1')
-      console.log('got here2')
-      
-      // Send join message
-      model.addMessage(user.currentRoom, `${user.userID} joined the room!`);
-      console.log('got here3')
+        // Add the user to the room's user list 
+        console.log('got here1')
+        console.log('got here2')
+
+        // Send join message
+        model.addMessage(user.currentRoom, `${user.userID} joined the room!`);
+        console.log('got here3')
     }
-  
+
     // Send response with messages
     res.status(200).json({
         creator: room.creator,
@@ -103,7 +105,7 @@ router.post('/:roomID/leave', (req, res) => {
 
     // Let user leave room
     model.leaveRoom(req.params.roomID, req.session.userID);
-    
+
     // Status: OK
     res.sendStatus(200);
 });
@@ -130,7 +132,7 @@ router.post('/:roomID/message', (req, res) => {
 
 router.post('/logout', (req, res) => {
     model.logoutUser(req.session.userID);
-        
+
     // Status: OK
     res.sendStatus(200);
 });

@@ -31,6 +31,7 @@ class Game {
         this.height = height
         this.skyColour = this.skyColours[Math.floor(Math.random() * this.skyColours.length)]
         this.groundColor = this.groundColours[Math.floor(Math.random() * this.groundColours.length)]
+        this.over = false
 
         // gameState that will be sent at every emission
         this.initGameState = {
@@ -124,15 +125,16 @@ class Game {
             this.changeTurn()
         }
 
-        if(this.checkWin()) {
-            if(this.gameEndInt == null) {
-            this.gameEndInt = setInterval(() => {
-                this.gameEndTimer--
-                if(this.gameEndTimer <= 0) {
-                    this.destroy()
-                }
-                console.log('destroying the game...', this.gameEndTimer)
-            }, 1000);
+        if (this.checkWin()) {
+            if (this.gameEndInt == null) {
+                console.log('setting gameEnd')
+                this.gameEndInt = setInterval(() => {
+                    this.gameEndTimer--
+                    if (this.gameEndTimer <= 0) {
+                        this.destroy()
+                    }
+                    console.log('destroying the game...', this.gameEndTimer)
+                }, 1000);
             }
         }
 
@@ -140,9 +142,11 @@ class Game {
 
     checkWin() {
         let alivePlayers = this.players.filter(p => p.isAlive)
-        console.log('alive players:', alivePlayers)
         if (alivePlayers.length == 1) {
-            model.gameEnd(this.roomID, alivePlayers[0].id)
+            if (!this.over) {
+                this.over = true
+                model.gameEnd(this.roomID, alivePlayers[0].id)
+            }
             clearInterval(this.decInt)
             return true
         }
@@ -201,6 +205,7 @@ class Game {
         this.currentPlayer.stopMoving()
         do {
             this.nextPlayer()
+            console.log('yooo lol', this.currentPlayer)
         } while (!this.currentPlayer.isAlive)
         this.currentPlayer.canMove = true
         this.currentPlayer.addFuel();
@@ -215,10 +220,10 @@ class Game {
 
     countDownCurrentPlayerTurn() {
         this.decInt = setInterval(() => {
-            if(--this.currentPlayer.timeLeft <= 0) {
+            if (--this.currentPlayer.timeLeft <= 0) {
                 clearInterval(this.decInt)
                 // don't change turn if the player has already shot
-                if(this.bullets.length === 0)
+                if (this.bullets.length === 0)
                     this.changeTurn()
             }
         }, 1000);
@@ -302,7 +307,7 @@ class Game {
      */
     changeBools(id, dirs) {
         let movingPlayer = this.findPlayerById(id)
-        if(this.currentPlayer.id != movingPlayer.id) {
+        if (this.currentPlayer.id != movingPlayer.id) {
             // The client didn't yet get the memo that the turn has changed
             return
         }

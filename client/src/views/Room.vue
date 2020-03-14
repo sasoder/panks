@@ -2,35 +2,26 @@
   <div>
     <p>Welcome to Room with ID: {{ this.roomID }}</p>
     <button v-on:click="leaveRoom">Leave room</button>
-    <UserList
-      :users="users"
-    />
-    <GameSettings v-if="isCreator && !activeGame"
-      :roomID="roomID"
-    />
+    <UserList :users="users" />
+    <GameSettings v-if="isCreator && !activeGame" :roomID="roomID" />
     <p v-else-if="!activeGame">Waiting for host to set game settings...</p>
-    <GameScreen v-if="activeGame"
-      :roomID="roomID"
-    />
-    <Chat
-      :roomID="roomID"
-      :messages="messages"
-    />
+    <GameScreen v-if="activeGame" :roomID="roomID" />
+    <Chat :roomID="roomID" :messages="messages" />
   </div>
 </template>
 
 <script>
-import UserList from './components/UserList.vue';
-import GameSettings from './components/GameSettings.vue';
-import GameScreen from './components/GameScreen.vue';
-import Chat from './components/Chat.vue';
+import UserList from "./components/UserList.vue";
+import GameSettings from "./components/GameSettings.vue";
+import GameScreen from "./components/GameScreen.vue";
+import Chat from "./components/Chat.vue";
 
 export default {
   components: {
     UserList,
     GameSettings,
     GameScreen,
-    Chat,
+    Chat
   },
   data() {
     // ! - Can't use arrow notation with data because of the use of route?
@@ -40,7 +31,7 @@ export default {
       messages: [],
       users: [],
       activeGame: null,
-      socket: null,
+      socket: null
     };
   },
   mounted() {
@@ -49,75 +40,84 @@ export default {
     this.initRoom();
 
     // Set up sockets
-    this.socket.on('updatedUserList', (users) => {
+    this.socket.on("updatedUserList", users => {
       this.users = users;
     });
-    this.socket.on('startGame', () => {
+    this.socket.on("startGame", () => {
       this.activeGame = true;
     });
-    this.socket.on('deletedRoom', () => {
-      this.$router.push('/lobby');
+    this.socket.on("deletedRoom", () => {
+      this.$router.push("/lobby");
     });
-    this.socket.on('destroyGame', () => {
+    this.socket.on("destroyGame", () => {
       this.activeGame = false;
     });
-    this.socket.on('msg', (msg) => {
+    this.socket.on("msg", msg => {
       this.messages = [...this.messages, msg];
     });
   },
   beforeDestroy() {
     // Removing sockets
-    this.socket.off('updatedUserList');
-    this.socket.off('startGame');
-    this.socket.off('deletedRoom');
-    this.socket.off('destroyGame');
-    this.socket.off('msg');
+    this.socket.off("updatedUserList");
+    this.socket.off("startGame");
+    this.socket.off("deletedRoom");
+    this.socket.off("destroyGame");
+    this.socket.off("msg");
   },
   methods: {
     initRoom() {
       fetch(`/api/user/${this.roomID}/init`)
-      .then((resp) => {
-        if (!resp.ok) {
-          throw new Error(`Unexpected failure when joining room: ${this.roomID}`);
-        }
-        return resp.json();
-      })
-      .then((data) => {
-        this.creator = data.creator;
-        this.messages = data.messages;
-        this.users = data.users;
-        this.activeGame = data.activeGame;
-      })
-      .catch((err) => {
-        console.error(err);
-        // Reroute back to lobby
-        this.$router.push('/lobby');
-      });
+        .then(resp => {
+          if (!resp.ok) {
+            throw new Error(
+              `Unexpected failure when joining room: ${this.roomID}`
+            );
+          }
+          return resp.json();
+        })
+        .then(data => {
+          this.creator = data.creator;
+          this.messages = data.messages;
+          this.users = data.users;
+          this.activeGame = data.activeGame;
+        })
+        .catch(err => {
+          console.error(err);
+          // Reroute back to lobby
+          this.$router.push({
+            path: "/lobby"
+          });
+        });
     },
     leaveRoom() {
       fetch(`/api/user/${this.roomID}/leave`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-        },
-      }).then((resp) => {
-        if (!resp.ok) {
-          throw new Error('Could not leave room. You\'re here forever :)');
+          "Content-Type": "application/json"
         }
-        this.$router.push('/lobby');
-      }).catch((err) => {
-        console.error(err);
-      });
-    },
+      })
+        .then(resp => {
+          if (!resp.ok) {
+            throw new Error("Could not leave room. You're here forever :)");
+          }
+          console.log("before reroute");
+          this.$router.push({
+            path: "/lobby"
+          });
+          console.log("after reroute");
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
   },
   computed: {
     isCreator() {
       return this.creator === this.$store.state.isAuthenticated;
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style scoped>
-
 </style>

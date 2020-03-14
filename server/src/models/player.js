@@ -14,7 +14,7 @@ class Player extends Entity {
         super();
         this.roomID = roomID
         this.defaultShootAngle = 45
-        this.maxShootPower = 100
+        this.maxShootPower = 120
         this.defaultshootPower = 60
         this.barrelLen = 15
         this.barrelThickness = 4
@@ -139,7 +139,7 @@ class Player extends Entity {
 
     addFuel() {
         this.fuel += Math.round(this.maxFuel / 10)
-        if(this.fuel > this.maxFuel) {
+        if (this.fuel > this.maxFuel) {
             this.fuel = this.maxFuel
         }
     }

@@ -5,6 +5,7 @@
 const path = require('path');
 
 // Foundation
+const http = require('http');
 const https = require('https');
 const express = require('express');
 const app = express();
@@ -24,26 +25,26 @@ sequelize.sync();
 
 // Creating a HTTPS server with self-signed certificate
 const port = 3000;
-const httpsServer = https.createServer({
-    key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem')),
-    // TODO: Remove password from file?
-    passphrase: 'vigillarhttps'
-    // TODO: Necessary?
-    // requestCert: false,
-    // rejectUnauthorized: false
-}, app).listen(port, () => {
-    console.log(`Listening on https://localhost:${port}`);
-});
-
-
-// const httpServer = http.createServer(app).listen(port, () => {
+// const httpsServer = https.createServer({
+//     key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
+//     cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem')),
+//     // TODO: Remove password from file?
+//     passphrase: 'vigillarhttps'
+//     // TODO: Necessary?
+//     // requestCert: false,
+//     // rejectUnauthorized: false
+// }, app).listen(port, () => {
 //     console.log(`Listening on https://localhost:${port}`);
-// });;
+// });
+
+
+const httpServer = http.createServer(app).listen(port, () => {
+    console.log(`Listening on https://localhost:${port}`);
+});;
 
 // Socket.io needs the httpServer directly
-// const io = require('socket.io').listen(httpServer); // Creates socket.io app
-const io = require('socket.io').listen(httpsServer); // Creates socket.io app
+const io = require('socket.io').listen(httpServer); // Creates socket.io app
+// const io = require('socket.io').listen(httpsServer); // Creates socket.io app
 
 // Adding middlewares
 app.use(express.json());
@@ -171,7 +172,7 @@ model.init({ io });
 
 // Handle connected socket.io sockets
 io.on('connection', (socket) => {
-      // Log in the user into the lobby at creation
+    // Log in the user into the lobby at creation
     socket.join('lobby');
     // This function serves to bind socket.io connections to user models
     if (socket.handshake.session.userID

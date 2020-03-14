@@ -10,6 +10,7 @@ class User {
         this.timesPlayed = 0;
         this.totalScore = 0;
     }
+    // TODO for showing stats in room instead of just in lobby
     setStats(timesPlayed, totalScore) {
         this.timesPlayed = timesPlayed;
         this.totalScore = totalScore;
