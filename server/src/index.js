@@ -160,7 +160,7 @@ app.use('/api', auth.router);
 // All user endpoints require that we have logged in
 app.use('/api/user', auth.requireAuth, user.router);
 // All game endpoints require that we are in the actual game
-app.use('/api/game', auth.requireAuth, auth.requireInGame, game.router);
+app.use('/api/game', auth.requireAuth, game.router);
 
 
 

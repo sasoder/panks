@@ -2,9 +2,7 @@
   <div id="userlist-container">
     <p>Users:</p>
     <p>
-      <span v-for="user in users" v-bind:key="user.userID">
-        {{ user }}
-      </span>
+      <span v-for="user in users" v-bind:key="user.userID">{{ user }}</span>
     </p>
   </div>
 </template>
@@ -13,20 +11,17 @@
 export default {
   props: {
     users: {
-      required: true,
-    },
-  },
+      required: true
+    }
+  }
 };
 </script>
 
 <style scoped>
-
 #userlist-container {
-  background:lightgray;
-  margin:20px;
-  padding:5px;
-  border-radius:5px;
-  border:1px solid black;
+  background: #b1aea9;
+  margin: 20px;
+  padding: 10px;
+  border-radius: 10px;
 }
-
 </style>

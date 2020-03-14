@@ -1,7 +1,9 @@
 <template>
   <div>
-    <p>Welcome to Room with ID: {{ this.roomID }}</p>
-    <button v-on:click="leaveRoom">Leave room</button>
+    <div style="display: flex; justify-content: space-between;">
+      <h2>Welcome to Room with ID: {{ this.roomID }}</h2>
+      <button v-on:click="leaveRoom">Leave room</button>
+    </div>
     <UserList :users="users" />
     <GameSettings v-if="isHost && !activeGame" :roomID="roomID" />
     <p v-else-if="!activeGame">Waiting for host to set game settings...</p>

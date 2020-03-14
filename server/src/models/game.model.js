@@ -15,7 +15,7 @@ class Game {
         this.hudBarHeight = 20
         this.infoPadding = 30
         this.skyColours = ['#e8ffff', '#d9f1ff', '#bfe6ff', '#8cd3ff']
-        this.groundColours = ["#ccc", '#bd9874', '#f9e4b7', '#66a103', '#654321', '#ffffffff']
+        this.groundColours = ["#ccc", '#bd9874', '#f9e4b7', '#66a103', '#654321', '#fffafa']
         this.currentPlayerIndex = 0
         this.gravity = 0.3
         this.bullets = []
@@ -24,7 +24,7 @@ class Game {
         // the decrement currentplayer timeLeft variable is 0 to start off
         this.decInt = null
         this.gameEndInt = null
-        this.gameEndTimer = 5
+        this.gameEndTimer = 10
         this.interval = null
 
         this.width = width
@@ -70,15 +70,14 @@ class Game {
         // update players
         this.initGameState.players = this.players
         this.initGameState.gameScreen = this.gameScreen
-        // model.sendInitGameState(this.initGameState)
 
     }
 
     destroy() {
         console.log('destroy time')
         // Update database new player stats of the winner
-        console.log('winner:', this.currentPlayer)
-        model.updatePlayerStats(this.currentPlayer)
+        // undefined check since the player can leave during the countdown
+        if (this.currentPlayer != undefined) model.updatePlayerStats(this.currentPlayer)
         // kill the frickin game!
         clearInterval(this.decInt)
         clearInterval(this.interval)
@@ -93,8 +92,6 @@ class Game {
         // if the person who left wasn't in the game, you shouldn't change players
         if (beforeAmt === this.players.length) return;
         // Change turn if the player whose turn it is, leaves
-        // if(this.players.length == 0) this.destroy()
-        console.log('players:', this.players)
         switch (this.players.length) {
             case 1:
                 // without changing CPI to 0, the game may think that CPI is still > 0, meaning checking attributes of an undefined player
@@ -146,6 +143,7 @@ class Game {
         if (alivePlayers.length == 1) {
             if (!this.over) {
                 this.over = true
+                console.log('sending gameend, roomiD: ', this.roomID)
                 model.gameEnd(this.roomID, alivePlayers[0].id)
             }
             clearInterval(this.decInt)

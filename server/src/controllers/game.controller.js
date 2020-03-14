@@ -7,7 +7,7 @@ router.post('/start', (req, res) => {
     const roomID = req.body.roomID;
     const room = model.findRoom(roomID);
     // Check if the room has an active game already
-    if (model.findRoom(roomID).game !== null) {
+    if (model.findRoom(roomID).game !== null || model.findRoom(roomID).users.length < 2) {
         // Status: Forbidden
         res.sendStatus(403);
         return;
@@ -20,8 +20,8 @@ router.post('/start', (req, res) => {
     // users is a list of the usernames, or rather their id's
     const users = room.users
     console.log('these are the users:', users)
-    
-    
+
+
     // Start the game with given arguments
     console.log('starting agme:')
     model.startGame(roomID, width, height, amplitude, users);
@@ -33,7 +33,7 @@ router.post('/start', (req, res) => {
 router.get('/gameState/:roomID', (req, res) => {
     const roomID = req.params.roomID;
     console.log('roomid: ', roomID)
-    
+
     // Check if the room has an active game already
     if (model.findRoom(roomID).game == null) {
         // Status: not found
@@ -41,7 +41,7 @@ router.get('/gameState/:roomID', (req, res) => {
         return;
     }
 
-    
+
     // send gamestate to the client
     const gameState = model.findRoom(roomID).game.initGameState
     res.status(200).json({
@@ -53,7 +53,7 @@ router.get('/gameState/:roomID', (req, res) => {
 router.post('/updateGameState/:roomID', (req, res) => {
     const roomID = req.params.roomID;
     console.log('roomid: ', roomID)
-    
+
     // Check if the room has an active game already
     if (model.findRoom(roomID).game !== null) {
         // Status: Forbidden
@@ -61,10 +61,10 @@ router.post('/updateGameState/:roomID', (req, res) => {
         return;
     }
 
-    
+
     // update gamestate
     model.findRoom(roomID).game.gameState = req.body.gameState
     res.sendStatus(200);
 });
 
-module.exports = { router };
+module.exports = { router };

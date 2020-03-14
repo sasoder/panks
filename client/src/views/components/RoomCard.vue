@@ -38,6 +38,9 @@ export default {
       }
     });
   },
+  beforeDestroy() {
+    this.socket.off("newRoom");
+  },
   methods: {
     // Emitting event from child component
     joinRoom(roomID) {
@@ -71,10 +74,9 @@ export default {
 
 <style scoped>
 #roomcard-container {
-  background: lightgrey;
+  background: #b1aea9;
   margin: 20px;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid black;
+  padding: 20px;
+  border-radius: 10px;
 }
 </style>

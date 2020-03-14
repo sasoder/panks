@@ -500,8 +500,7 @@ export default {
 };
 </script>
 
-<style scoped>
-html,
+<style>
 #gameScreen {
   border: 2px;
   border-color: black;

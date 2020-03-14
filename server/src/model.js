@@ -79,8 +79,6 @@ exports.joinRoom = (roomID, userID) => {
 
 
   // Add the user to the corresponding room, only if they aren't already in the room
-  console.log('users', room.users)
-  console.log('userid', userID)
   if (!room.users.some(user => user === userID)) {
     // Send join message
     exports.addMessage(user.currentRoom, `${userID} joined the room!`);
@@ -347,6 +345,7 @@ exports.updatePlayer = (roomID, player) => {
  * id = playerId of game
  */
 exports.gameEnd = (roomID, id) => {
+  console.log('gameend emitting to ', roomID)
   exports.io.in(roomID).emit('gameOver', id)
   rooms[roomID].activeGame = false
   exports.io.in('lobby').emit('inactiveGame', roomID)

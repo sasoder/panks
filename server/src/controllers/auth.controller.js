@@ -11,7 +11,7 @@ const requireAuth = (req, res, next) => {
     if (maybeUser === undefined) {
         res.status(401).send('Unauthorized. Please make sure you are logged in before attempting this action again.');
         return;
-    // TODO: TEST COOKIE THEFT DETECTING
+        // TODO: TEST COOKIE THEFT DETECTING
     } else if (maybeUser.ip !== req.clientIp) {
         res.status(401).send('Unauthorized. Don\'t try to steal someone else\'s session...');
         return;
@@ -23,22 +23,11 @@ const requireAuth = (req, res, next) => {
     next();
 };
 
-// TODO: (see comments)
-const requireInGame = (req, res, next) => {
-
-    // Get room with roomID
-    // Get game of room with room.game
-    // Check if req.session.userID is in array of players inside game.players
-    console.log("Passed requireInGame!");
-
-    next();
-};
-
 // for main.js (setting store)
 router.get('/isAuthenticated', (req, res) => {
     const maybeUser = model.findUser(req.session.userID);
     let validUsername = maybeUser === undefined ? null : maybeUser.userID;
-    
+
     // TODO: TEST COOKIE THEFT DETECTING
     // Ensure that IP of login is the same
     if (validUsername && maybeUser.ip !== req.clientIp) {
@@ -63,7 +52,7 @@ router.post('/register', (req, res) => {
         data.set('total_score', 0);
         data.set('times_played', 0);
         data.save();
-    }).then( () => {
+    }).then(() => {
         // Awaiting save...
         // Status: OK
         res.sendStatus(200);
@@ -132,4 +121,4 @@ router.post('/login', (req, res) => {
 });
 
 
-module.exports = { router, requireAuth, requireInGame };
+module.exports = { router, requireAuth };
