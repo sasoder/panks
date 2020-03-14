@@ -77,6 +77,7 @@ exports.joinRoom = (roomID, userID) => {
   user.socket.leave('lobby');
   user.socket.join(roomID);
 
+
   // Add the user to the corresponding room, only if they aren't already in the room
   console.log('users', room.users)
   console.log('userid', userID)
@@ -84,6 +85,11 @@ exports.joinRoom = (roomID, userID) => {
     // Send join message
     exports.addMessage(user.currentRoom, `${userID} joined the room!`);
     room.addUser(userID);
+  }
+
+  // if you joined an empty room, become the host
+  if (room.users.length === 1) {
+    exports.changeHost(roomID)
   }
 
 
@@ -109,7 +115,7 @@ exports.leaveRoom = (roomID, userID) => {
 
   // if the user who left is the host and there is at least one person left in the room
   if (room.host === userID && room.users.length > 0) {
-    let newHost = this.changeHost(roomID)
+    let newHost = exports.changeHost(roomID)
     exports.addMessage(roomID, 'Host left the room. ' + newHost + ' is the new host...')
   }
 
@@ -242,6 +248,7 @@ exports.removeRoom = (id) => {
   const room = rooms[id];
   const roomUsers = room.users;
   roomUsers.forEach(userID => {
+    console.log('making ', userID, 'leave the room with id ', id)
     exports.leaveRoom(id, userID);
   })
 
