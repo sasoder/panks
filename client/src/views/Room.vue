@@ -3,7 +3,7 @@
     <p>Welcome to Room with ID: {{ this.roomID }}</p>
     <button v-on:click="leaveRoom">Leave room</button>
     <UserList :users="users" />
-    <GameSettings v-if="isCreator && !activeGame" :roomID="roomID" />
+    <GameSettings v-if="isHost && !activeGame" :roomID="roomID" />
     <p v-else-if="!activeGame">Waiting for host to set game settings...</p>
     <GameScreen v-if="activeGame" :roomID="roomID" />
     <Chat :roomID="roomID" :messages="messages" />
@@ -27,7 +27,7 @@ export default {
     // ! - Can't use arrow notation with data because of the use of route?
     return {
       roomID: this.$route.params.roomID,
-      creator: null,
+      host: null,
       messages: [],
       users: [],
       activeGame: null,
@@ -40,8 +40,9 @@ export default {
     this.initRoom();
 
     // Set up sockets
-    this.socket.on("updatedUserList", users => {
-      this.users = users;
+    this.socket.on("updatedUserList", data => {
+      this.users = data.users;
+      this.host = data.host;
     });
     this.socket.on("startGame", () => {
       this.activeGame = true;
@@ -76,7 +77,7 @@ export default {
           return resp.json();
         })
         .then(data => {
-          this.creator = data.creator;
+          this.host = data.host;
           this.messages = data.messages;
           this.users = data.users;
           this.activeGame = data.activeGame;
@@ -112,8 +113,8 @@ export default {
     }
   },
   computed: {
-    isCreator() {
-      return this.creator === this.$store.state.isAuthenticated;
+    isHost() {
+      return this.host === this.$store.state.isAuthenticated;
     }
   }
 };

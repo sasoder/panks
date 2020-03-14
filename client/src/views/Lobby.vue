@@ -35,6 +35,9 @@ export default {
     this.socket.on("newRoom", newRoom => {
       console.log("added new room socket moment");
       this.roomList = [...this.roomList, newRoom];
+      if (newRoom.host == this.$store.state.isAuthenticated) {
+        this.$router.push(`/room/${newRoom.id}`);
+      }
     });
     this.socket.on("updatedRoomList", rooms => {
       console.log(`Rooms array on updating: ${JSON.stringify(rooms)}`);
@@ -53,8 +56,6 @@ export default {
     });
 
     this.socket.on("inactiveGame", roomID => {
-      console.log("blabla", this.roomList);
-      console.log("hahaha", roomID);
       const room = this.roomList.find(r => r.id == roomID);
       room.activeGame = false;
       const temp = this.roomList;
@@ -90,7 +91,7 @@ export default {
 
     userHasRoom() {
       return this.roomList.some(
-        room => room.creator === this.$store.state.isAuthenticated
+        room => room.host === this.$store.state.isAuthenticated
       );
     },
     getActiveRooms() {

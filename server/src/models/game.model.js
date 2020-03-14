@@ -88,12 +88,17 @@ class Game {
 
     // Called from model.js whenever a player leaves the room
     leaveGame(userID) {
+        let beforeAmt = this.players.length
         this.players = this.players.filter(p => p.id !== userID)
+        // if the person who left wasn't in the game, you shouldn't change players
+        if (beforeAmt === this.players.length) return;
         // Change turn if the player whose turn it is, leaves
         // if(this.players.length == 0) this.destroy()
         console.log('players:', this.players)
         switch (this.players.length) {
             case 1:
+                // without changing CPI to 0, the game may think that CPI is still > 0, meaning checking attributes of an undefined player
+                this.currentPlayerIndex = 0
                 this.checkWin()
                 break
             case 0:
@@ -104,10 +109,6 @@ class Game {
                 this.changeTurn()
                 break
         }
-        // else if(this.currentPlayer.id === userID) {
-        //     clearInterval(this.decInt)
-        //     this.changeTurn()
-        // }
     }
 
     update() {
@@ -205,7 +206,6 @@ class Game {
         this.currentPlayer.stopMoving()
         do {
             this.nextPlayer()
-            console.log('yooo lol', this.currentPlayer)
         } while (!this.currentPlayer.isAlive)
         this.currentPlayer.canMove = true
         this.currentPlayer.addFuel();

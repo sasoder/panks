@@ -66,18 +66,12 @@ router.get('/:roomID/init', (req, res) => {
 
     console.log('inited room');
 
-    const user = model.findUser(req.session.userID);
     // Join room on refresh
-    model.joinRoom(room.id, user.userID);
-    // Only make user join room if they are not already in it
-    if (!room.users.includes(req.session.userID)) {
-        // Fetch current user
-
-    }
+    model.joinRoom(room.id, req.session.userID);
 
     // Send response with messages
     res.status(200).json({
-        creator: room.creator,
+        host: room.host,
         messages: room.messages,
         users: room.users,
         activeGame: room.game !== null,

@@ -76,15 +76,20 @@ exports.joinRoom = (roomID, userID) => {
   // Join the right socket.io room
   user.socket.leave('lobby');
   user.socket.join(roomID);
-  // Add the user to the corresponding room
-  rooms[roomID].addUser(userID);
 
-  // Send join message
-  exports.addMessage(user.currentRoom, `${userID} joined the room!`);
+  // Add the user to the corresponding room, only if they aren't already in the room
+  console.log('users', room.users)
+  console.log('userid', userID)
+  if (!room.users.some(user => user === userID)) {
+    // Send join message
+    exports.addMessage(user.currentRoom, `${userID} joined the room!`);
+    room.addUser(userID);
+  }
+
 
   // Updated Rooms with users
   exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms).map(room => room.getData()));
-  exports.io.in(roomID).emit('updatedUserList', room.users);
+  exports.io.in(roomID).emit('updatedUserList', { users: room.users, host: room.host });
   console.log("Added user to room ", roomID, " with ID: ", userID);
 };
 
@@ -110,7 +115,7 @@ exports.leaveRoom = (roomID, userID) => {
 
   // Updated Rooms with users
   exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms).map(room => room.getData()));
-  exports.io.in(roomID).emit('updatedUserList', room.users);
+  exports.io.in(roomID).emit('updatedUserList', { users: room.users, host: room.host });
   console.log("User left room ", roomID, " with ID: ", userID);
 };
 
@@ -147,7 +152,7 @@ exports.logoutUser = (userID) => {
   console.log("USERS: ", users);
   console.log("Trying to log out: ", userID);
   const user = users[userID];
-  const roomOfUser = findRoomByCreator(userID);
+  const roomOfUser = findRoomByHost(userID);
   console.debug("\n\nRoomofuser: ", roomOfUser, "\n\n");
 
   console.log("Current Room: ", user.currentRoom);
@@ -189,7 +194,7 @@ exports.removeUser = (userID) => {
 };
 
 exports.userHasRoom = (userID) => {
-  return Object.values(rooms).find(room => room.creator === userID);
+  return Object.values(rooms).find(room => room.host === userID);
 }
 
 exports.updatePlayerStats = (players) => {
@@ -222,6 +227,7 @@ exports.addRoom = (roomName, creator) => {
   rooms[nextRoomID] = new Room(nextRoomID, roomName, creator);
   // Make it so that only people in lobby get emitted of this info
   exports.io.in('lobby').emit('newRoom', rooms[nextRoomID].getData());
+  exports.joinRoom(nextRoomID, creator)
   nextRoomID += 1;
 };
 
@@ -253,7 +259,7 @@ exports.removeRoom = (id) => {
 exports.findRoom = (id) => rooms[id];
 
 
-const findRoomByCreator = (userID) => Object.values(rooms).filter((room) => room.creator === userID)[0];
+const findRoomByHost = (userID) => Object.values(rooms).filter((room) => room.host === userID)[0];
 
 
 exports.startGame = (roomID, width, height, amplitude) => {
