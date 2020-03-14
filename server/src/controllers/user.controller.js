@@ -73,13 +73,6 @@ router.get('/:roomID/init', (req, res) => {
     if (!room.users.includes(req.session.userID)) {
         // Fetch current user
 
-        // Add the user to the room's user list 
-        console.log('got here1')
-        console.log('got here2')
-
-        // Send join message
-        model.addMessage(user.currentRoom, `${user.userID} joined the room!`);
-        console.log('got here3')
     }
 
     // Send response with messages

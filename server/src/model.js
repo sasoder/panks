@@ -79,6 +79,9 @@ exports.joinRoom = (roomID, userID) => {
   // Add the user to the corresponding room
   rooms[roomID].addUser(userID);
 
+  // Send join message
+  exports.addMessage(user.currentRoom, `${userID} joined the room!`);
+
   // Updated Rooms with users
   exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms).map(room => room.getData()));
   exports.io.in(roomID).emit('updatedUserList', room.users);
@@ -99,11 +102,23 @@ exports.leaveRoom = (roomID, userID) => {
   // Remove the user of the corresponding room
   room.removeUser(userID);
 
+  // if the user who left is the host and there is at least one person left in the room
+  if (room.host === userID && room.users.length > 0) {
+    let newHost = this.changeHost(roomID)
+    exports.addMessage(roomID, 'Host left the room. ' + newHost + ' is the new host...')
+  }
+
   // Updated Rooms with users
   exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms).map(room => room.getData()));
   exports.io.in(roomID).emit('updatedUserList', room.users);
   console.log("User left room ", roomID, " with ID: ", userID);
 };
+
+exports.changeHost = (roomID) => {
+  let room = rooms[roomID]
+  room.host = room.users[0]
+  return room.users[0]
+}
 
 // TODO: TEST COOKIE THEFT DETECTING
 exports.addUser = (userID, ip, socketID = undefined) => {
