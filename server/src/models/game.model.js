@@ -61,7 +61,8 @@ class Game {
     init(players, amp) {
         this.players = this.spawnPlayers(players)
         this.gameScreen = this.generateTerrain(amp)
-        this.currentPlayerIndex = 0
+        // Random player
+        this.currentPlayerIndex = Math.floor(Math.random() * this.players.length)
         this.currentPlayer.canMove = true
         this.currentPlayer.timeLeft = this.currentPlayer.turnLength
         this.countDownCurrentPlayerTurn()
@@ -309,7 +310,7 @@ class Game {
      */
     changeBools(id, dirs) {
         let movingPlayer = this.findPlayerById(id)
-        if (this.currentPlayer.id != movingPlayer.id) {
+        if (movingPlayer == undefined || this.currentPlayer.id != movingPlayer.id) {
             // The client didn't yet get the memo that the turn has changed
             return
         }
