@@ -319,7 +319,9 @@ export default {
 
         this.ctx.translate(-(p.x + p.width / 2), -p.y);
         this.ctx.fillStyle = p.colour;
+        this.ctx.beginPath();
         this.ctx.fillRect(p.x, p.y, p.width, p.height);
+        this.ctx.stroke();
       }
     },
 

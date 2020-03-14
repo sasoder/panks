@@ -43,7 +43,7 @@ body {
 
 h1 {
   background: #2d3436;
-  color: white;
+  color: whitesmoke;
   margin-top: 0px;
   padding: none;
 }
@@ -65,5 +65,15 @@ button {
 button:hover {
   transform: translateY(0.3rem);
   box-shadow: 0 0.2rem #130f40;
+}
+
+input {
+  background-color: #333;
+  color: whitesmoke;
+  border: none;
+  border-radius: 5px;
+  padding-left: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 </style>
