@@ -9,9 +9,7 @@ class Room {
         // Array of userIDs
         this.users = [];
         // UserID that created the room
-        this.creator = creator
-        // TODO fix host
-        this.host = creator
+        this.host = creator.userID
         this.game = null
         this.activeGame = false
     }
@@ -36,7 +34,7 @@ class Room {
     }
 
     removeUser(userToRemove) {
-        this.users = this.users.filter((user) => user != userToRemove);
+        this.users = this.users.filter((user) => user.userID != userToRemove.userID);
     }
 
     addGame(game) {

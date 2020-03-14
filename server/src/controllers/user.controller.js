@@ -21,8 +21,9 @@ router.post('/addRoom', (req, res) => {
     }
 
     console.log('adding room');
+    let user = model.findUser(req.session.userID)
     // Add room since all is fine!
-    model.addRoom(req.body.roomName, req.session.userID);
+    model.addRoom(req.body.roomName, user);
     // Status: OK
     res.sendStatus(200);
 });
@@ -45,10 +46,11 @@ router.get('/userInfo', (req, res) => {
             throw new Error('User does not exist. What!?');
         } else {
             // set the statistics for the user model
-            model.setLocalStats(user.username, user.times_played, user.total_score)
+            model.setLocalStats(user.username, user.times_played, user.total_score, user.total_wins)
             res.status(200).json({
                 timesPlayed: user.times_played,
-                totalScore: user.total_score
+                totalScore: user.total_score,
+                totalWins: user.total_wins
             })
         }
     })
@@ -65,9 +67,11 @@ router.get('/:roomID/init', (req, res) => {
 
     console.log('inited room');
 
+    let user = model.findUser(req.session.userID)
     // Join room on refresh
-    model.joinRoom(room.id, req.session.userID);
+    model.joinRoom(room.id, user);
 
+    console.log('the host', room.host)
     // Send response with messages
     res.status(200).json({
         host: room.host,

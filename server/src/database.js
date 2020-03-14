@@ -16,7 +16,8 @@ const User = sequelize.define('user', {
     },
     password: DataTypes.STRING,
     times_played: DataTypes.INTEGER,
-    total_score: DataTypes.INTEGER
+    total_score: DataTypes.INTEGER,
+    total_wins: DataTypes.INTEGER
 }, {
     sequelize,
     tableName: 'Users',

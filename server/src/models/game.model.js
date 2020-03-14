@@ -15,7 +15,7 @@ class Game {
         this.hudBarHeight = 20
         this.infoPadding = 30
         this.skyColours = ['#e8ffff', '#d9f1ff', '#bfe6ff', '#8cd3ff']
-        this.groundColours = ["#ccc", '#bd9874', '#f9e4b7', '#66a103', '#654321', '#fffafa']
+        this.groundColours = ["#cccccc", '#bd9874', '#f9e4b7', '#66a103', '#654321', '#fffafa']
         this.currentPlayerIndex = 0
         this.gravity = 0.3
         this.bullets = []
@@ -75,9 +75,6 @@ class Game {
 
     destroy() {
         console.log('destroy time')
-        // Update database new player stats of the winner
-        // undefined check since the player can leave during the countdown
-        if (this.currentPlayer != undefined) model.updatePlayerStats(this.currentPlayer)
         // kill the frickin game!
         clearInterval(this.decInt)
         clearInterval(this.interval)
@@ -145,6 +142,9 @@ class Game {
                 this.over = true
                 console.log('sending gameend, roomiD: ', this.roomID)
                 model.gameEnd(this.roomID, alivePlayers[0].id)
+                // Update database new player stats of the winner
+                // undefined check since the player can leave during the countdown
+                if (this.currentPlayer != undefined) model.updatePlayerStats(this.currentPlayer, true)
             }
             clearInterval(this.decInt)
             return true
@@ -200,8 +200,10 @@ class Game {
     }
 
     changeTurn() {
-        this.currentPlayer.resetShots()
-        this.currentPlayer.stopMoving()
+        if (this.currentPlayer != undefined) {
+            this.currentPlayer.resetShots()
+            this.currentPlayer.stopMoving()
+        }
         do {
             this.nextPlayer()
         } while (!this.currentPlayer.isAlive)
@@ -218,7 +220,7 @@ class Game {
 
     countDownCurrentPlayerTurn() {
         this.decInt = setInterval(() => {
-            model.playerTurnTimerUpdate(this.roomID, this.currentPlayer.timeLeft)
+            model.playerTurnTimerUpdate(this.roomID, this.currentPlayer.timeLeft - 1)
             if (--this.currentPlayer.timeLeft <= 0) {
                 clearInterval(this.decInt)
                 // don't change turn if the player has already shot

@@ -2,12 +2,21 @@
   <div>
     <p>Choose your settings on room {{ this.roomID }}:</p>
     <br />
-    <p>Amplitude of terrain: {{ this.amplitude }}</p>
-    <input v-model="amplitude" type="range" placeholder="terrain amplitude" min="0" max="750" />
-    <p>Gamescreen width: {{ this.width }}</p>
-    <input v-model="width" type="range" placeholder="width" min="100" max="2000" />
-    <p>Gamescreen height: {{ this.height }}</p>
-    <input v-model="height" type="range" placeholder="height" min="100" max="1500" />
+    <div class="slidecontainer">
+      <p>Amplitude of terrain: {{ this.amplitude }}</p>
+      <input
+        class="slider"
+        v-model="amplitude"
+        type="range"
+        placeholder="terrain amplitude"
+        min="0"
+        max="750"
+      />
+      <p>Gamescreen width: {{ this.width }}</p>
+      <input class="slider" v-model="width" type="range" placeholder="width" min="100" max="2000" />
+      <p>Gamescreen height: {{ this.height }}</p>
+      <input class="slider" v-model="height" type="range" placeholder="height" min="100" max="1500" />
+    </div>
     <br />
     <button v-on:click="startGame">Start game</button>
     <p>{{startGameMsg}}</p>
@@ -69,3 +78,38 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.slidecontainer {
+  width: 100%;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 15px;
+  border-radius: 5px;
+  background: #b1aea9;
+  outline: none;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #30336b;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #30336b;
+  cursor: pointer;
+}
+</style>

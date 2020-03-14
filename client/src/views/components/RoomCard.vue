@@ -35,6 +35,7 @@ export default {
       console.log("Attempting to add creator to new room!");
       if (newRoom.host == this.$store.state.isAuthenticated) {
         this.joinRoom(newRoom.id);
+        console.log("uhhhh");
       }
     });
   },

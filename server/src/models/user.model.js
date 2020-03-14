@@ -9,11 +9,22 @@ class User {
         this.currentRoom = null;
         this.timesPlayed = 0;
         this.totalScore = 0;
+        this.totalWins = 0
     }
-    // TODO for showing stats in room instead of just in lobby
-    setStats(timesPlayed, totalScore) {
+    setStats(timesPlayed, totalScore, totalWins) {
         this.timesPlayed = timesPlayed;
         this.totalScore = totalScore;
+        this.totalWins = totalWins;
+    }
+
+    getData() {
+        return {
+            userID: this.userID,
+            currentRoom: this.currentRoom,
+            timesPlayed: this.timesPlayed,
+            totalScore: this.totalScore,
+            totalWins: this.totalWins
+        }
     }
 }
 

@@ -67,11 +67,9 @@ exports.addMessage = (roomID, message) => {
   console.log(roomID, room.name, message);
 };
 
-exports.joinRoom = (roomID, userID) => {
+exports.joinRoom = (roomID, user) => {
   let room = rooms[roomID];
-  let user = users[userID];
   // Set the current room of the user
-  console.log(user)
   user.currentRoom = roomID;
   // Join the right socket.io room
   user.socket.leave('lobby');
@@ -79,10 +77,10 @@ exports.joinRoom = (roomID, userID) => {
 
 
   // Add the user to the corresponding room, only if they aren't already in the room
-  if (!room.users.some(user => user === userID)) {
+  if (!room.users.some(u => u.userID === user.userID)) {
     // Send join message
-    exports.addMessage(user.currentRoom, `${userID} joined the room!`);
-    room.addUser(userID);
+    exports.addMessage(user.currentRoom, `${user.userID} joined the room!`);
+    room.addUser(user.getData());
   }
 
   // if you joined an empty room, become the host
@@ -91,10 +89,13 @@ exports.joinRoom = (roomID, userID) => {
   }
 
 
+  console.log('bigemit')
   // Updated Rooms with users
   exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms).map(room => room.getData()));
+  console.log('bigemit2', room.users)
   exports.io.in(roomID).emit('updatedUserList', { users: room.users, host: room.host });
-  console.log("Added user to room ", roomID, " with ID: ", userID);
+  console.log('bigemit3')
+  console.log("Added user to room ", roomID, " with ID:", user.userID);
 };
 
 exports.leaveRoom = (roomID, userID) => {
@@ -109,7 +110,7 @@ exports.leaveRoom = (roomID, userID) => {
   user.socket.leave(roomID);
   user.socket.join('lobby');
   // Remove the user of the corresponding room
-  room.removeUser(userID);
+  room.removeUser(user);
 
   // if the user who left is the host and there is at least one person left in the room
   if (room.host === userID && room.users.length > 0) {
@@ -125,8 +126,8 @@ exports.leaveRoom = (roomID, userID) => {
 
 exports.changeHost = (roomID) => {
   let room = rooms[roomID]
-  room.host = room.users[0]
-  return room.users[0]
+  room.host = room.users[0].userID
+  return room.host
 }
 
 // TODO: TEST COOKIE THEFT DETECTING
@@ -201,7 +202,7 @@ exports.userHasRoom = (userID) => {
   return Object.values(rooms).find(room => room.host === userID);
 }
 
-exports.updatePlayerStats = (player) => {
+exports.updatePlayerStats = (player, win) => {
 
   // Sequelize update user info
   sequelize.model('user').findOne({
@@ -210,25 +211,42 @@ exports.updatePlayerStats = (player) => {
     },
   }).then((user) => {
     user.set('times_played', user.times_played + 1);
-    user.set('total_score', user.total_score + player.score);
+    user.set('total_score', Math.round(user.total_score + player.score));
+    if (win) user.set('total_wins', user.total_wins + 1)
     user.save();
+    // set it locally, too
+    console.log('setting locals with', user.times_played, user.total_score, user.total_wins)
+    exports.setLocalStats(player.id, user.times_played, user.total_score, user.total_wins)
   }).catch((err) => {
     console.error(err);
   });
 }
 
 // For displaying stats in userlist in rooms
-exports.setLocalStats = (id, timesPlayed, totalScore) => {
+exports.setLocalStats = (id, timesPlayed, totalScore, totalWins) => {
   let user = users[id]
-  user.setStats(timesPlayed, totalScore)
+  let room = rooms[user.currentRoom]
+  user.setStats(timesPlayed, totalScore, totalWins)
+  // only emit into a room if the user is in one
+  if (user.currentRoom != undefined) {
+    // update user in room
+    let userChange = room.users.findIndex(u => u.userID == id)
+    room.users[userChange] = user.getData()
+    exports.io.in(user.currentRoom).emit('updatedUserList', { users: room.users, host: room.host });
+  }
 }
 
 
 exports.addRoom = (roomName, creator) => {
-  rooms[nextRoomID] = new Room(nextRoomID, roomName, creator);
+  console.log('got here2', creator)
+  rooms[nextRoomID] = new Room(nextRoomID, roomName, creator.getData());
   // Make it so that only people in lobby get emitted of this info
+  console.log('got here3')
+  console.log(rooms[nextRoomID].getData())
   exports.io.in('lobby').emit('newRoom', rooms[nextRoomID].getData());
+  console.log('got here4', creator.getData())
   exports.joinRoom(nextRoomID, creator)
+  console.log('got here5')
   nextRoomID += 1;
 };
 
@@ -268,7 +286,8 @@ exports.startGame = (roomID, width, height, amplitude) => {
 
   let room = rooms[roomID];
 
-  room.addGame(new Game(roomID, room.users, width, height, amplitude));
+  console.log(room.users.map(u => u.userID))
+  room.addGame(new Game(roomID, room.users.map(u => u.userID), width, height, amplitude));
   // Passing roomID to update the status of the game for those in the lobby
   exports.io.in('lobby').emit('activeGame', roomID);
   exports.io.in(roomID).emit('startGame');

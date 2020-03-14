@@ -69,7 +69,6 @@ export default {
   async mounted() {
     this.socket = this.$root.socket;
 
-    // TODO should not be able to shoot when typing
     this.keys = {
       up: 38,
       down: 40,
@@ -318,9 +317,7 @@ export default {
 
         this.ctx.translate(-(p.x + p.width / 2), -p.y);
         this.ctx.fillStyle = p.colour;
-        this.ctx.beginPath();
         this.ctx.fillRect(p.x, p.y, p.width, p.height);
-        this.ctx.stroke();
       }
     },
 
@@ -380,8 +377,9 @@ export default {
       this.ctx.lineTo(this.width, this.height);
       this.ctx.lineTo(0, this.height);
       this.ctx.lineTo(0, highestFirstX);
-      // this.ctx.lineWidth = 2;
-      // this.ctx.stroke();
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeStyle = "black";
+      this.ctx.stroke();
       this.ctx.fill();
     },
 
@@ -501,9 +499,9 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 #gameScreen {
-  border: 2px;
+  border: 2px solid black;
   border-color: black;
 }
 </style>

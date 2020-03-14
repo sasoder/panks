@@ -4,6 +4,8 @@
     <p>Welcome to the lobby, {{this.$store.state.isAuthenticated}}!</p>
     <p>These are your stats:</p>
     <br />
+    <p>Total wins: {{totalWins}}</p>
+    <br />
     <p>Total score: {{ parseInt(totalScore) }}</p>
     <br />
     <p>Times played: {{timesPlayed}}</p>
@@ -27,8 +29,9 @@ export default {
   data: () => ({
     roomList: [],
     newRoomName: "",
-    totalScore: null,
-    timesPlayed: null
+    totalScore: 0,
+    timesPlayed: 0,
+    totalWins: 0
   }),
   mounted() {
     this.socket = this.$root.socket;
@@ -85,6 +88,7 @@ export default {
         .then(data => {
           this.totalScore = data.totalScore;
           this.timesPlayed = data.timesPlayed;
+          this.totalWins = data.totalWins;
         })
         .catch(console.error);
     },

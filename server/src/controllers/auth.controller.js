@@ -51,6 +51,7 @@ router.post('/register', (req, res) => {
         data.setHashPassword(req.body.password);
         data.set('total_score', 0);
         data.set('times_played', 0);
+        data.set('total_wins', 0);
         data.save();
     }).then(() => {
         // Awaiting save...

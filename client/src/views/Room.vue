@@ -43,6 +43,7 @@ export default {
 
     // Set up sockets
     this.socket.on("updatedUserList", data => {
+      console.log("in room, emitting:", data);
       this.users = data.users;
       this.host = data.host;
     });
@@ -116,6 +117,7 @@ export default {
   },
   computed: {
     isHost() {
+      console.log(this.host);
       return this.host === this.$store.state.isAuthenticated;
     }
   }
