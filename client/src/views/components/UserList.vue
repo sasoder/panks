@@ -2,7 +2,10 @@
   <div id="userlist-container">
     <p>Users:</p>
     <p>
-      <span v-for="user in users" v-bind:key="user.userID">{{ user }}</span>
+      <span v-for="user in users" v-bind:key="user.userID">
+        {{ user }}
+        <br />
+      </span>
     </p>
   </div>
 </template>

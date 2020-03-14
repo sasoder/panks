@@ -103,8 +103,6 @@ export default {
     this.$refs.gameCanvas.setAttribute("height", this.height);
     this.draw(this.gameState);
 
-    let turnInterval = setInterval(this.decrementTimer, 1000);
-
     // SETUP SOCKETS
     this.socket.on("updatePlayer", player => {
       // find the player to change values of
@@ -137,10 +135,11 @@ export default {
       this.gameState.currentPlayerIndex = currentPlayerIndex;
       console.log(this.gameState.currentPlayerIndex);
       console.log("now its player turn: ", this.currentPlayer);
-      clearInterval(turnInterval);
-      this.timeLeft = this.gameState.turnLength;
-      turnInterval = setInterval(this.decrementTimer, 1000);
       this.draw(this.gameState);
+    });
+
+    this.socket.on("timeChange", time => {
+      this.timeLeft = time;
     });
 
     this.socket.on("newShot", bullet => {
@@ -381,8 +380,8 @@ export default {
       this.ctx.lineTo(this.width, this.height);
       this.ctx.lineTo(0, this.height);
       this.ctx.lineTo(0, highestFirstX);
-      this.ctx.lineWidth = 2;
-      this.ctx.stroke();
+      // this.ctx.lineWidth = 2;
+      // this.ctx.stroke();
       this.ctx.fill();
     },
 

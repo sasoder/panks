@@ -36,6 +36,7 @@ export default {
 <style>
 html,
 body {
+  font-family: "Baloo Chettan 2", cursive;
   margin: 0;
   padding: 10px;
   background: #d3d0cb;

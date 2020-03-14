@@ -218,6 +218,7 @@ class Game {
 
     countDownCurrentPlayerTurn() {
         this.decInt = setInterval(() => {
+            model.playerTurnTimerUpdate(this.roomID, this.currentPlayer.timeLeft)
             if (--this.currentPlayer.timeLeft <= 0) {
                 clearInterval(this.decInt)
                 // don't change turn if the player has already shot
