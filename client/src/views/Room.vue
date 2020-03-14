@@ -50,9 +50,6 @@ export default {
     this.socket.on("startGame", () => {
       this.activeGame = true;
     });
-    this.socket.on("deletedRoom", () => {
-      this.$router.push("/lobby");
-    });
     this.socket.on("destroyGame", () => {
       this.activeGame = false;
     });
@@ -64,7 +61,6 @@ export default {
     // Removing sockets
     this.socket.off("updatedUserList");
     this.socket.off("startGame");
-    this.socket.off("deletedRoom");
     this.socket.off("destroyGame");
     this.socket.off("msg");
   },

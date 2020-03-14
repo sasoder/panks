@@ -88,13 +88,9 @@ exports.joinRoom = (roomID, user) => {
     exports.changeHost(roomID)
   }
 
-
-  console.log('bigemit')
   // Updated Rooms with users
   exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms).map(room => room.getData()));
-  console.log('bigemit2', room.users)
   exports.io.in(roomID).emit('updatedUserList', { users: room.users, host: room.host });
-  console.log('bigemit3')
   console.log("Added user to room ", roomID, " with ID:", user.userID);
 };
 
@@ -108,6 +104,7 @@ exports.leaveRoom = (roomID, userID) => {
   user.currentRoom = null;
   // Join the right socket.io room
   user.socket.leave(roomID);
+  console.log('joined lobby room after leaving')
   user.socket.join('lobby');
   // Remove the user of the corresponding room
   room.removeUser(user);
@@ -238,15 +235,11 @@ exports.setLocalStats = (id, timesPlayed, totalScore, totalWins) => {
 
 
 exports.addRoom = (roomName, creator) => {
-  console.log('got here2', creator)
   rooms[nextRoomID] = new Room(nextRoomID, roomName, creator.getData());
   // Make it so that only people in lobby get emitted of this info
-  console.log('got here3')
-  console.log(rooms[nextRoomID].getData())
+  // console.log(rooms[nextRoomID].getData())
+  console.log('proceeding with emit', rooms[nextRoomID].getData())
   exports.io.in('lobby').emit('newRoom', rooms[nextRoomID].getData());
-  console.log('got here4', creator.getData())
-  exports.joinRoom(nextRoomID, creator)
-  console.log('got here5')
   nextRoomID += 1;
 };
 
@@ -259,11 +252,6 @@ exports.getRooms = () => {
 exports.removeRoom = (id) => {
   // Clean out all users from room
   const room = rooms[id];
-  const roomUsers = room.users;
-  roomUsers.forEach(userID => {
-    console.log('making ', userID, 'leave the room with id ', id)
-    exports.leaveRoom(id, userID);
-  })
 
   // Remove room from server
   rooms = Object.values(rooms)
@@ -272,7 +260,6 @@ exports.removeRoom = (id) => {
 
   // Make it so that only people in lobby get emitted of this info
   // Doing Object.values since we want an array of rooms, not the dictionary
-  exports.io.in(id).emit('deletedRoom');
   exports.io.in('lobby').emit('updatedRoomList', Object.values(rooms).map(room => room.getData()));
 };
 

@@ -28,20 +28,8 @@ export default {
   }),
   created() {
     this.currentUser = this.$store.state.isAuthenticated;
-
-    // Socket for making user join the room they just created
-    this.socket = this.$root.socket;
-    this.socket.on("newRoom", newRoom => {
-      console.log("Attempting to add creator to new room!");
-      if (newRoom.host == this.$store.state.isAuthenticated) {
-        this.joinRoom(newRoom.id);
-        console.log("uhhhh");
-      }
-    });
   },
-  beforeDestroy() {
-    this.socket.off("newRoom");
-  },
+  beforeDestroy() {},
   methods: {
     // Emitting event from child component
     joinRoom(roomID) {

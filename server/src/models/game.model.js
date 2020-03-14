@@ -86,6 +86,7 @@ class Game {
     leaveGame(userID) {
         let beforeAmt = this.players.length
         this.players = this.players.filter(p => p.id !== userID)
+
         // if the person who left wasn't in the game, you shouldn't change players
         if (beforeAmt === this.players.length) return;
         // Change turn if the player whose turn it is, leaves

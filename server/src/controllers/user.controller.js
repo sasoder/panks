@@ -22,6 +22,7 @@ router.post('/addRoom', (req, res) => {
 
     console.log('adding room');
     let user = model.findUser(req.session.userID)
+    console.log("adding ", user, req.body.roomName)
     // Add room since all is fine!
     model.addRoom(req.body.roomName, user);
     // Status: OK
