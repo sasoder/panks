@@ -14,7 +14,7 @@ class Bullet extends Entity {
         this.velY = -Math.sin(degreeToRad(shootAngle)) * shootPower
         this.width = 3
         this.height = 3
-        this.bombRadius = 100
+        this.bombRadius = 15
         this.colour = 'black'
         this.shooter = shooter
         this.dmgCap = 50

@@ -60,6 +60,7 @@ export default {
     this.socket.off("changeTurn");
     this.socket.off("newShot");
     this.socket.off("explosion");
+    this.socket.off("playerLeft");
     clearInterval(this.interval);
     // Remove event listeners when component is destroyed
     window.removeEventListener("keydown", this.handleKeyDown);
@@ -139,6 +140,12 @@ export default {
 
     this.socket.on("timeChange", time => {
       this.timeLeft = time;
+    });
+
+    this.socket.on("playerLeft", playerID => {
+      this.gameState.players = this.gameState.players.filter(
+        p => p.id != playerID
+      );
     });
 
     this.socket.on("newShot", bullet => {

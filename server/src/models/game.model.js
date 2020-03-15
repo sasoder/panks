@@ -71,6 +71,7 @@ class Game {
         // update players
         this.initGameState.players = this.players
         this.initGameState.gameScreen = this.gameScreen
+        this.initGameState.currentPlayerIndex = this.currentPlayerIndex
 
     }
 
@@ -86,11 +87,16 @@ class Game {
     // Called from model.js whenever a player leaves the room
     leaveGame(userID) {
         let beforeAmt = this.players.length
+        let playerIndex = this.players.findIndex(p => p.id == userID)
         this.players = this.players.filter(p => p.id !== userID)
 
         // if the person who left wasn't in the game, you shouldn't change players
         if (beforeAmt === this.players.length) return;
         // Change turn if the player whose turn it is, leaves
+
+        // Emit to players that someone left
+        model.playerLeft(this.roomID, userID);
+
         switch (this.players.length) {
             case 1:
                 // without changing CPI to 0, the game may think that CPI is still > 0, meaning checking attributes of an undefined player
@@ -101,8 +107,13 @@ class Game {
                 this.destroy()
                 break
             default:
-                clearInterval(this.decInt)
-                this.changeTurn()
+                if (playerIndex > this.currentPlayerIndex) { // if the player who left is AFTER the current player
+                    // TODO cleanup true to specify that the currentPlayerIndex should not change
+                    model.updatePlayer(this.roomID, this.currentPlayer.getData())
+                    model.changeTurn(this.roomID, this.currentPlayerIndex)
+                } else {
+                    this.changeTurn(true)
+                }
                 break
         }
     }
@@ -118,8 +129,11 @@ class Game {
 
         this.checkCollisions()
 
-        if ((this.bullets.length === 0 && this.currentPlayer.shots === 0) || !this.currentPlayer.isAlive) {
-            this.changeTurn()
+        // extra check for edge cases where player leaves at the wrong moment
+        if (this.currentPlayer != undefined) {
+            if ((this.bullets.length === 0 && this.currentPlayer.shots === 0) || !this.currentPlayer.isAlive) {
+                this.changeTurn()
+            }
         }
 
         if (this.checkWin()) {
@@ -201,7 +215,7 @@ class Game {
         return this.gameScreen[Math.round(centerOfObject(entity)[0])][Math.round(entity.y + entity.height)]
     }
 
-    changeTurn() {
+    changeTurn(keepInt) {
         if (this.currentPlayer != undefined) {
             this.currentPlayer.resetShots()
             this.currentPlayer.stopMoving()
@@ -212,8 +226,10 @@ class Game {
         this.currentPlayer.canMove = true
         this.currentPlayer.addFuel();
         this.currentPlayer.timeLeft = this.currentPlayer.turnLength
-        clearInterval(this.decInt)
-        this.countDownCurrentPlayerTurn()
+        if (keepInt) {
+            clearInterval(this.decInt)
+            this.countDownCurrentPlayerTurn()
+        }
         model.updatePlayer(this.roomID, this.currentPlayer.getData())
         model.changeTurn(this.roomID, this.currentPlayerIndex)
     }

@@ -325,9 +325,13 @@ player = {
         }
 */
 exports.updatePlayerBools = (roomID, id, playerBools) => {
-  if (this.findRoom(roomID) !== undefined) {
+  if (this.findRoom(roomID) !== undefined && this.findRoom(roomID).game !== undefined) {
     exports.findRoom(roomID).game.changeBools(id, playerBools);
   }
+}
+
+exports.playerLeft = (roomID, userID) => {
+  exports.io.in(roomID).emit('playerLeft', userID)
 }
 
 // called from player.js
