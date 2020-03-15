@@ -510,7 +510,7 @@ export default {
 
 #message-container {
   width:50%;
-  margin: 30px auto 0 auto;
+  margin: 30px auto;
 }
 
 #message-container p {
