@@ -13,7 +13,6 @@
 export default {
   beforeCreate() {
     this.socket = this.$root.socket;
-    console.log("app.vue", this.socket);
 
     this.socket.on("logout", () => {
       this.logout();
@@ -81,16 +80,17 @@ input {
   padding-bottom: 5px;
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: all .2s ease;
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.2s ease;
 }
 
 .fade-leave-active {
-  transition: all .1s ease;
+  transition: all 0.1s ease;
 }
 
-.fade-enter, .fade-leave-to {
+.fade-enter,
+.fade-leave-to {
   opacity: 0;
 }
-
 </style>

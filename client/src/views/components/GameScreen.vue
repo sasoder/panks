@@ -129,8 +129,6 @@ export default {
 
     this.socket.on("changeTurn", currentPlayerIndex => {
       this.gameState.currentPlayerIndex = currentPlayerIndex;
-      console.log(this.gameState.currentPlayerIndex);
-      console.log("now its player turn: ", this.currentPlayer);
       this.draw(this.gameState);
     });
 
@@ -150,7 +148,6 @@ export default {
     });
 
     this.socket.on("newShot", bullet => {
-      console.log("new shot!", bullet);
       this.interval = setInterval(() => {
         this.animateBulletShot(bullet);
       }, 1000 / 30);
@@ -422,7 +419,6 @@ export default {
       players.forEach((p, i) => {
         this.ctx.textAlign = "right";
         this.ctx.font = "15px Arial";
-        console.log("drawing hud, current player:", this.currentPlayer.id);
         if (p.id === this.currentPlayer.id) this.ctx.fillStyle = "red";
         else this.ctx.fillStyle = "black";
 

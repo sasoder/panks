@@ -9,7 +9,6 @@ const { sequelize } = require('../database');
 
 router.get('/roomList', (req, res) => {
     const rooms = model.getRooms();
-    console.log(rooms)
     res.status(200).json({ rooms });
 });
 
@@ -20,9 +19,7 @@ router.post('/addRoom', (req, res) => {
         return;
     }
 
-    console.log('adding room');
     let user = model.findUser(req.session.userID)
-    console.log("adding ", user, req.body.roomName)
     // Add room since all is fine!
     model.addRoom(req.body.roomName, user);
     // Status: OK
@@ -66,13 +63,10 @@ router.get('/:roomID/init', (req, res) => {
         return;
     }
 
-    console.log('inited room');
-
     let user = model.findUser(req.session.userID)
     // Join room on refresh
     model.joinRoom(room.id, user);
 
-    console.log('the host', room.host)
     // Send response with messages
     res.status(200).json({
         host: room.host,
@@ -105,9 +99,6 @@ router.post('/:roomID/leave', (req, res) => {
 
 router.post('/:roomID/message', (req, res) => {
     const user = model.findUser(req.session.userID);
-    console.log("User ID: " + req.session.userID);
-    console.log("Params, Room: " + req.params.roomID);
-    console.log("User, currentroom: " + user.currentRoom);
     if (user.currentRoom !== parseInt(req.params.roomID)) {
         // Status: Forbidden
         res.sendStatus(403);

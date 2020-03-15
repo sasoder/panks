@@ -33,24 +33,18 @@ export default {
     totalWins: 0
   }),
   mounted() {
-    console.log("mounted llobby");
     this.socket = this.$root.socket;
     this.socket.on("newRoom", newRoom => {
-      console.log("new room emit received");
       this.roomList = [...this.roomList, newRoom];
       if (newRoom.host == this.$store.state.isAuthenticated) {
         this.$router.push(`/room/${newRoom.id}`);
       }
     });
     this.socket.on("updatedRoomList", rooms => {
-      console.log("room deleted (emit received)");
       this.roomList = rooms;
     });
     this.socket.on("activeGame", newRoomID => {
-      console.log("roomlist", this.roomList);
-      console.log("id", newRoomID);
       const room = this.roomList.find(r => r.id == newRoomID);
-      console.log("h", room);
       room.activeGame = true;
       // TODO Force rerender, can do this more beautifully
       const temp = this.roomList;
@@ -70,7 +64,6 @@ export default {
     this.getActiveRooms();
   },
   beforeDestroy() {
-    console.log("Destroying lobb");
     // Removing sockets
     this.socket.off("newRoom");
     this.socket.off("updatedRoomList");
@@ -108,8 +101,6 @@ export default {
       })
         .then(res => res.json())
         .then(data => {
-          console.log("h", this.roomList);
-          console.log("b", data.rooms);
           this.roomList = data.rooms;
         })
         .catch(console.error);
@@ -168,7 +159,6 @@ export default {
 </script>
 
 <style scoped>
-
 #logout-button {
   margin: 20px 0 40px 0;
 }
@@ -184,15 +174,14 @@ export default {
 }
 
 #create-box {
-  margin-bottom:40px;
+  margin-bottom: 40px;
 }
 
 #create-box button {
-  margin:15px 0 0 0;
+  margin: 15px 0 0 0;
 }
 
 #create-box input {
-  padding:8px;
+  padding: 8px;
 }
-
 </style>

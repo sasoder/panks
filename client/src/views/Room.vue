@@ -46,7 +46,6 @@ export default {
 
     // Set up sockets
     this.socket.on("updatedUserList", data => {
-      console.log("in room, emitting:", data);
       this.users = data.users;
       this.host = data.host;
     });
@@ -108,11 +107,9 @@ export default {
           if (!resp.ok) {
             throw new Error("Could not leave room. You're here forever :)");
           }
-          console.log("before reroute");
           this.$router.push({
             path: "/lobby"
           });
-          console.log("after reroute");
         })
         .catch(err => {
           console.error(err);
@@ -121,7 +118,6 @@ export default {
   },
   computed: {
     isHost() {
-      console.log(this.host);
       return this.host === this.$store.state.isAuthenticated;
     }
   }
@@ -129,19 +125,19 @@ export default {
 </script>
 
 <style scoped>
-
 #title-container {
   display: flex;
   justify-content: space-between;
   margin: 15px 0 30px 0;
 }
 
-.slower-fade-enter-active, .slower-fade-leave-active {
+.slower-fade-enter-active,
+.slower-fade-leave-active {
   transition: all 1s ease;
 }
 
-.slower-fade-enter, .slower-fade-leave-to {
+.slower-fade-enter,
+.slower-fade-leave-to {
   opacity: 0;
 }
-
 </style>

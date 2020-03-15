@@ -64,7 +64,6 @@ exports.addMessage = (roomID, message) => {
   const room = rooms[roomID]
   rooms[roomID].addMessage(message);
   exports.io.in(roomID).emit('msg', message);
-  console.log(roomID, room.name, message);
 };
 
 exports.joinRoom = (roomID, user) => {
@@ -104,7 +103,6 @@ exports.leaveRoom = (roomID, userID) => {
   user.currentRoom = null;
   // Join the right socket.io room
   user.socket.leave(roomID);
-  console.log('joined lobby room after leaving')
   user.socket.join('lobby');
   // Remove the user of the corresponding room
   room.removeUser(user);
@@ -151,13 +149,9 @@ exports.updateTimeoutOnUser = (userID) => {
 }
 
 exports.logoutUser = (userID) => {
-  console.log("USERS: ", users);
-  console.log("Trying to log out: ", userID);
   const user = users[userID];
   const roomOfUser = findRoomByHost(userID);
-  console.debug("\n\nRoomofuser: ", roomOfUser, "\n\n");
 
-  console.log("Current Room: ", user.currentRoom);
   if (user.currentRoom !== null) {
     // Notify that user disconnected
     exports.addMessage(user.currentRoom, `${user.userID} disconnected.`);
@@ -212,7 +206,6 @@ exports.updatePlayerStats = (player, win) => {
     if (win) user.set('total_wins', user.total_wins + 1)
     user.save();
     // set it locally, too
-    console.log('setting locals with', user.times_played, user.total_score, user.total_wins)
     exports.setLocalStats(player.id, user.times_played, user.total_score, user.total_wins)
   }).catch((err) => {
     console.error(err);
@@ -237,8 +230,6 @@ exports.setLocalStats = (id, timesPlayed, totalScore, totalWins) => {
 exports.addRoom = (roomName, creator) => {
   rooms[nextRoomID] = new Room(nextRoomID, roomName, creator.getData());
   // Make it so that only people in lobby get emitted of this info
-  // console.log(rooms[nextRoomID].getData())
-  console.log('proceeding with emit', rooms[nextRoomID].getData())
   exports.io.in('lobby').emit('newRoom', rooms[nextRoomID].getData());
   nextRoomID += 1;
 };
@@ -273,7 +264,6 @@ exports.startGame = (roomID, width, height, amplitude) => {
 
   let room = rooms[roomID];
 
-  console.log(room.users.map(u => u.userID))
   room.addGame(new Game(roomID, room.users.map(u => u.userID), width, height, amplitude));
   // Passing roomID to update the status of the game for those in the lobby
   exports.io.in('lobby').emit('activeGame', roomID);
@@ -355,7 +345,6 @@ exports.updatePlayer = (roomID, player) => {
  * id = playerId of game
  */
 exports.gameEnd = (roomID, id) => {
-  console.log('gameend emitting to ', roomID)
   exports.io.in(roomID).emit('gameOver', id)
   rooms[roomID].activeGame = false
   exports.io.in('lobby').emit('inactiveGame', roomID)

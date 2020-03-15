@@ -19,11 +19,9 @@ router.post('/start', (req, res) => {
 
     // users is a list of the usernames, or rather their id's
     const users = room.users
-    console.log('these are the users:', users)
 
 
     // Start the game with given arguments
-    console.log('starting agme:')
     model.startGame(roomID, width, height, amplitude, users);
     res.sendStatus(200);
 });
@@ -32,7 +30,6 @@ router.post('/start', (req, res) => {
 // for getting the first gamestate when game is started
 router.get('/gameState/:roomID', (req, res) => {
     const roomID = req.params.roomID;
-    console.log('roomid: ', roomID)
 
     // Check if the room has an active game already
     if (model.findRoom(roomID).game == null) {
@@ -52,7 +49,6 @@ router.get('/gameState/:roomID', (req, res) => {
 // for sending out gamestate updates from every player
 router.post('/updateGameState/:roomID', (req, res) => {
     const roomID = req.params.roomID;
-    console.log('roomid: ', roomID)
 
     // Check if the room has an active game already
     if (model.findRoom(roomID).game !== null) {

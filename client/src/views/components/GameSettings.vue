@@ -1,6 +1,8 @@
 <template>
   <div id="gamesettings-container">
-    <p><b>Choose your settings:</b></p>
+    <p>
+      <b>Choose your settings:</b>
+    </p>
     <div class="slidecontainer">
       <p>Amplitude of terrain: {{ this.amplitude }}</p>
       <input
@@ -9,16 +11,18 @@
         type="range"
         placeholder="terrain amplitude"
         min="0"
-        max="750"
+        max="300"
       />
       <p>Gamescreen width: {{ this.width }}</p>
-      <input class="slider" v-model="width" type="range" placeholder="width" min="100" max="2000" />
+      <input class="slider" v-model="width" type="range" placeholder="width" min="300" max="2000" />
       <p>Gamescreen height: {{ this.height }}</p>
-      <input class="slider" v-model="height" type="range" placeholder="height" min="100" max="1500" />
+      <input class="slider" v-model="height" type="range" placeholder="height" min="300" max="1500" />
     </div>
     <br />
     <button v-on:click="startGame">Start game</button>
-    <p id="message"><b>{{startGameMsg}}</b></p>
+    <p id="message">
+      <b>{{startGameMsg}}</b>
+    </p>
   </div>
 </template>
 
@@ -79,9 +83,8 @@ export default {
 </script>
 
 <style scoped>
-
 #gamesettings-container {
-  margin-top:50px;
+  margin-top: 50px;
 }
 
 .slidecontainer {
@@ -122,6 +125,6 @@ export default {
 }
 
 #message {
-  margin-top:15px;
+  margin-top: 15px;
 }
 </style>

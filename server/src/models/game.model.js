@@ -76,7 +76,6 @@ class Game {
     }
 
     destroy() {
-        console.log('destroy time')
         // kill the frickin game!
         clearInterval(this.decInt)
         clearInterval(this.interval)
@@ -140,7 +139,6 @@ class Game {
 
         if (this.checkWin()) {
             if (this.gameEndInt == null) {
-                console.log('setting gameEnd')
                 this.gameEndInt = setInterval(() => {
                     model.gameDestroyTimerUpdate(this.roomID, this.gameEndTimer - 1)
                     if (--this.gameEndTimer <= 0) {
@@ -158,7 +156,6 @@ class Game {
         if (alivePlayers.length == 1) {
             if (!this.over) {
                 this.over = true
-                console.log('sending gameend, roomiD: ', this.roomID)
                 model.gameEnd(this.roomID, alivePlayers[0].id)
                 // Update database new player stats of the winner
                 // undefined check since the player can leave during the countdown
