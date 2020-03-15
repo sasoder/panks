@@ -4,10 +4,10 @@
       <h2>Welcome to Room {{ this.roomID }}: {{ this.name }}</h2>
       <button v-on:click="leaveRoom">Leave room</button>
     </div>
-    <UserList v-if="!activeGame" :users="users" />
+    <GameScreen v-if="activeGame" :roomID="roomID" />
+    <UserList :users="users" />
     <GameSettings v-if="isHost && !activeGame" :roomID="roomID" />
     <p v-else-if="!activeGame">Waiting for host to set game settings...</p>
-    <GameScreen v-if="activeGame" :roomID="roomID" />
     <Chat :roomID="roomID" :messages="messages" />
   </div>
 </template>

@@ -83,7 +83,7 @@ export default {
   -o-transition: opacity 0.5s ease-out;
 }
 
-#chat:hover {
+#chat:hover, #chat:focus-within {
   opacity: 1;
 }
 
