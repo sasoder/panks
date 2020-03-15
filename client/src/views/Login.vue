@@ -71,7 +71,7 @@ export default {
     register() {
       // Is user allowed to add?
       if (this.name === '' || this.password === '') {
-        this.statusMessage = "Invalid registration";
+        this.statusMessage = "Invalid registration: Fill in all fields";
         return;
       }
       fetch("/api/register", {
