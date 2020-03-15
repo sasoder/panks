@@ -4,7 +4,9 @@
       <h2>Welcome to Room {{ this.roomID }}: {{ this.name }}</h2>
       <button v-on:click="leaveRoom">Leave room</button>
     </div>
-    <GameScreen v-if="activeGame" :roomID="roomID" />
+    <transition name="slide-fade" mode="out-in">
+      <GameScreen v-if="activeGame" :roomID="roomID" />
+    </transition>
     <UserList :users="users" />
     <GameSettings v-if="isHost && !activeGame" :roomID="roomID" />
     <p v-else-if="!activeGame">Waiting for host to set game settings...</p>
@@ -127,6 +129,19 @@ export default {
   display: flex;
   justify-content: space-between;
   margin: 15px 0 30px 0;
+}
+
+.slide-fade-enter-active, .slide-fade-leave-active {
+  transition: all .4s ease;
+}
+
+.slide-fade-enter, .slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.item-list-move {
+  transition: transform 1s;
 }
 
 </style>

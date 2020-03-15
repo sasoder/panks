@@ -3,7 +3,7 @@
     <header>
       <h1>PANKS</h1>
     </header>
-    <transition name="bounce" mode="out-in">
+    <transition name="fade" mode="out-in">
       <router-view></router-view>
     </transition>
   </div>
@@ -81,22 +81,16 @@ input {
   padding-bottom: 5px;
 }
 
-.bounce-enter-active {
-  animation: bounce-in .4s;
+.fade-enter-active {
+  transition: all .4s ease;
 }
-.bounce-leave-active {
-  animation: bounce-in .4s reverse;
+
+.fade-leave-active {
+  transition: all .25s ease;
 }
-@keyframes bounce-in {
-  0% {
-    transform: scale(0);
-  }
-  50% {
-    transform: scale(1.15);
-  }
-  100% {
-    transform: scale(1);
-  }
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 
 </style>
