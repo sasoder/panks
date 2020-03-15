@@ -101,6 +101,7 @@ class Game {
             case 1:
                 // without changing CPI to 0, the game may think that CPI is still > 0, meaning checking attributes of an undefined player
                 this.currentPlayerIndex = 0
+                this.changeTurn()
                 this.checkWin()
                 break
             case 0:
@@ -108,11 +109,12 @@ class Game {
                 break
             default:
                 if (playerIndex > this.currentPlayerIndex) { // if the player who left is AFTER the current player
-                    // TODO cleanup true to specify that the currentPlayerIndex should not change
-                    model.updatePlayer(this.roomID, this.currentPlayer.getData())
                     model.changeTurn(this.roomID, this.currentPlayerIndex)
-                } else {
+                } else if (playerIndex < this.currentPlayerIndex) {
                     this.changeTurn(true)
+                } else {
+                    this.currentPlayerIndex = playerIndex - 1
+                    this.changeTurn()
                 }
                 break
         }
@@ -140,8 +142,8 @@ class Game {
             if (this.gameEndInt == null) {
                 console.log('setting gameEnd')
                 this.gameEndInt = setInterval(() => {
-                    this.gameEndTimer--
-                    if (this.gameEndTimer <= 0) {
+                    model.gameDestroyTimerUpdate(this.roomID, this.gameEndTimer - 1)
+                    if (--this.gameEndTimer <= 0) {
                         this.destroy()
                     }
                     console.log('destroying the game...', this.gameEndTimer)
@@ -229,6 +231,7 @@ class Game {
         if (!keepInt) {
             clearInterval(this.decInt)
             this.countDownCurrentPlayerTurn()
+
         }
         model.updatePlayer(this.roomID, this.currentPlayer.getData())
         model.changeTurn(this.roomID, this.currentPlayerIndex)

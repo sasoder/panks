@@ -378,5 +378,9 @@ exports.changeTurn = (roomID, currentPlayerIndex) => {
 
 exports.playerTurnTimerUpdate = (roomID, time) => {
   exports.io.in(roomID).emit('timeChange', time);
+}
+
+exports.gameDestroyTimerUpdate = (roomID, time) => {
+  exports.io.in(roomID).emit('destroyChange', time);
 
 }

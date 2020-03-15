@@ -2,7 +2,9 @@
   <div>
     <div id="message-container">
       <p>{{gameMsg}}</p>
-      <p v-if="!gameHasEnded"><b>{{timeLeft}} seconds left on the turn!</b></p>
+      <p v-if="!gameHasEnded">
+        <b>{{timeLeft}} seconds left on the turn!</b>
+      </p>
       <p v-if="gameHasEnded">Destroying game screen in {{timeLeftUntilDestroy}} seconds...</p>
     </div>
     <canvas ref="gameCanvas" id="gameScreen"></canvas>
@@ -61,6 +63,8 @@ export default {
     this.socket.off("newShot");
     this.socket.off("explosion");
     this.socket.off("playerLeft");
+    this.socket.off("timeChange");
+    this.socket.off("destroyChange");
     clearInterval(this.interval);
     // Remove event listeners when component is destroyed
     window.removeEventListener("keydown", this.handleKeyDown);
@@ -120,14 +124,6 @@ export default {
 
     this.socket.on("gameOver", id => {
       this.gameMsg = `${id} won the game!!!!`;
-      if (!this.gameHasEnded) {
-        this.destroyGameTimer = setInterval(() => {
-          this.timeLeftUntilDestroy--;
-          if (this.destroyGameTimer == null) {
-            clearInterval(this.destroyGameTimer);
-          }
-        }, 1000);
-      }
       this.gameHasEnded = true;
     });
 
@@ -140,6 +136,11 @@ export default {
 
     this.socket.on("timeChange", time => {
       this.timeLeft = time;
+    });
+
+    this.socket.on("destroyChange", time => {
+      this.gameHasEnded = true;
+      this.timeLeftUntilDestroy = time;
     });
 
     this.socket.on("playerLeft", playerID => {
@@ -507,14 +508,13 @@ export default {
 </script>
 
 <style scoped>
-
 #message-container {
-  width:50%;
+  width: 50%;
   margin: 30px auto 0 auto;
 }
 
 #message-container p {
-  text-align:center;
+  text-align: center;
   margin-bottom: 20px;
 }
 
@@ -524,5 +524,4 @@ export default {
   border-radius: 10px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
-
 </style>
