@@ -81,12 +81,12 @@ input {
   padding-bottom: 5px;
 }
 
-.fade-enter-active {
-  transition: all .4s ease;
+.fade-enter-active, .fade-leave-active {
+  transition: all .2s ease;
 }
 
 .fade-leave-active {
-  transition: all .25s ease;
+  transition: all .1s ease;
 }
 
 .fade-enter, .fade-leave-to {

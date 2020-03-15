@@ -4,10 +4,10 @@
       <h2>Welcome to Room {{ this.roomID }}: {{ this.name }}</h2>
       <button v-on:click="leaveRoom">Leave room</button>
     </div>
-    <transition name="slide-fade" mode="out-in">
+    <transition name="slower-fade">
       <GameScreen v-if="activeGame" :roomID="roomID" />
     </transition>
-    <UserList :users="users" />
+    <UserList v-if="showUsers" :users="users" />
     <GameSettings v-if="isHost && !activeGame" :roomID="roomID" />
     <p v-else-if="!activeGame">Waiting for host to set game settings...</p>
     <Chat :roomID="roomID" :messages="messages" />
@@ -35,7 +35,8 @@ export default {
       messages: [],
       users: [],
       activeGame: null,
-      socket: null
+      socket: null,
+      showUsers: true
     };
   },
   mounted() {
@@ -51,6 +52,10 @@ export default {
     });
     this.socket.on("startGame", () => {
       this.activeGame = true;
+      this.showUsers = false;
+      setTimeout(() => {
+        this.showUsers = true;
+      }, 1000);
     });
     this.socket.on("destroyGame", () => {
       this.activeGame = false;
@@ -131,17 +136,12 @@ export default {
   margin: 15px 0 30px 0;
 }
 
-.slide-fade-enter-active, .slide-fade-leave-active {
-  transition: all .4s ease;
+.slower-fade-enter-active, .slower-fade-leave-active {
+  transition: all 1s ease;
 }
 
-.slide-fade-enter, .slide-fade-leave-to {
+.slower-fade-enter, .slower-fade-leave-to {
   opacity: 0;
-  transform: translateY(-20px);
-}
-
-.item-list-move {
-  transition: transform 1s;
 }
 
 </style>

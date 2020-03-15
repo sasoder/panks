@@ -10,9 +10,8 @@
         <input type="password" autocomplete="current-password" v-model="password" required />
       </div>
       <button type="submit">Login</button>
-      <br />
-      <button v-on:click="register()">Register with given credentials</button>
     </form>
+    <button id="register" v-on:click="register()">Register with given credentials</button>
     <h4 id="message">{{ statusMessage }}</h4>
   </div>
 </template>
@@ -70,6 +69,11 @@ export default {
         });
     },
     register() {
+      // Is user allowed to add?
+      if (this.name === '' || this.password === '') {
+        this.statusMessage = "Invalid registration";
+        return;
+      }
       fetch("/api/register", {
         method: "POST",
         headers: {
@@ -114,9 +118,14 @@ button {
   margin-bottom:50px;
 }
 
+#register {
+  display:block;
+  margin:auto;
+  margin-bottom:50px;
+}
+
 #message {
   text-align:center;
-  color:red;
 }
 
 </style>
