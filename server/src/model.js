@@ -354,7 +354,7 @@ exports.gameEnd = (roomID, id) => {
  * Called from game.model after 30 seconds have passed after game ends
  */
 exports.destroyGame = (roomID) => {
-  exports.findRoom(roomID).game = null
+  if (exports.findRoom(roomID)) exports.findRoom(roomID).game = null
   exports.io.in(roomID).emit('destroyGame')
 }
 
