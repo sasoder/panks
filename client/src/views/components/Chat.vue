@@ -1,9 +1,7 @@
 <template>
   <div id="chat">
     <div id="chat-text-container">
-      <p v-for="(message, index) in messages" v-bind:key="index">
-        {{ message }}
-      </p>
+      <p v-for="(message, index) in messages" v-bind:key="index">{{ message }}</p>
     </div>
     <form v-on:submit.prevent="sendMessage">
       <input ref="chat" v-model="newMessage" type="text" placeholder="Tell us something..." />
@@ -78,6 +76,15 @@ export default {
   width: 175px;
   color: whitesmoke;
   border-radius: 5px;
+  opacity: 0.6;
+  transition: opacity 0.5s ease-out;
+  -moz-transition: opacity 0.5s ease-out;
+  -webkit-transition: opacity 0.5s ease-out;
+  -o-transition: opacity 0.5s ease-out;
+}
+
+#chat:hover {
+  opacity: 1;
 }
 
 #chat input {
