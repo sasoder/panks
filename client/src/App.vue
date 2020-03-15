@@ -3,7 +3,9 @@
     <header>
       <h1>PANKS</h1>
     </header>
-    <router-view></router-view>
+    <transition name="bounce" mode="out-in">
+      <router-view></router-view>
+    </transition>
   </div>
 </template>
 
@@ -78,4 +80,23 @@ input {
   padding-top: 5px;
   padding-bottom: 5px;
 }
+
+.bounce-enter-active {
+  animation: bounce-in .4s;
+}
+.bounce-leave-active {
+  animation: bounce-in .4s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 </style>
