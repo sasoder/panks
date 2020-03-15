@@ -1,11 +1,11 @@
 <template>
   <div>
-    <p>{{gameMsg}}</p>
-    <p v-if="!gameHasEnded">{{timeLeft}} seconds left on the turn!</p>
-    <p v-if="gameHasEnded">Destroying game screen in {{timeLeftUntilDestroy}} seconds...</p>
-    <div id="screen">
-      <canvas ref="gameCanvas" id="gameScreen"></canvas>
+    <div id="message-container">
+      <p>{{gameMsg}}</p>
+      <p v-if="!gameHasEnded"><b>{{timeLeft}} seconds left on the turn!</b></p>
+      <p v-if="gameHasEnded">Destroying game screen in {{timeLeftUntilDestroy}} seconds...</p>
     </div>
+    <canvas ref="gameCanvas" id="gameScreen"></canvas>
   </div>
 </template>
 
@@ -19,7 +19,7 @@ export default {
   data() {
     return {
       gameMsg:
-        "Use all four arrow keys to control your tank. Space to shoot. 'O' and 'P' to lower/higher your shoot power. Your fuel refills 10% every turn. \nGood luck!",
+        "Use all four arrow keys to control your tank. Space to shoot. 'O' and 'P' to lower/higher your shoot power. Your fuel refills 10% every turn. Good luck!",
       gameState: null,
       socket: null,
       // bullet interval
@@ -507,8 +507,22 @@ export default {
 </script>
 
 <style scoped>
-#gameScreen {
-  border: 2px solid black;
-  border-color: black;
+
+#message-container {
+  width:50%;
+  margin: 30px auto 0 auto;
 }
+
+#message-container p {
+  text-align:center;
+  margin-bottom: 20px;
+}
+
+#gameScreen {
+  display: block;
+  margin: 30px auto 0 auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
 </style>

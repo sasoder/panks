@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div style="display: flex; justify-content: space-between;">
-      <h2>Welcome to Room with ID: {{ this.roomID }}</h2>
+    <div id="title-container">
+      <h2>Welcome to Room {{ this.roomID }}: {{ this.name }}</h2>
       <button v-on:click="leaveRoom">Leave room</button>
     </div>
-    <UserList :users="users" />
+    <UserList v-if="!activeGame" :users="users" />
     <GameSettings v-if="isHost && !activeGame" :roomID="roomID" />
     <p v-else-if="!activeGame">Waiting for host to set game settings...</p>
     <GameScreen v-if="activeGame" :roomID="roomID" />
@@ -26,9 +26,9 @@ export default {
     Chat
   },
   data() {
-    // ! - Can't use arrow notation with data because of the use of route?
     return {
       roomID: this.$route.params.roomID,
+      name: null,
       host: null,
       messages: [],
       users: [],
@@ -77,6 +77,7 @@ export default {
         })
         .then(data => {
           this.host = data.host;
+          this.name = data.name;
           this.messages = data.messages;
           this.users = data.users;
           this.activeGame = data.activeGame;
@@ -121,4 +122,11 @@ export default {
 </script>
 
 <style scoped>
+
+#title-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0 30px 0;
+}
+
 </style>

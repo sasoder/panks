@@ -1,7 +1,9 @@
 <template>
   <div id="chat">
     <div id="chat-text-container">
-      <p v-for="(message, index) in messages" v-bind:key="index">{{ message }}</p>
+      <p v-for="(message, index) in messages" v-bind:key="index">
+        {{ message }}
+      </p>
     </div>
     <form v-on:submit.prevent="sendMessage">
       <input ref="chat" v-model="newMessage" type="text" placeholder="Tell us something..." />
@@ -73,16 +75,16 @@ export default {
   position: fixed;
   bottom: 10px;
   right: 10px;
-  width: 150px;
+  width: 175px;
   color: whitesmoke;
   border-radius: 5px;
 }
 
 #chat input {
-  width: 150px;
+  width: 175px;
   border: none;
   border-top: 0;
-  padding: 4px;
+  padding: 8px;
   border-top-right-radius: 0px;
   border-top-left-radius: 0px;
 }
@@ -90,7 +92,7 @@ export default {
 #chat-text-container {
   background: #333;
   height: 300px;
-  padding: 5px 5px 0px 5px;
+  padding: 8px 8px 0px 8px;
   border: none;
   overflow-y: auto;
   border-radius: 5px;

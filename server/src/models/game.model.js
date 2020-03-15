@@ -226,7 +226,7 @@ class Game {
         this.currentPlayer.canMove = true
         this.currentPlayer.addFuel();
         this.currentPlayer.timeLeft = this.currentPlayer.turnLength
-        if (keepInt) {
+        if (!keepInt) {
             clearInterval(this.decInt)
             this.countDownCurrentPlayerTurn()
         }

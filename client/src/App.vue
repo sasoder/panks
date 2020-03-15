@@ -45,8 +45,9 @@ body {
 h1 {
   background: #2d3436;
   color: whitesmoke;
-  margin-top: 0px;
-  padding: none;
+  margin: 0;
+  padding: 8px;
+  border-radius: 5px;
 }
 
 button {

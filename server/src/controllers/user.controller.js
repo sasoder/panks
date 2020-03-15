@@ -76,6 +76,7 @@ router.get('/:roomID/init', (req, res) => {
     // Send response with messages
     res.status(200).json({
         host: room.host,
+        name: room.name,
         messages: room.messages,
         users: room.users,
         activeGame: room.game !== null,

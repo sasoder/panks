@@ -1,6 +1,6 @@
 <template>
   <div id="roomcard-container">
-    <div>
+    <div id="roomcard-info">
       ID: {{ room.id }}
       <br />
       Hosted by: {{ room.host }}
@@ -10,8 +10,10 @@
       Players: {{ room.users }}
       <div v-if="room.activeGame">GAME IN PROGRESS!</div>
     </div>
-    <button @click="joinRoom(room.id)">Join room</button>
-    <button v-if="room.host === this.currentUser" @click="removeRoom(room.id)">Remove room</button>
+    <div id="roomcard-buttons">
+      <button @click="joinRoom(room.id)">Join room</button>
+      <button v-if="room.host === this.currentUser" @click="removeRoom(room.id)">Remove room</button>
+    </div>
   </div>
 </template>
 
@@ -62,10 +64,25 @@ export default {
 </script>
 
 <style scoped>
+
 #roomcard-container {
   background: #b1aea9;
+  width:fit-content;
   margin: 20px;
-  padding: 20px;
+  padding: 10px;
   border-radius: 5px;
 }
+
+#roomcard-container div {
+  display: inline-grid;
+}
+
+#roomcard-info {
+  margin: inherit;
+}
+
+#roomcard-buttons button {
+  margin:10px;
+}
+
 </style>

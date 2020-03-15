@@ -2,17 +2,18 @@
   <div>
     <h2>Log in:</h2>
     <form v-on:submit.prevent="login()">
-      <p>Username</p>
-      <input type="text" autocomplete="username" v-model="name" required />
-      <br />
-      <p>Password</p>
-      <input type="password" autocomplete="current-password" v-model="password" required />
-      <br />
+      <div id="login-inputs">
+        <p>Username</p>
+        <input type="text" autocomplete="username" v-model="name" required />
+        <br />
+        <p>Password</p>
+        <input type="password" autocomplete="current-password" v-model="password" required />
+      </div>
       <button type="submit">Login</button>
+      <br />
+      <button v-on:click="register()">Register with given credentials</button>
     </form>
-    <button v-on:click="register()">Register with given credentials</button>
-    <br />
-    <h4 class="statusMessage">{{ statusMessage }}</h4>
+    <h4 id="message">{{ statusMessage }}</h4>
   </div>
 </template>
 
@@ -91,12 +92,31 @@ export default {
 </script>
 
 <style scoped>
-form {
-  text-align: center;
-  margin-bottom: 20px;
-}
 
 h2 {
-  text-align: center;
+  margin:40px;
+  text-align:center;
 }
+
+form {
+  text-align:center;
+}
+
+#login-inputs {
+  margin-bottom:20px;
+}
+
+form p {
+  margin:10px;
+}
+
+button {
+  margin-bottom:50px;
+}
+
+#message {
+  text-align:center;
+  color:red;
+}
+
 </style>

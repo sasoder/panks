@@ -25,26 +25,26 @@ sequelize.sync();
 
 // Creating a HTTPS server with self-signed certificate
 const port = 3000;
-// const httpsServer = https.createServer({
-//     key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
-//     cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem')),
-//     // TODO: Remove password from file?
-//     passphrase: 'vigillarhttps'
-//     // TODO: Necessary?
-//     // requestCert: false,
-//     // rejectUnauthorized: false
-// }, app).listen(port, () => {
-//     console.log(`Listening on https://localhost:${port}`);
-// });
-
-
-const httpServer = http.createServer(app).listen(port, () => {
+const httpsServer = https.createServer({
+    key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
+    cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem')),
+    // TODO: Remove password from file?
+    passphrase: 'vigillarhttps'
+    // TODO: Necessary?
+    // requestCert: false,
+    // rejectUnauthorized: false
+}, app).listen(port, () => {
     console.log(`Listening on https://localhost:${port}`);
-});;
+});
+
+
+// const httpServer = http.createServer(app).listen(port, () => {
+//     console.log(`Listening on https://localhost:${port}`);
+// });;
 
 // Socket.io needs the httpServer directly
-const io = require('socket.io').listen(httpServer); // Creates socket.io app
-// const io = require('socket.io').listen(httpsServer); // Creates socket.io app
+// const io = require('socket.io').listen(httpServer); // Creates socket.io app
+const io = require('socket.io').listen(httpsServer); // Creates socket.io app
 
 // Adding middlewares
 app.use(express.json());

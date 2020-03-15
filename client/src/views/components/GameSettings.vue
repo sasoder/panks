@@ -1,7 +1,6 @@
 <template>
-  <div>
-    <p>Choose your settings on room {{ this.roomID }}:</p>
-    <br />
+  <div id="gamesettings-container">
+    <p><b>Choose your settings:</b></p>
     <div class="slidecontainer">
       <p>Amplitude of terrain: {{ this.amplitude }}</p>
       <input
@@ -19,7 +18,7 @@
     </div>
     <br />
     <button v-on:click="startGame">Start game</button>
-    <p>{{startGameMsg}}</p>
+    <p id="message"><b>{{startGameMsg}}</b></p>
   </div>
 </template>
 
@@ -80,8 +79,17 @@ export default {
 </script>
 
 <style scoped>
+
+#gamesettings-container {
+  margin-top:50px;
+}
+
 .slidecontainer {
-  width: 100%;
+  width: 75%;
+}
+
+.slidecontainer p {
+  margin: 15px 0 10px 0;
 }
 
 .slider {
@@ -111,5 +119,9 @@ export default {
   border-radius: 50%;
   background: #30336b;
   cursor: pointer;
+}
+
+#message {
+  margin-top:15px;
 }
 </style>

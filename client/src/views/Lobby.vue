@@ -1,19 +1,18 @@
 <template>
   <div>
-    <button @click="logout">Logout</button>
+    <button @click="logout" id="logout-button">Logout</button>
     <p>Welcome to the lobby, {{this.$store.state.isAuthenticated}}!</p>
     <p>These are your stats:</p>
-    <br />
-    <p>Total wins: {{totalWins}}</p>
-    <br />
-    <p>Total score: {{ parseInt(totalScore) }}</p>
-    <br />
-    <p>Times played: {{timesPlayed}}</p>
-
-    <form v-on:submit.prevent="addRoom">
+    <div id="stats-box">
+      <p>Total wins: {{totalWins}}</p>
+      <p>Total score: {{ parseInt(totalScore) }}</p>
+      <p>Times played: {{timesPlayed}}</p>
+    </div>
+    <form v-if="!userHasRoom()" v-on:submit.prevent="addRoom" id="create-box">
       <input v-model="newRoomName" type="text" placeholder="Name of new room" />
       <!-- Only display "add button" if user is not currently hosting a room -->
-      <button v-if="!userHasRoom()" type="submit">Create Room!</button>
+      <br />
+      <button type="submit">Create Room!</button>
     </form>
     <RoomCard ref="roomCard" v-for="room in roomList" :key="room.id" :room="room" />
   </div>
@@ -169,4 +168,31 @@ export default {
 </script>
 
 <style scoped>
+
+#logout-button {
+  margin: 20px 0 40px 0;
+}
+
+#stats-box {
+  background: #2d3436;
+  width: fit-content;
+  margin: 15px 0 45px 0;
+  padding: 10px 20px 5px 15px;
+  color: whitesmoke;
+  border: 1px solid black;
+  border-radius: 5px;
+}
+
+#create-box {
+  margin-bottom:40px;
+}
+
+#create-box button {
+  margin:15px 0 0 0;
+}
+
+#create-box input {
+  padding:8px;
+}
+
 </style>
