@@ -25,16 +25,26 @@ sequelize.sync();
 
 // Creating a HTTPS server with self-signed certificate
 const port = 3000;
-const httpsServer = https.createServer({
-    key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem')),
-    passphrase: 'vigillarhttps'
-}, app).listen(port, () => {
-    console.log(`Listening on https://localhost:${port}`);
-});
+// const httpsServer = https.createServer({
+//     key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
+//     cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem')),
+//     // TODO: Remove password from file?
+//     passphrase: 'vigillarhttps'
+//     // TODO: Necessary?
+//     // requestCert: false,
+//     // rejectUnauthorized: false
+// }, app).listen(port, () => {
+//     console.log(`Listening on https://localhost:${port}`);
+// });
+
+
+const httpServer = http.createServer(app).listen(port, () => {
+    console.log(`Listening on http://localhost:${port}`);
+});;
 
 // Socket.io needs the httpServer directly
-const io = require('socket.io').listen(httpsServer); // Creates socket.io app
+const io = require('socket.io').listen(httpServer); // Creates socket.io app
+// const io = require('socket.io').listen(httpsServer); // Creates socket.io app
 
 // Adding middlewares
 app.use(express.json());
@@ -48,8 +58,12 @@ const expressSession = require('express-session');
 
 const session = expressSession({
     secret: 'Super secret! Shh! Don\'t tell anyone...',
+    // TODO: Necessary to change?
     resave: true,
+    // TODO: Necessary to change?
     saveUninitialized: true,
+    // "This is typically used in conjuction with short, non-session-length maxAge values to provide a quick
+    // timeout of the session data with reduced potentional of it occurring during on going server interactions.""
     rolling: true,
 });
 app.use(session);

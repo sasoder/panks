@@ -62,8 +62,10 @@ const assignUnregisteredSocket = (socketID) => {
 
 exports.addMessage = (roomID, message) => {
   const room = rooms[roomID]
-  rooms[roomID].addMessage(message);
-  exports.io.in(roomID).emit('msg', message);
+  if (room) {
+    room.addMessage(message);
+    exports.io.in(roomID).emit('msg', message);
+  }
 };
 
 exports.joinRoom = (roomID, user) => {
