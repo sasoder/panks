@@ -11,7 +11,6 @@ const requireAuth = (req, res, next) => {
     if (maybeUser === undefined) {
         res.status(401).send('Unauthorized. Please make sure you are logged in before attempting this action again.');
         return;
-        // TODO: TEST COOKIE THEFT DETECTING
     } else if (maybeUser.ip !== req.clientIp) {
         res.status(401).send('Unauthorized. Don\'t try to steal someone else\'s session...');
         return;
@@ -28,7 +27,6 @@ router.get('/isAuthenticated', (req, res) => {
     const maybeUser = model.findUser(req.session.userID);
     let validUsername = maybeUser === undefined ? null : maybeUser.userID;
 
-    // TODO: TEST COOKIE THEFT DETECTING
     // Ensure that IP of login is the same
     if (validUsername && maybeUser.ip !== req.clientIp) {
         // If username was valid based on existing user but IP is wrong, set invalid again.
@@ -42,7 +40,7 @@ router.get('/isAuthenticated', (req, res) => {
 });
 
 router.post('/register', (req, res) => {
-    console.log(`registering user: ${req.body.username}`);
+    console.log(`Registering user: ${req.body.username}`);
 
     sequelize.model('user').create({
         username: req.body.username
@@ -93,10 +91,7 @@ router.post('/login', (req, res) => {
                         else console.debug(`Saved userID: ${req.session.userID}`);
                     });
                     // Add the user to the model
-                    // TODO: TEST COOKIE THEFT DETECTING
                     const clientIp = req.clientIp;
-                    // const otherIp = req.header('x-forwarded-for') || req.connection.remoteAddress;
-                    // TODO: TEST COOKIE THEFT DETECTING
                     model.addUser(req.session.userID, clientIp, req.session.socketID);
                     // Status: OK
                     res.status(200).json({
@@ -109,7 +104,7 @@ router.post('/login', (req, res) => {
                 }
             })
             .catch((err) => {
-                console.log(`Some error occured: ${err}`);
+                console.log(`Some error occured with login: ${err}`);
                 // Status: Not Found
                 res.sendStatus(404);
             });

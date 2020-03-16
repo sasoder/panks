@@ -144,7 +144,7 @@ class Game {
                     if (--this.gameEndTimer <= 0) {
                         this.destroy()
                     }
-                    console.log('destroying the game...', this.gameEndTimer)
+                    console.log('Destroying the game...', this.gameEndTimer)
                 }, 1000);
             }
         }

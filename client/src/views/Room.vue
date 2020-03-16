@@ -7,7 +7,9 @@
     <transition name="slower-fade">
       <GameScreen v-if="activeGame" :roomID="roomID" />
     </transition>
-    <UserList v-if="showUsers" :users="users" />
+    <transition name="slower-fade">
+      <UserList v-if="showUsers" :users="users" />
+    </transition>
     <GameSettings v-if="isHost && !activeGame" :roomID="roomID" />
     <p v-else-if="!activeGame">Waiting for host to set game settings...</p>
     <Chat :roomID="roomID" :messages="messages" />
@@ -53,8 +55,11 @@ export default {
       this.activeGame = true;
       this.showUsers = false;
       setTimeout(() => {
+        this.activeGame = true;
+      }, 250);
+      setTimeout(() => {
         this.showUsers = true;
-      }, 1000);
+      }, 750);
     });
     this.socket.on("destroyGame", () => {
       this.activeGame = false;

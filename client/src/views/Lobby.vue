@@ -46,7 +46,6 @@ export default {
     this.socket.on("activeGame", newRoomID => {
       const room = this.roomList.find(r => r.id == newRoomID);
       room.activeGame = true;
-      // TODO Force rerender, can do this more beautifully
       const temp = this.roomList;
       this.roomList = [];
       this.roomList = temp;

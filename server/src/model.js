@@ -125,9 +125,7 @@ exports.changeHost = (roomID) => {
   return room.host
 }
 
-// TODO: TEST COOKIE THEFT DETECTING
 exports.addUser = (userID, ip, socketID = undefined) => {
-  // TODO: TEST COOKIE THEFT DETECTING
   users[userID] = new User(userID, ip);
   if (socketID !== undefined) {
     users[userID].socket = assignUnregisteredSocket(socketID);
