@@ -18,7 +18,7 @@ class Player extends Entity {
         this.defaultshootPower = 60
         this.barrelLen = 15
         this.barrelThickness = 4
-        this.steepNessAbility = 3
+        this.steepNessAbility = 5
         let colourList = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#e6beff', '#fffac8', '#800000', '#aaffc3', '#ffd8b1', '#000075']
 
         this.x = Math.floor((Math.random() * 8 / 10 * gameWidth) + gameWidth / 10)
