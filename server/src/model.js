@@ -315,7 +315,7 @@ player = {
         }
 */
 exports.updatePlayerBools = (roomID, id, playerBools) => {
-  if (exports.findRoom(roomID) !== undefined && exports.findRoom(roomID).game !== undefined) {
+  if (exports.findRoom(roomID) !== undefined && exports.findRoom(roomID).game !== undefined && exports.findRoom(roomID).game != null) {
     exports.findRoom(roomID).game.changeBools(id, playerBools);
   }
 }
