@@ -105,6 +105,22 @@ export default {
     this.timeLeftUntilDestroy = this.gameState.gameEndTimer;
     this.$refs.gameCanvas.setAttribute("width", this.width);
     this.$refs.gameCanvas.setAttribute("height", this.height);
+
+    // set scaling factor for canvas (css)
+    const widthScaleFactor = document.body.clientWidth / this.width * 0.7;
+    const heightScaleFactor = document.body.clientHeight / this.height * 0.6;
+    const scaleFactor = widthScaleFactor > heightScaleFactor ? heightScaleFactor : widthScaleFactor;
+
+    // only scale if it's too big
+    if (scaleFactor < 1) {
+    document.documentElement.style.setProperty('--scale-factor', `${scaleFactor}px`);
+    }
+    // width and height too
+    document.documentElement.style
+    .setProperty('--width', this.width);
+    document.documentElement.style
+    .setProperty('--height', this.height);
+
     this.draw(this.gameState);
 
     // SETUP SOCKETS
@@ -199,6 +215,10 @@ export default {
 
     // Eventlisteners
     handleKeyDown(e) {
+      // prevent scrolling
+      if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+        e.preventDefault();
+      }
       const playerBools = {
         barrelRight: false,
         barrelLeft: false,
@@ -248,6 +268,10 @@ export default {
     },
 
     handleKeyUp(e) {
+      // prevent scrolling
+      if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+        e.preventDefault();
+      }
       const playerBools = {
         barrelRight: false,
         barrelLeft: false,
@@ -514,10 +538,19 @@ export default {
   margin-bottom: 20px;
 }
 
+
+:root {
+    --scale-factor: 1;
+    --height: 0;
+    --width: 0;
+}
+
 #gameScreen {
   display: block;
   margin: 30px auto 0 auto;
   border-radius: 10px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  width: calc(var(--width) * var(--scale-factor));
+  height: calc(var(--height) * var(--scale-factor));
 }
 </style>
