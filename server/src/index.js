@@ -1,20 +1,19 @@
-
 /*  ------  ***  ------   INITIALIZE CONTEXT   ------  ***  ------  */
 
 // Helper library for resolving relative paths
-const path = require('path');
+const path = require("path");
 
 // Foundation
-const http = require('http');
-const https = require('https');
-const express = require('express');
+const http = require("http");
+const https = require("https");
+const express = require("express");
 const app = express();
 
 // Package for reading files (File System)
-const fs = require('fs');
+const fs = require("fs");
 
 // For creating the user tables if they do not exist
-const { sequelize } = require('./database');
+const { sequelize } = require("./database");
 
 /*  ------  ***  ------   SETUP DATABASE   ------  ***  ------  */
 
@@ -37,56 +36,51 @@ const port = 3000;
 //     console.log(`Listening on https://localhost:${port}`);
 // });
 
-
 const httpServer = http.createServer(app).listen(port, () => {
-    console.log(`Listening on http://localhost:${port}`);
-});;
+  console.log(`Listening on http://localhost:${port}`);
+});
 
 // Socket.io needs the httpServer directly
-const io = require('socket.io').listen(httpServer); // Creates socket.io app
+const io = require("socket.io").listen(httpServer); // Creates socket.io app
 // const io = require('socket.io').listen(httpsServer); // Creates socket.io app
 
 // Adding middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
-
 /*  ------  ***  ------   SETUP SESSION   ------  ***  ------  */
 
-const expressSession = require('express-session');
+const expressSession = require("express-session");
 
 const session = expressSession({
-    secret: 'Super secret! Shh! Don\'t tell anyone...',
-    // TODO: Necessary to change?
-    resave: true,
-    // TODO: Necessary to change?
-    saveUninitialized: true,
-    // "This is typically used in conjuction with short, non-session-length maxAge values to provide a quick
-    // timeout of the session data with reduced potentional of it occurring during on going server interactions.""
-    rolling: true,
+  secret: "Super secret! Shh! Don't tell anyone...",
+  // TODO: Necessary to change?
+  resave: true,
+  // TODO: Necessary to change?
+  saveUninitialized: true,
+  // "This is typically used in conjuction with short, non-session-length maxAge values to provide a quick
+  // timeout of the session data with reduced potentional of it occurring during on going server interactions.""
+  rolling: true,
 });
 app.use(session);
 
-const socketIOSession = require('express-socket.io-session')
-io.use(socketIOSession(session, {
+const socketIOSession = require("express-socket.io-session");
+io.use(
+  socketIOSession(session, {
     autoSave: true,
     saveUninitialized: true,
-}));
-
-
+  })
+);
 
 /*  ------  ***  ------   SETUP GETTING IP FROM CLIENT   ------  ***  ------  */
 
-const reqIp = require('request-ip');
+const reqIp = require("request-ip");
 // Pass in middleware for getting client IP
 app.use(reqIp.mw());
 
-
-
 /*  ------  ***  ------   SETUP PREVENTION OF XSS   ------  ***  ------  */
 
-const helmet = require('helmet');
+const helmet = require("helmet");
 app.use(helmet());
 
 // Code mostly taken from package's description of usage: https://www.npmjs.com/package/helmet-csp
@@ -142,56 +136,52 @@ app.use(helmet());
 //     res.sendStatus(204);
 // });
 
-
-
 /*  ------  ***  ------   SERVE CLIENT   ------  ***  ------  */
-const publicPath = path.join(__dirname, '..', '..', 'client', 'dist');
+const publicPath = path.join(__dirname, "..", "..", "client", "dist");
 app.use(express.static(publicPath));
-
-
 
 /*  ------  ***  ------   SETUP ENDPOINTS   ------  ***  ------  */
 
-const auth = require('./controllers/auth.controller.js');
-const user = require('./controllers/user.controller.js');
-const game = require('./controllers/game.controller.js');
+const auth = require("./controllers/auth.controller.js");
+const user = require("./controllers/user.controller.js");
+const game = require("./controllers/game.controller.js");
 
-app.use('/api', auth.router);
+app.use("/api", auth.router);
 // All user endpoints require that we have logged in
-app.use('/api/user', auth.requireAuth, user.router);
+app.use("/api/user", auth.requireAuth, user.router);
 // All game endpoints require that we are in the actual game
-app.use('/api/game', auth.requireAuth, game.router);
-
-
+app.use("/api/game", auth.requireAuth, game.router);
 
 /*  ------  ***  ------   SETUP MODEL & SOCKET   ------  ***  ------  */
 
 // Initialize model
-const model = require('./model.js');
+const model = require("./model.js");
 model.init({ io });
 
 // Handle connected socket.io sockets
-io.on('connection', (socket) => {
-    // Log in the user into the lobby at creation
-    socket.join('lobby');
-    // This function serves to bind socket.io connections to user models
-    if (socket.handshake.session.userID
-        && model.findUser(socket.handshake.session.userID) !== undefined
-    ) {
-        // If the current user already logged in and then reloaded the page
-        model.updateUserSocket(socket.handshake.session.userID, socket);
-    } else {
-        socket.handshake.session.socketID = model.addUnregisteredSocket(socket);
-        socket.handshake.session.save((err) => {
-            if (err) console.error(err);
-            else console.debug(`Saved socketID: ${socket.handshake.session.socketID}`);
-        });
-    }
-
-    // HANDLE USER INPUTS IN-GAME
-    socket.on('playerBools', (data) => {
-        const { roomID, id, playerBools } = data;
-        model.updatePlayerBools(roomID, id, playerBools);
-        model.updateTimeoutOnUser(id);
+io.on("connection", (socket) => {
+  // Log in the user into the lobby at creation
+  socket.join("lobby");
+  // This function serves to bind socket.io connections to user models
+  if (
+    socket.handshake.session.userID &&
+    model.findUser(socket.handshake.session.userID) !== undefined
+  ) {
+    // If the current user already logged in and then reloaded the page
+    model.updateUserSocket(socket.handshake.session.userID, socket);
+  } else {
+    socket.handshake.session.socketID = model.addUnregisteredSocket(socket);
+    socket.handshake.session.save((err) => {
+      if (err) console.error(err);
+      else
+        console.debug(`Saved socketID: ${socket.handshake.session.socketID}`);
     });
+  }
+
+  // HANDLE USER INPUTS IN-GAME
+  socket.on("playerBools", (data) => {
+    const { roomID, id, playerBools } = data;
+    model.updatePlayerBools(roomID, id, playerBools);
+    model.updateTimeoutOnUser(id);
+  });
 });
