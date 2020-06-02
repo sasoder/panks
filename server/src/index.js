@@ -72,12 +72,6 @@ io.use(
   })
 );
 
-/*  ------  ***  ------   SETUP GETTING IP FROM CLIENT   ------  ***  ------  */
-
-const reqIp = require("request-ip");
-// Pass in middleware for getting client IP
-app.use(reqIp.mw());
-
 /*  ------  ***  ------   SETUP PREVENTION OF XSS   ------  ***  ------  */
 
 const helmet = require("helmet");
@@ -92,7 +86,7 @@ app.use(helmet());
 //         defaultSrc: ["'self'"],
 //         // TODO: Remove 'unsafe-inline'
 //         // 'unsafe-inline': Allow for changing and moving script code (unsafe, we don't do that right?)
-//         scriptSrc: ["'self'", "'unsafe-eval'"],
+//         scrtSrc: ["'self'", "'unsafe-eval'"],
 //         // TODO: Add boostrap stuff if we use it
 //         styleSrc: ["'self'", "'unsafe-inline'"],
 //         fontSrc: ["'self'"],
@@ -184,4 +178,6 @@ io.on("connection", (socket) => {
     model.updatePlayerBools(roomID, id, playerBools);
     model.updateTimeoutOnUser(id);
   });
+
+  //
 });

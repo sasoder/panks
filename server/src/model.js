@@ -142,8 +142,8 @@ exports.changeHost = (roomID) => {
   return room.host;
 };
 
-exports.addUser = (userID, ip, socketID = undefined) => {
-  users[userID] = new User(userID, ip);
+exports.addUser = (userID, socketID = undefined) => {
+  users[userID] = new User(userID);
   if (socketID !== undefined) {
     users[userID].socket = assignUnregisteredSocket(socketID);
   }
@@ -169,7 +169,7 @@ exports.updateTimeoutOnUser = (userID) => {
 
 exports.logoutUser = (userID) => {
   const user = users[userID];
-  console.log("this is the user. did we find him?", user);
+  // console.log("this is the user. did we find him?", user);
   const roomOfUser = findRoomByHost(userID);
 
   if (user.currentRoom !== null) {
@@ -196,6 +196,8 @@ exports.logoutUser = (userID) => {
 
 exports.updateUserSocket = (userID, socket) => {
   users[userID].socket = socket;
+
+  console.log("socket when added to user", socket);
 };
 
 exports.findUser = (userID) => users[userID];
