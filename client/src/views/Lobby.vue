@@ -36,6 +36,7 @@ export default {
     this.socket = this.$root.socket;
     this.socket.on("newRoom", newRoom => {
       this.roomList = [...this.roomList, newRoom];
+      // TODO change this to be handled on the server
       if (newRoom.host == this.$store.state.isAuthenticated) {
         this.$router.push(`/room/${newRoom.id}`);
       }

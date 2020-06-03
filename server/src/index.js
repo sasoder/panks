@@ -178,6 +178,4 @@ io.on("connection", (socket) => {
     model.updatePlayerBools(roomID, id, playerBools);
     model.updateTimeoutOnUser(id);
   });
-
-  //
 });

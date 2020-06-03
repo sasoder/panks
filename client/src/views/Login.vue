@@ -44,7 +44,8 @@ export default {
               message = "Invalid login";
               break;
             case 403: // Forbidden
-              message = "Looks like you're already logged in...";
+              message =
+                "Looks like you're already logged in from somewhere else...";
               break;
             case 404: // Not Found
               message = "User doesn't exist";
@@ -70,7 +71,7 @@ export default {
     },
     register() {
       // Is user allowed to add?
-      if (this.name === '' || this.password === '') {
+      if (this.name === "" || this.password === "") {
         this.statusMessage = "Invalid registration: Fill in all fields";
         return;
       }
@@ -96,36 +97,34 @@ export default {
 </script>
 
 <style scoped>
-
 h2 {
-  margin:40px;
-  text-align:center;
+  margin: 40px;
+  text-align: center;
 }
 
 form {
-  text-align:center;
+  text-align: center;
 }
 
 #login-inputs {
-  margin-bottom:20px;
+  margin-bottom: 20px;
 }
 
 form p {
-  margin:10px;
+  margin: 10px;
 }
 
 button {
-  margin-bottom:50px;
+  margin-bottom: 50px;
 }
 
 #register {
-  display:block;
-  margin:auto;
-  margin-bottom:50px;
+  display: block;
+  margin: auto;
+  margin-bottom: 50px;
 }
 
 #message {
-  text-align:center;
+  text-align: center;
 }
-
 </style>

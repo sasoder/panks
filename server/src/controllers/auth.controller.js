@@ -16,14 +16,6 @@ const requireAuth = (req, res, next) => {
     return;
   }
 
-  // TODO: Remove, debug
-  console.log(
-    "maybeuser sessionID",
-    maybeUser.socket.handshake.sessionID,
-    "req.sessionid:",
-    req.sessionID
-  );
-
   // Checking if the origin of the request corresponds to the logged in user
   if (maybeUser.socket.handshake.sessionID != req.sessionID) {
     res
@@ -40,6 +32,7 @@ const requireAuth = (req, res, next) => {
 };
 
 // for main.js (setting store)
+// says if someone is logged in or not
 router.get("/isAuthenticated", (req, res) => {
   const maybeUser = model.findUser(req.session.userID);
   let validUsername = maybeUser === undefined ? null : maybeUser.userID;
