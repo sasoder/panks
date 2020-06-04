@@ -180,7 +180,7 @@ exports.logoutUser = (userID) => {
     exports.leaveRoom(user.currentRoom, user.userID);
   }
 
-  // If user is host of a room, change the host
+  // If user is host of a room, delete it
   if (roomOfUser !== undefined) {
     // Only host left in room
     console.log("Host disconnected, removing room with ID: ", roomOfUser.id);
