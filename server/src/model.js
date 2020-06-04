@@ -179,7 +179,7 @@ exports.logoutUser = (userID) => {
     exports.leaveRoom(user.currentRoom, user.userID);
   }
 
-  // If user is host of a room, change the host
+  // If user is host of a room, delete it
   if (roomOfUser !== undefined) {
     // Only host left in room
     console.log("Host disconnected, removing room with ID: ", roomOfUser.id);
@@ -188,7 +188,7 @@ exports.logoutUser = (userID) => {
 
   // Finally log out the user once everything is cleared
   exports.removeUser(user.userID);
-  exports.io.to(`${user.socket.id}`).emit("logout");
+  exports.io.to(user.socket.id).emit("logout");
 
   // Make sure timeout doesn't duplicate if we log out manually
   clearTimeout(userTimeouts[userID]);
