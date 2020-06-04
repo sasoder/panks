@@ -17,6 +17,14 @@ export default {
     this.socket.on("logout", () => {
       this.logout();
     });
+
+    this.socket.on("invalidate", () => {
+      this.logout();
+      console.log("alerting now");
+      alert(
+        "This tab has been invalidated because you logged in on another tab"
+      );
+    });
   },
   mounted() {},
   beforeDestroy() {

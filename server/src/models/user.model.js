@@ -4,7 +4,8 @@
 class User {
   constructor(userID) {
     this.userID = userID;
-    this.socket = null;
+    this.socketID = null;
+    this.sessionID = null;
     this.currentRoom = null;
     this.timesPlayed = 0;
     this.totalScore = 0;

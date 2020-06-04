@@ -167,8 +167,9 @@ io.on("connection", (socket) => {
     socket.handshake.session.socketID = model.addUnregisteredSocket(socket);
     socket.handshake.session.save((err) => {
       if (err) console.error(err);
-      else
+      else {
         console.debug(`Saved socketID: ${socket.handshake.session.socketID}`);
+      }
     });
   }
 

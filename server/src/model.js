@@ -146,6 +146,7 @@ exports.addUser = (userID, socketID = undefined) => {
   users[userID] = new User(userID);
   if (socketID !== undefined) {
     users[userID].socket = assignUnregisteredSocket(socketID);
+    users[userID].socketID = users[userID].socket.id;
   }
   // Log in the user into the lobby at creation
   users[userID].socket.join("lobby");
@@ -188,16 +189,24 @@ exports.logoutUser = (userID) => {
 
   // Finally log out the user once everything is cleared
   exports.removeUser(user.userID);
-  exports.io.to(`${user.socket.id}`).emit("logout");
+  exports.io.to(user.socketID).emit("logout");
 
   // Make sure timeout doesn't duplicate if we log out manually
   clearTimeout(userTimeouts[userID]);
 };
 
 exports.updateUserSocket = (userID, socket) => {
-  users[userID].socket = socket;
-
-  console.log("socket when added to user", socket);
+  let user = users[userID];
+  console.log("this is the user socketid before :", user.socketID);
+  if (user.socketID !== null) {
+    // we emit to the previous socket that their socket is now invalid
+    console.log("invalidating");
+    exports.io.to(user.socketID).emit("invalidate");
+  }
+  // we add the socket information as usual
+  users[userID].socketID = socket.id;
+  users[userID].sessionID = socket.handshake.sessionID;
+  console.log("user socketID after connection:", user.socketID);
 };
 
 exports.findUser = (userID) => users[userID];
