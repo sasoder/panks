@@ -154,13 +154,20 @@ model.init({ io });
 
 // Handle connected socket.io sockets
 io.on("connection", (socket) => {
-  // Log in the user into the lobby at creation
-  socket.join("lobby");
   // This function serves to bind socket.io connections to user models
-  if (
-    socket.handshake.session.userID &&
-    model.findUser(socket.handshake.session.userID) !== undefined
-  ) {
+  let maybeUser = model.findUser(socket.handshake.session.userID);
+  console.log("maybe!!!!!!!!!!!!!!!!!!!", maybeUser);
+
+  socket.join("lobby");
+  if (socket.handshake.session.userID && maybeUser !== undefined) {
+    // Log in the user into the lobby at creation
+    if (maybeUser.currentRoom != null) {
+      model.joinRoom(maybeUser.currentRoom, maybeUser);
+      socket.emit("joinedRoom", maybeUser.currentRoom);
+    }
+    // // set socket userid to current user for access when disconnecting
+    // console.log("HERE COME THE AMYBE USER:", maybeUser);
+    // socket.handshake.session.userID = maybeUser.userID;
     // If the current user already logged in and then reloaded the page
     model.updateUserSocket(socket.handshake.session.userID, socket);
   } else {
@@ -172,6 +179,17 @@ io.on("connection", (socket) => {
       }
     });
   }
+
+  // TODO this shit aint work
+  socket.on("disconnect", () => {
+    // console.log("disconnecting bittch here is emil!", maybeUser);
+    // let maybeUser = model.findUser(session.userID);
+    if (maybeUser != undefined) {
+      maybeUser.socketID = null;
+      maybeUser.socket = null;
+      maybeUser.sessionID = null;
+    }
+  });
 
   // HANDLE USER INPUTS IN-GAME
   socket.on("playerBools", (data) => {

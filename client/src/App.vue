@@ -19,8 +19,8 @@ export default {
     });
 
     this.socket.on("invalidate", () => {
+      // Go back to homescreen
       this.logout();
-      console.log("alerting now");
       alert(
         "This tab has been invalidated because you logged in on another tab"
       );

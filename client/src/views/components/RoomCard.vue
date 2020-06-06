@@ -64,10 +64,9 @@ export default {
 </script>
 
 <style scoped>
-
 #roomcard-container {
   background: #b1aea9;
-  width:fit-content;
+  width: fit-content;
   margin: 20px;
   padding: 10px;
   border-radius: 5px;
@@ -82,7 +81,6 @@ export default {
 }
 
 #roomcard-buttons button {
-  margin:10px;
+  margin: 10px;
 }
-
 </style>

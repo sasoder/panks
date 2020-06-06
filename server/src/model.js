@@ -96,6 +96,7 @@ exports.joinRoom = (roomID, user) => {
     "updatedRoomList",
     Object.values(rooms).map((room) => room.getData())
   );
+
   exports.io
     .in(roomID)
     .emit("updatedUserList", { users: room.users, host: room.host });
@@ -106,7 +107,7 @@ exports.leaveRoom = (roomID, userID) => {
   let user = users[userID];
   let room = rooms[roomID];
   // User leaves the game upon leaving the room
-  if (room.game != null) room.game.leaveGame(userID);
+  if (room != undefined && room.game != null) room.game.leaveGame(userID);
 
   // Set the current room of the user to null
   user.currentRoom = null;
@@ -195,6 +196,10 @@ exports.logoutUser = (userID) => {
   clearTimeout(userTimeouts[userID]);
 };
 
+exports.updateUserSocketWithSocketID = (userID, socketID) => {
+  this.updateUserSocket(userID, assignUnregisteredSocket(socketID));
+};
+
 exports.updateUserSocket = (userID, socket) => {
   let user = users[userID];
   console.log("this is the user socketid before :", user.socketID);
@@ -203,13 +208,24 @@ exports.updateUserSocket = (userID, socket) => {
     console.log("invalidating");
     exports.io.to(user.socketID).emit("invalidate");
   }
+
+  let prevSocketRooms = user.socket.rooms;
+
   // we add the socket information as usual
-  users[userID].socketID = socket.id;
-  users[userID].sessionID = socket.handshake.sessionID;
+  user.socket = socket;
+
+  Object.entries(prevSocketRooms).forEach(([_, roomName]) => {
+    console.log("room!", roomName);
+    user.socket.join(roomName);
+  });
+
+  user.socketID = socket.id;
+  user.sessionID = socket.handshake.sessionID;
   console.log("user socketID after connection:", user.socketID);
 };
 
 exports.findUser = (userID) => users[userID];
+exports.getUsers = () => users;
 
 exports.removeUser = (userID) => {
   // Remove user from server

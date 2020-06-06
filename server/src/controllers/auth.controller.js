@@ -28,6 +28,11 @@ const requireAuth = (req, res, next) => {
 
   // Update the timeout clock of the user
   model.updateTimeoutOnUser(req.session.userID);
+
+  // let user = model.findUser(req.session.userID);
+  // console.log("router time!", vueRouter);
+  // user.route = router.route;
+
   next();
 };
 
@@ -105,6 +110,12 @@ router.post("/login", (req, res) => {
           });
           // Add the user to the model
           model.addUser(req.session.userID, req.session.socketID);
+          console.log(
+            "ADDED USER TO MODEL WITH SOCKETID",
+            req.session.socketID,
+            "USER ID:",
+            req.session.userID
+          );
           // Status: OK
           res.status(200).json({
             userID: req.session.userID,
@@ -120,6 +131,14 @@ router.post("/login", (req, res) => {
         // Status: Not Found
         res.sendStatus(404);
       });
+    // TODO new shit here
+  } else if (maybeUser.socketID == null) {
+    console.log("reqsessionsocektid", req.session.socketID);
+    model.updateUserSocket(maybeUser.userID, req.session.socketID);
+
+    res.status(200).json({
+      userID: req.session.userID,
+    });
   } else {
     console.log("User is already logged in");
     // Status: Forbidden

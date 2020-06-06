@@ -6,6 +6,8 @@ const router = express.Router();
 router.post("/start", (req, res) => {
   const roomID = req.body.roomID;
   const room = model.findRoom(roomID);
+  console.log("USERS:", model.getUsers());
+  console.log("ROOM USERS:", room.users);
   // Check if the room has an active game already
   if (
     model.findRoom(roomID).game !== null ||

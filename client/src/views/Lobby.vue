@@ -34,6 +34,7 @@ export default {
   }),
   mounted() {
     this.socket = this.$root.socket;
+
     this.socket.on("newRoom", newRoom => {
       this.roomList = [...this.roomList, newRoom];
       // TODO change this to be handled on the server
@@ -41,6 +42,11 @@ export default {
         this.$router.push(`/room/${newRoom.id}`);
       }
     });
+
+    this.socket.on("joinedRoom", newRoom => {
+      this.$router.push(`/room/${newRoom}`);
+    });
+
     this.socket.on("updatedRoomList", rooms => {
       this.roomList = rooms;
     });
@@ -69,6 +75,7 @@ export default {
     this.socket.off("updatedRoomList");
     this.socket.off("inactiveGame");
     this.socket.off("activeGame");
+    this.socket.off("joinedRoom");
   },
   methods: {
     getUserInfo() {

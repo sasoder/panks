@@ -5,6 +5,7 @@ class User {
   constructor(userID) {
     this.userID = userID;
     this.socketID = null;
+    this.socket = null;
     this.sessionID = null;
     this.currentRoom = null;
     this.timesPlayed = 0;
