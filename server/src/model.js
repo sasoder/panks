@@ -209,15 +209,20 @@ exports.updateUserSocket = (userID, socket) => {
     exports.io.to(user.socketID).emit("invalidate");
   }
 
-  let prevSocketRooms = user.socket.rooms;
+  let prevSocketRooms;
+  if (user.socket) {
+    prevSocketRooms = user.socket.rooms;
+  }
 
   // we add the socket information as usual
   user.socket = socket;
 
-  Object.entries(prevSocketRooms).forEach(([_, roomName]) => {
-    console.log("room!", roomName);
-    user.socket.join(roomName);
-  });
+  if (prevSocketRooms) {
+    Object.entries(prevSocketRooms).forEach(([_, roomName]) => {
+      console.log("room!", roomName);
+      user.socket.join(roomName);
+    });
+  }
 
   user.socketID = socket.id;
   user.sessionID = socket.handshake.sessionID;
