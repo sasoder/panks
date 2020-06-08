@@ -144,13 +144,40 @@ exports.changeHost = (roomID) => {
 };
 
 exports.addUser = (userID, socketID = undefined) => {
-  users[userID] = new User(userID);
+  if (users[userID] == undefined) {
+    users[userID] = new User(userID);
+  }
   if (socketID !== undefined) {
     users[userID].socket = assignUnregisteredSocket(socketID);
     users[userID].socketID = users[userID].socket.id;
+    users[userID].sessionID = users[userID].socket.handshake.sessionID;
   }
-  // Log in the user into the lobby at creation
-  users[userID].socket.join("lobby");
+  // Log in the user into the lobby at creation, or other rooms it was in before
+
+  // console.log("emil");
+  // let prevSocketRooms;
+  // if (users[userID].socket) {
+  //   prevSocketRooms = users[userID].socket.rooms;
+  //   console.log("prevSocketRooms", prevSocketRooms);
+  // }
+
+  // let foundRoom = false;
+  // if (prevSocketRooms) {
+  //   Object.entries(prevSocketRooms).forEach(([_, roomName]) => {
+  //     if (roomName != "lobby") {
+  //       foundRoom = true;
+  //       exports.io.to(userID).emit("joinedRoom", roomName);
+  //     }
+  //   });
+  // }
+  // if (!foundRoom) {
+  //   users[userID].socket.join("lobby");
+  // }
+
+  console.log("haahhhah", users[userID].currentRoom);
+  if (users[userID].currentRoom) {
+    exports.io.to(userID).emit("joinedRoom", users[userID].currentRoom);
+  }
 
   // Set up timeout for user
   // userTimeouts[userID] = setTimeout(() => { exports.logoutUser(userID) }, 1000 * 10); // 10 sec (debugging)

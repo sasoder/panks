@@ -17,7 +17,10 @@ const requireAuth = (req, res, next) => {
   }
 
   // Checking if the origin of the request corresponds to the logged in user
-  if (maybeUser.socket.handshake.sessionID != req.sessionID) {
+  console.log("LOGGING!!!!!!!!!!!!!");
+  console.log(maybeUser.sessionID);
+  console.log(req.sessionID);
+  if (maybeUser.sessionID != req.sessionID) {
     res
       .status(401)
       .send(
@@ -33,6 +36,7 @@ const requireAuth = (req, res, next) => {
   // console.log("router time!", vueRouter);
   // user.route = router.route;
 
+  //TODO add socket to user here? Doens't work?
   next();
 };
 
@@ -89,7 +93,7 @@ router.post("/login", (req, res) => {
       })
       .then((user) => {
         // User was not found on server
-        if (user === undefined) {
+        if (user == undefined) {
           throw new Error("No user");
         } else {
           console.log(
@@ -102,8 +106,9 @@ router.post("/login", (req, res) => {
         if (correctPassword) {
           console.log("User exists, logging in...");
           // Update the userID of the currently active session
+
           req.session.userID = req.body.username;
-          // Saving session to user
+          // Saving session to user;
           req.session.save((err) => {
             if (err) console.error(err);
             else console.debug(`Saved userID: ${req.session.userID}`);
@@ -116,9 +121,14 @@ router.post("/login", (req, res) => {
             "USER ID:",
             req.session.userID
           );
+
+          // check if the user is in any rooms
+          let serverUser = model.findUser(req.session.userID);
+
           // Status: OK
           res.status(200).json({
             userID: req.session.userID,
+            room: serverUser.currentRoom,
           });
         } else {
           console.log("Login was invalid");
@@ -131,13 +141,24 @@ router.post("/login", (req, res) => {
         // Status: Not Found
         res.sendStatus(404);
       });
-    // TODO new shit here
+    // TODO check that the password is correct here too!!!
   } else if (maybeUser.socketID == null) {
+    console.log("saing user...");
+    req.session.userID = req.body.username;
+    // Saving session to user
+    req.session.save((err) => {
+      if (err) console.error(err);
+      else console.debug(`Saved userID: ${req.session.userID}`);
+    });
     console.log("reqsessionsocektid", req.session.socketID);
-    model.updateUserSocket(maybeUser.userID, req.session.socketID);
+    model.addUser(maybeUser.userID, req.session.socketID);
+    // model.updateUserSocketWithSocketID(maybeUser.userID, req.session.socketID);
 
+    // check if the user is in any rooms
+    let serverUser = model.findUser(req.session.userID);
     res.status(200).json({
       userID: req.session.userID,
+      room: serverUser.currentRoom,
     });
   } else {
     console.log("User is already logged in");

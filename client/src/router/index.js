@@ -19,12 +19,6 @@ const router = new VueRouter({
   mode: "hash",
   base: process.env.BASE_URL,
   routes,
-  // TODO setup watcher
-  //   watch: {
-  //     $route(to, from) {
-
-  //     },
-  //   },
 });
 
 // Setup Authentication guard

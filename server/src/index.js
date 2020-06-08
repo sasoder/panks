@@ -156,22 +156,30 @@ model.init({ io });
 io.on("connection", (socket) => {
   // This function serves to bind socket.io connections to user models
   let maybeUser = model.findUser(socket.handshake.session.userID);
-  console.log("maybe!!!!!!!!!!!!!!!!!!!", maybeUser);
+  let userID;
+  // console.log("maybe!!!!!!!!!!!!!!!!!!!", maybeUser);
 
   socket.join("lobby");
   if (socket.handshake.session.userID && maybeUser !== undefined) {
+    model.addUnregisteredSocket(socket);
+    // model.assignUnregisteredSocket(socket.socketID);
+    // model.addUnregisteredSocket(maybeUser.userID, socket);
+    // // set socket userid to current user for access when disconnecting
+    // console.log("HERE COME THE AMYBE USER:", maybeUser);
+    // socket.handshake.session.userID = maybeUser.userID;
+    // If the current user already logged in and then reloaded the page
+    console.log("bhbikbjs");
+    model.updateUserSocket(socket.handshake.session.userID, socket);
+    console.log("emil");
+
     // Log in the user into the lobby at creation
     if (maybeUser.currentRoom != null) {
       model.joinRoom(maybeUser.currentRoom, maybeUser);
       socket.emit("joinedRoom", maybeUser.currentRoom);
     }
-    // // set socket userid to current user for access when disconnecting
-    // console.log("HERE COME THE AMYBE USER:", maybeUser);
-    // socket.handshake.session.userID = maybeUser.userID;
-    // If the current user already logged in and then reloaded the page
-    model.updateUserSocket(socket.handshake.session.userID, socket);
   } else {
     socket.handshake.session.socketID = model.addUnregisteredSocket(socket);
+
     socket.handshake.session.save((err) => {
       if (err) console.error(err);
       else {
@@ -182,13 +190,28 @@ io.on("connection", (socket) => {
 
   // TODO this shit aint work
   socket.on("disconnect", () => {
+    console.log("Disconnecting socket...");
     // console.log("disconnecting bittch here is emil!", maybeUser);
     // let maybeUser = model.findUser(session.userID);
-    if (maybeUser != undefined) {
+    // let epicUser = model.findUser(socket.handshake.session.userID);
+    // console.log("userid on socket", socket.handshake.session.userID);
+    // console.log(epicUser.socketID);
+    // console.log(socket.id);
+    if (userID) {
+      maybeUser = model.findUser(userID);
+      console.log("here985878");
+    }
+    if (maybeUser != undefined && maybeUser.socket == socket) {
+      console.log("eiml");
       maybeUser.socketID = null;
       maybeUser.socket = null;
       maybeUser.sessionID = null;
     }
+  });
+
+  socket.on("updateUserID", (_userID) => {
+    userID = _userID;
+    console.log("aha000000");
   });
 
   // HANDLE USER INPUTS IN-GAME

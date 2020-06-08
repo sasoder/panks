@@ -22,7 +22,7 @@ export default {
       // Go back to homescreen
       this.logout();
       alert(
-        "This tab has been invalidated because you logged in on another tab"
+        "This tab has been invalidated because you logged in on another tab or window"
       );
     });
   },

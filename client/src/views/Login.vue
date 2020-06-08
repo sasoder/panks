@@ -61,9 +61,18 @@ export default {
         })
         .then(data => {
           this.$store.commit("setIsAuthenticated", data.userID);
-          this.$router.push({
-            path: "/lobby"
-          });
+          // edge case
+          // this.socket.emit("updateUserID", data.userID);
+
+          console.log("LOBBY766667 TIME");
+          if (data.room) {
+            this.$router.push(`/room/${data.room}`);
+          } else {
+            console.log("LOBBY TIME");
+            this.$router.push({
+              path: "/lobby"
+            });
+          }
         })
         .catch(err => {
           console.error(`Authentication failed unexpectedly: ${err}`);
