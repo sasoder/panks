@@ -83,7 +83,7 @@ router.post("/register", (req, res) => {
 router.post("/login", (req, res) => {
   const maybeUser = model.findUser(req.body.username);
   // Only try to login if user isn't already logged in (is inside server as model)
-  if (maybeUser === undefined) {
+  if (maybeUser === undefined || maybeUser.socketID == null) {
     sequelize
       .model("user")
       .findOne({
@@ -141,25 +141,6 @@ router.post("/login", (req, res) => {
         // Status: Not Found
         res.sendStatus(404);
       });
-    // TODO check that the password is correct here too!!!
-  } else if (maybeUser.socketID == null) {
-    console.log("saing user...");
-    req.session.userID = req.body.username;
-    // Saving session to user
-    req.session.save((err) => {
-      if (err) console.error(err);
-      else console.debug(`Saved userID: ${req.session.userID}`);
-    });
-    console.log("reqsessionsocektid", req.session.socketID);
-    model.addUser(maybeUser.userID, req.session.socketID);
-    // model.updateUserSocketWithSocketID(maybeUser.userID, req.session.socketID);
-
-    // check if the user is in any rooms
-    let serverUser = model.findUser(req.session.userID);
-    res.status(200).json({
-      userID: req.session.userID,
-      room: serverUser.currentRoom,
-    });
   } else {
     console.log("User is already logged in");
     // Status: Forbidden

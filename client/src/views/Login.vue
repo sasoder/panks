@@ -61,7 +61,7 @@ export default {
         })
         .then(data => {
           this.$store.commit("setIsAuthenticated", data.userID);
-          // edge case
+          // // edge case
           // this.socket.emit("updateUserID", data.userID);
 
           console.log("LOBBY766667 TIME");
