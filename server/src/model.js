@@ -66,8 +66,7 @@ const assignUnregisteredSocket = (socketID) => {
 exports.addMessage = (roomID, message) => {
   const room = rooms[roomID];
   if (room) {
-    room.addMessage(message);
-    exports.io.in(roomID).emit("msg", message);
+    room.addMessagmessage);
   }
 };
 
@@ -112,8 +111,10 @@ exports.leaveRoom = (roomID, userID) => {
   // Set the current room of the user to null
   user.currentRoom = null;
   // Join the right socket.io room
-  user.socket.leave(roomID);
-  user.socket.join("lobby");
+  if(user.socket) {
+    user.socket.leave(roomID);
+    user.socket.join("lobby");
+  }
   // Remove the user of the corresponding room
   room.removeUser(user);
 
@@ -153,28 +154,6 @@ exports.addUser = (userID, socketID = undefined) => {
     users[userID].sessionID = users[userID].socket.handshake.sessionID;
   }
   // Log in the user into the lobby at creation, or other rooms it was in before
-
-  // console.log("emil");
-  // let prevSocketRooms;
-  // if (users[userID].socket) {
-  //   prevSocketRooms = users[userID].socket.rooms;
-  //   console.log("prevSocketRooms", prevSocketRooms);
-  // }
-
-  // let foundRoom = false;
-  // if (prevSocketRooms) {
-  //   Object.entries(prevSocketRooms).forEach(([_, roomName]) => {
-  //     if (roomName != "lobby") {
-  //       foundRoom = true;
-  //       exports.io.to(userID).emit("joinedRoom", roomName);
-  //     }
-  //   });
-  // }
-  // if (!foundRoom) {
-  //   users[userID].socket.join("lobby");
-  // }
-
-  console.log("haahhhah", users[userID].currentRoom);
   if (users[userID].currentRoom) {
     exports.io.to(userID).emit("joinedRoom", users[userID].currentRoom);
   }
@@ -198,7 +177,7 @@ exports.updateTimeoutOnUser = (userID) => {
 
 exports.logoutUser = (userID) => {
   const user = users[userID];
-  // console.log("this is the user. did we find him?", user);
+
   const roomOfUser = findRoomByHost(userID);
 
   if (user.currentRoom !== null) {
@@ -229,10 +208,10 @@ exports.updateUserSocketWithSocketID = (userID, socketID) => {
 
 exports.updateUserSocket = (userID, socket) => {
   let user = users[userID];
-  console.log("this is the user socketid before :", user.socketID);
+
   if (user.socketID !== null) {
     // we emit to the previous socket that their socket is now invalid
-    console.log("invalidating");
+    console.log("Invalidating previous socket connection");
     exports.io.to(user.socketID).emit("invalidate");
   }
 
@@ -246,14 +225,12 @@ exports.updateUserSocket = (userID, socket) => {
 
   if (prevSocketRooms) {
     Object.entries(prevSocketRooms).forEach(([_, roomName]) => {
-      console.log("room!", roomName);
       user.socket.join(roomName);
     });
   }
 
   user.socketID = socket.id;
   user.sessionID = socket.handshake.sessionID;
-  console.log("user socketID after connection:", user.socketID);
 };
 
 exports.findUser = (userID) => users[userID];

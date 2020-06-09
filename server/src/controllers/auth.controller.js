@@ -17,9 +17,6 @@ const requireAuth = (req, res, next) => {
   }
 
   // Checking if the origin of the request corresponds to the logged in user
-  console.log("LOGGING!!!!!!!!!!!!!");
-  console.log(maybeUser.sessionID);
-  console.log(req.sessionID);
   if (maybeUser.sessionID != req.sessionID) {
     res
       .status(401)
@@ -32,11 +29,6 @@ const requireAuth = (req, res, next) => {
   // Update the timeout clock of the user
   model.updateTimeoutOnUser(req.session.userID);
 
-  // let user = model.findUser(req.session.userID);
-  // console.log("router time!", vueRouter);
-  // user.route = router.route;
-
-  //TODO add socket to user here? Doens't work?
   next();
 };
 
@@ -115,12 +107,6 @@ router.post("/login", (req, res) => {
           });
           // Add the user to the model
           model.addUser(req.session.userID, req.session.socketID);
-          console.log(
-            "ADDED USER TO MODEL WITH SOCKETID",
-            req.session.socketID,
-            "USER ID:",
-            req.session.userID
-          );
 
           // check if the user is in any rooms
           let serverUser = model.findUser(req.session.userID);

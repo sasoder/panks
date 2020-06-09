@@ -84,11 +84,9 @@ app.use(helmet());
 //     directives: {
 //         // Any non-declared directives fall under this
 //         defaultSrc: ["'self'"],
-//         // TODO: Remove 'unsafe-inline'
-//         // 'unsafe-inline': Allow for changing and moving script code (unsafe, we don't do that right?)
-//         scrtSrc: ["'self'", "'unsafe-eval'"],
+//         scrtSrc: ["'self'"],
 //         // TODO: Add boostrap stuff if we use it
-//         styleSrc: ["'self'", "'unsafe-inline'"],
+//         styleSrc: ["'self'"],
 //         fontSrc: ["'self'"],
 //         imgSrc: ["'self'"],
 //         // The sandbox applies a same origin policy, prevents popups, plugins and script execution
@@ -157,20 +155,12 @@ io.on("connection", (socket) => {
   // This function serves to bind socket.io connections to user models
   let maybeUser = model.findUser(socket.handshake.session.userID);
   let userID;
-  // console.log("maybe!!!!!!!!!!!!!!!!!!!", maybeUser);
 
   socket.join("lobby");
   if (socket.handshake.session.userID && maybeUser !== undefined) {
     model.addUnregisteredSocket(socket);
-    // model.assignUnregisteredSocket(socket.socketID);
-    // model.addUnregisteredSocket(maybeUser.userID, socket);
-    // // set socket userid to current user for access when disconnecting
-    // console.log("HERE COME THE AMYBE USER:", maybeUser);
-    // socket.handshake.session.userID = maybeUser.userID;
-    // If the current user already logged in and then reloaded the page
-    console.log("bhbikbjs");
+
     model.updateUserSocket(socket.handshake.session.userID, socket);
-    console.log("emil");
 
     // Log in the user into the lobby at creation
     if (maybeUser.currentRoom != null) {
@@ -188,21 +178,13 @@ io.on("connection", (socket) => {
     });
   }
 
-  // TODO this shit aint work
   socket.on("disconnect", () => {
     console.log("Disconnecting socket...");
-    // console.log("disconnecting bittch here is emil!", maybeUser);
-    // let maybeUser = model.findUser(session.userID);
-    // let epicUser = model.findUser(socket.handshake.session.userID);
-    // console.log("userid on socket", socket.handshake.session.userID);
-    // console.log(epicUser.socketID);
-    // console.log(socket.id);
+
     if (userID) {
       maybeUser = model.findUser(userID);
-      console.log("here985878");
     }
     if (maybeUser != undefined && maybeUser.socket == socket) {
-      console.log("eiml");
       maybeUser.socketID = null;
       maybeUser.socket = null;
       maybeUser.sessionID = null;
@@ -211,7 +193,6 @@ io.on("connection", (socket) => {
 
   socket.on("updateUserID", (_userID) => {
     userID = _userID;
-    console.log("aha000000");
   });
 
   // HANDLE USER INPUTS IN-GAME

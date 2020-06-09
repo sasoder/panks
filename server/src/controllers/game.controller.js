@@ -55,44 +55,4 @@ router.get("/gameState/:roomID", (req, res) => {
   });
 });
 
-// TODO REMOVE (OLD CODE) - for sending out gamestate updates from every player
-// router.post("/updateGameState/:roomID", (req, res) => {
-//   const roomID = req.params.roomID;
-//   const roomOfID = model.findRoom(roomID);
-
-//   // Check if you are in the game
-//   if (!roomOfID.users.includes(req.session.userID)) {
-//     // Status: Forbidden
-//     res.sendStatus(403);
-//     return;
-//   }
-
-//   // Confirm that the room has an active game
-//   if (roomOfID.game === null) {
-//     // Status: Forbidden
-//     res.sendStatus(403);
-//     return;
-//   }
-
-//   const gameInRoom = roomOfID.game;
-//   // Check if it is actually your turn
-//   console.log(
-//     "game playreindex",
-//     gameInRoom.currentPlayerIndex,
-//     "req sessoin id",
-//     req.session.userID
-//   );
-//   if (
-//     gameInRoom.players[gameInRoom.currentPlayerIndex].id === req.session.userID
-//   ) {
-//     // Update gamestate
-//     model.findRoom(roomID).game.gameState = req.body.gameState;
-//     // Status: OK
-//     res.sendStatus(200);
-//   } else {
-//     // Status: Forbidden
-//     res.sendStatus(403);
-//   }
-// });
-
 module.exports = { router };

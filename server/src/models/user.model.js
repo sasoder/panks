@@ -18,6 +18,7 @@ class User {
     this.totalScore = totalScore;
     this.totalWins = totalWins;
   }
+
   getData() {
     return {
       userID: this.userID,

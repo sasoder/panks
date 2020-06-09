@@ -96,7 +96,6 @@ class Game {
     let beforeAmt = this.players.length;
     let playerIndex = this.players.findIndex((p) => p.id == userID);
     this.players = this.players.filter((p) => p.id !== userID);
-    console.log("lkeave game in game.modle");
 
     // if the person who left wasn't in the game, you shouldn't change players
     if (beforeAmt === this.players.length) return;
@@ -105,7 +104,6 @@ class Game {
     // Emit to players that someone left
     model.playerLeft(this.roomID, userID);
 
-    console.log("this players length", this.players.length);
     switch (this.players.length) {
       case 1:
         // without changing CPI to 0, the game may think that CPI is still > 0, meaning checking attributes of an undefined player
@@ -162,7 +160,7 @@ class Game {
           if (--this.gameEndTimer <= 0) {
             this.destroy();
           }
-          console.log("Destroying the game...", this.gameEndTimer);
+          console.log("Destroying the game in...", this.gameEndTimer);
         }, 1000);
       }
     }
