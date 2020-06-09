@@ -1,12 +1,12 @@
 <template>
   <div>
     <button @click="logout" id="logout-button">Logout</button>
-    <p>Welcome to the lobby, {{this.$store.state.isAuthenticated}}!</p>
+    <p>Welcome to the lobby, {{ this.$store.state.isAuthenticated }}!</p>
     <p>These are your stats:</p>
     <div id="stats-box">
-      <p>Total wins: {{totalWins}}</p>
+      <p>Total wins: {{ totalWins }}</p>
       <p>Total score: {{ parseInt(totalScore) }}</p>
-      <p>Times played: {{timesPlayed}}</p>
+      <p>Times played: {{ timesPlayed }}</p>
     </div>
     <form v-if="!userHasRoom()" v-on:submit.prevent="addRoom" id="create-box">
       <input v-model="newRoomName" type="text" placeholder="Name of new room" />
@@ -14,7 +14,12 @@
       <br />
       <button type="submit">Create Room!</button>
     </form>
-    <RoomCard ref="roomCard" v-for="room in roomList" :key="room.id" :room="room" />
+    <RoomCard
+      ref="roomCard"
+      v-for="room in roomList"
+      :key="room.id"
+      :room="room"
+    />
   </div>
 </template>
 
@@ -23,42 +28,42 @@ import RoomCard from "./components/RoomCard.vue";
 
 export default {
   components: {
-    RoomCard
+    RoomCard,
   },
   data: () => ({
     roomList: [],
     newRoomName: "",
     totalScore: 0,
     timesPlayed: 0,
-    totalWins: 0
+    totalWins: 0,
   }),
   mounted() {
     this.socket = this.$root.socket;
 
-    this.socket.on("newRoom", newRoom => {
+    this.socket.on("newRoom", (newRoom) => {
       this.roomList = [...this.roomList, newRoom];
       if (newRoom.host == this.$store.state.isAuthenticated) {
         this.$router.push(`/room/${newRoom.id}`);
       }
     });
 
-    this.socket.on("joinedRoom", newRoom => {
+    this.socket.on("joinedRoom", (newRoom) => {
       this.$router.push(`/room/${newRoom}`);
     });
 
-    this.socket.on("updatedRoomList", rooms => {
+    this.socket.on("updatedRoomList", (rooms) => {
       this.roomList = rooms;
     });
-    this.socket.on("activeGame", newRoomID => {
-      const room = this.roomList.find(r => r.id == newRoomID);
+    this.socket.on("activeGame", (newRoomID) => {
+      const room = this.roomList.find((r) => r.id == newRoomID);
       room.activeGame = true;
       const temp = this.roomList;
       this.roomList = [];
       this.roomList = temp;
     });
 
-    this.socket.on("inactiveGame", roomID => {
-      const room = this.roomList.find(r => r.id == roomID);
+    this.socket.on("inactiveGame", (roomID) => {
+      const room = this.roomList.find((r) => r.id == roomID);
       room.activeGame = false;
       const temp = this.roomList;
       this.roomList = [];
@@ -81,11 +86,11 @@ export default {
       fetch("api/user/userInfo", {
         method: "GET",
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       })
-        .then(res => res.json())
-        .then(data => {
+        .then((res) => res.json())
+        .then((data) => {
           this.totalScore = data.totalScore;
           this.timesPlayed = data.timesPlayed;
           this.totalWins = data.totalWins;
@@ -95,18 +100,18 @@ export default {
 
     userHasRoom() {
       return this.roomList.some(
-        room => room.host === this.$store.state.isAuthenticated
+        (room) => room.host === this.$store.state.isAuthenticated
       );
     },
     getActiveRooms() {
       fetch("/api/user/roomList", {
         method: "GET",
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       })
-        .then(res => res.json())
-        .then(data => {
+        .then((res) => res.json())
+        .then((data) => {
           this.roomList = data.rooms;
         })
         .catch(console.error);
@@ -124,22 +129,23 @@ export default {
       fetch("api/user/addRoom", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          roomName: this.newRoomName
-        })
+          roomName: this.newRoomName,
+        }),
       })
-        .then(resp => {
+        .then((resp) => {
           // We don't have to add to RoomList here since
           // the emit-socket-event takes care of that
+          console.log(resp);
           if (!resp.ok) {
             throw new Error("Error with adding new room...");
           }
           // Clear name of 'new Room'
           this.newRoomName = "";
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
         });
     },
@@ -147,20 +153,20 @@ export default {
       fetch("api/user/logout", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       })
-        .then(resp => {
+        .then((resp) => {
           // If something on server side went wrong...
           if (!resp.ok) {
             throw new Error("Error while logging out...");
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
         });
-    }
-  }
+    },
+  },
 };
 </script>
 

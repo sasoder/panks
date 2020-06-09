@@ -75,7 +75,7 @@ router.post("/register", (req, res) => {
 router.post("/login", (req, res) => {
   const maybeUser = model.findUser(req.body.username);
   // Only try to login if user isn't already logged in (is inside server as model)
-  if (maybeUser === undefined || maybeUser.socketID == null) {
+  if (maybeUser === undefined || maybeUser.socket == null) {
     sequelize
       .model("user")
       .findOne({

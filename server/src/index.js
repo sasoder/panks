@@ -179,15 +179,20 @@ io.on("connection", (socket) => {
   }
 
   socket.on("disconnect", () => {
-    console.log("Disconnecting socket...");
+    // console.log("Disconnecting socket...");
 
     if (userID) {
       maybeUser = model.findUser(userID);
     }
-    if (maybeUser != undefined && maybeUser.socket == socket) {
-      maybeUser.socketID = null;
-      maybeUser.socket = null;
-      maybeUser.sessionID = null;
+    // if (maybeUser != undefined && maybeUser.socket == socket) {
+    //   maybeUser.socketID = null;
+    //   maybeUser.socket = null;
+    //   maybeUser.sessionID = null;
+    // }
+    // remove the socket from user in server
+    if (maybeUser) {
+      const index = maybeUser.socket.indexOf(socket);
+      if (index > -1) maybeUser.socket.splice(index, 1);
     }
   });
 

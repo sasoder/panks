@@ -18,13 +18,13 @@ export default {
       this.logout();
     });
 
-    this.socket.on("invalidate", () => {
-      // Go back to homescreen
-      this.logout();
-      alert(
-        "This tab has been invalidated because you logged in on another tab or window"
-      );
-    });
+    // this.socket.on("invalidate", () => {
+    //   // Go back to homescreen
+    //   this.logout();
+    //   alert(
+    //     "This tab has been invalidated because you logged in on another tab or window"
+    //   );
+    // });
   },
   mounted() {},
   beforeDestroy() {
@@ -37,8 +37,8 @@ export default {
       this.$store.commit("setIsAuthenticated", null);
       // Go back to homescreen
       this.$router.push("/login");
-    }
-  }
+    },
+  },
 };
 </script>
 

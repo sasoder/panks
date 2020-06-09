@@ -76,8 +76,13 @@ exports.joinRoom = (roomID, user) => {
   // Set the current room of the user
   user.currentRoom = roomID;
   // Join the right socket.io room
-  user.socket.leave("lobby");
-  user.socket.join(roomID);
+  console.log("This many sockets connected to user:", user.socket.length);
+  user.socket.forEach((s) => {
+    s.leave("lobby");
+    s.join(roomID);
+  });
+  // user.socket.leave("lobby");
+  // user.socket.join(roomID);
 
   // Add the user to the corresponding room, only if they aren't already in the room
   if (!room.users.some((u) => u.userID === user.userID)) {
@@ -112,10 +117,10 @@ exports.leaveRoom = (roomID, userID) => {
   // Set the current room of the user to null
   user.currentRoom = null;
   // Join the right socket.io room
-  if (user.socket) {
-    user.socket.leave(roomID);
-    user.socket.join("lobby");
-  }
+  user.socket.forEach((s) => {
+    s.leave(roomID);
+    s.join("lobby");
+  });
   // Remove the user of the corresponding room
   room.removeUser(user);
 
@@ -145,14 +150,14 @@ exports.changeHost = (roomID) => {
   return room.host;
 };
 
-exports.addUser = (userID, socketID = undefined, userIP) => {
+exports.addUser = (userID, socketID = undefined) => {
   if (users[userID] == undefined) {
     users[userID] = new User(userID);
   }
-  if (socketID !== undefined) {
-    users[userID].socket = assignUnregisteredSocket(socketID);
-    users[userID].socketID = users[userID].socket.id;
-    users[userID].sessionID = users[userID].socket.handshake.sessionID;
+
+  users[userID].socket.push(assignUnregisteredSocket(socketID));
+  if (users[userID].sessionID == undefined) {
+    users[userID].sessionID = users[userID].socket[0].handshake.sessionID;
   }
   // Log in the user into the lobby at creation, or other rooms it was in before
   if (users[userID].currentRoom) {
@@ -197,7 +202,7 @@ exports.logoutUser = (userID) => {
 
   // Finally log out the user once everything is cleared
   exports.removeUser(user.userID);
-  exports.io.to(user.socketID).emit("logout");
+  exports.io.to(userID).emit("logout");
 
   // Make sure timeout doesn't duplicate if we log out manually
   clearTimeout(userTimeouts[userID]);
@@ -210,28 +215,23 @@ exports.updateUserSocketWithSocketID = (userID, socketID) => {
 exports.updateUserSocket = (userID, socket) => {
   let user = users[userID];
 
-  if (user.socketID !== null) {
-    // we emit to the previous socket that their socket is now invalid
-    console.log("Invalidating previous socket connection");
-    exports.io.to(user.socketID).emit("invalidate");
-  }
-
-  let prevSocketRooms;
-  if (user.socket) {
-    prevSocketRooms = user.socket.rooms;
-  }
+  // let prevSocketRooms;
+  // if (user.socket) {
+  //   prevSocketRooms = user.socket.rooms;
+  // }
+  // user.socket.push(socket);
 
   // we add the socket information as usual
-  user.socket = socket;
+  user.socket.push(socket);
 
-  if (prevSocketRooms) {
-    Object.entries(prevSocketRooms).forEach(([_, roomName]) => {
-      user.socket.join(roomName);
-    });
-  }
+  // if (prevSocketRooms) {
+  //   Object.entries(prevSocketRooms).forEach(([_, roomName]) => {
+  //     user.socket.join(roomName);
+  //   });
+  // }
 
-  user.socketID = socket.id;
-  user.sessionID = socket.handshake.sessionID;
+  // user.socketID = socket.id;
+  // user.sessionID = socket.handshake.sessionID;
 };
 
 exports.findUser = (userID) => users[userID];
@@ -245,6 +245,10 @@ exports.removeUser = (userID) => {
 };
 
 exports.userHasRoom = (userID) => {
+  console.log(
+    "user has room?",
+    Object.values(rooms).find((room) => room.host === userID)
+  );
   return Object.values(rooms).find((room) => room.host === userID);
 };
 
