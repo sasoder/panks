@@ -66,7 +66,8 @@ const assignUnregisteredSocket = (socketID) => {
 exports.addMessage = (roomID, message) => {
   const room = rooms[roomID];
   if (room) {
-    room.addMessagmessage);
+    room.addMessage(message);
+    exports.io.in(roomID).emit("msg", message);
   }
 };
 
@@ -111,7 +112,7 @@ exports.leaveRoom = (roomID, userID) => {
   // Set the current room of the user to null
   user.currentRoom = null;
   // Join the right socket.io room
-  if(user.socket) {
+  if (user.socket) {
     user.socket.leave(roomID);
     user.socket.join("lobby");
   }
@@ -144,7 +145,7 @@ exports.changeHost = (roomID) => {
   return room.host;
 };
 
-exports.addUser = (userID, socketID = undefined) => {
+exports.addUser = (userID, socketID = undefined, userIP) => {
   if (users[userID] == undefined) {
     users[userID] = new User(userID);
   }

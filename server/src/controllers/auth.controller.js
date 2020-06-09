@@ -105,6 +105,7 @@ router.post("/login", (req, res) => {
             if (err) console.error(err);
             else console.debug(`Saved userID: ${req.session.userID}`);
           });
+
           // Add the user to the model
           model.addUser(req.session.userID, req.session.socketID);
 
