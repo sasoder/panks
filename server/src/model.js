@@ -145,6 +145,7 @@ exports.changeHost = (roomID) => {
   return room.host;
 };
 
+
 exports.addUser = (userID, socketID = undefined, userIP) => {
   if (users[userID] == undefined) {
     users[userID] = new User(userID);

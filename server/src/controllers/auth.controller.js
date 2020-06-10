@@ -74,6 +74,20 @@ router.post("/register", (req, res) => {
 
 router.post("/login", (req, res) => {
   const maybeUser = model.findUser(req.body.username);
+
+  let foundSessionMatch = false;
+  Object.entries(model.getUsers()).forEach(([_, user]) => {
+    console.log("user", user.sessionID)
+    console.log("req", req.session.id);
+    if(user.sessionID == req.session.id) {
+      console.log("Can't login to two accounts on the same browser");
+      foundSessionMatch = true;
+    }
+  });
+  if(foundSessionMatch) {
+    res.sendStatus(403);
+    return;
+  }
   // Only try to login if user isn't already logged in (is inside server as model)
   if (maybeUser === undefined || maybeUser.socketID == null) {
     sequelize

@@ -45,7 +45,7 @@ export default {
               break;
             case 403: // Forbidden
               message =
-                "Looks like you're already logged in from somewhere else...";
+                "Looks like you're already logged in from somewhere else or trying to login to two accounts at once...";
               break;
             case 404: // Not Found
               message = "User doesn't exist";
