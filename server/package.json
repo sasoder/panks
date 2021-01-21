@@ -22,7 +22,7 @@
     "helmet": "^3.21.3",
     "helmet-csp": "^2.9.5",
     "sequelize": "^5.21.4",
-    "socket.io": "^1.7.4",
+    "socket.io": "^2.4.0",
     "sqlite3": "^4.1.1"
   }
 }
